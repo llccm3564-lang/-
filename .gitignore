@@ -1,0 +1,21 @@
+# 세션기록(용량 큼·비공개)
+_세션기록/
+*.jsonl
+
+# 안 쓰는 히어로 영상(용량)
+assets/hero1.mp4
+assets/hero2.mp4
+assets/hero3.mp4
+assets/hero4.mp4
+
+# 백업
+저장1_index.html
+
+# 기타
+node_modules/
+.env
+.env.local
+.DS_Store
+Thumbs.db
+*.log
+_contact.html

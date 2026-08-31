@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>실행연구소 — 마케팅 실행력을 연구합니다</title>
+<meta name="description" content="실행연구소(파파컴퍼니) — 인기글 상위노출, 플레이스 상위노출, 홈페이지 제작. 결과로 증명하는 마케팅 실행력." />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500&display=swap" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css" />   <!-- Wanted Sans (한글, cf-title 전용) -->
+
+<style>
+  /* 실행연구소 워드마크용 커스텀 폰트 — assets/fonts/brand.* 넣으면 우선 적용, 없으면 Noto Serif KR */
+  @font-face{
+    font-family:'BrandFont';
+    src:url('assets/fonts/ZEN-SERIF-Regular.otf') format('opentype'),
+        url('assets/fonts/ZEN-SERIF-TTF-Regular.ttf') format('truetype');
+    font-display:swap;
+  }
+  /* ============ 디자인 토큰 : 흰 6 · 회색 4 · 그린 1 (그린은 포인트만) ============ */
+  :root{
+    --brand-font:'BrandFont','Noto Serif KR',serif;   /* 실행연구소 글자 = 모던 세리프 */
+    --white:#ffffff;
+    --bg:#ffffff;
+    --bg-soft:#F6F8F7;          /* 섹션 교차 배경(회색 틴트) */
+    --gray-50:#FAFBFB;
+    --gray-100:#EFF3F1;
+    --gray-200:#E3E9E6;         /* 보더 */
+    --gray-300:#D3DBD7;
+    --ink:#121A16;              /* 본문/제목 (살짝 그린 틴트된 먹) */
+    --muted:#5C6B64;            /* 회색 텍스트 */
+    --faint:#8B968F;
+    --green:#55E85C;            /* 포인트 (커스텀 그린) */
+    --green-d:#35A941;          /* hover·텍스트용 darker */
+    --green-dd:#27A421;         /* active */
+    --green-dim:rgba(85,232,92,.10);
+    --green-ring:rgba(85,232,92,.35);
+    --shadow-sm:0 1px 2px rgba(18,26,22,.04), 0 2px 8px rgba(18,26,22,.05);
+    --shadow-md:0 6px 18px rgba(18,26,22,.07), 0 2px 6px rgba(18,26,22,.05);
+    --shadow-green:0 10px 30px rgba(85,232,92,.18), 0 3px 10px rgba(85,232,92,.12);
+    --radius:16px;
+    --maxw:1160px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --ease-apple:cubic-bezier(.16,1,.3,1);      /* 애플식: 빠르게 시작해 길게 감속 */
+    --ease-soft:cubic-bezier(.4,0,.2,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scrollbar-gutter:stable;background:#1A1A1A}   /* 배경 다크(푸터 드러나는 영역), smooth는 Lenis가 담당 */
+  /* [G2·Lenis] 관성 스크롤 — Lenis 필수 스타일 */
+  html.lenis,html.lenis body{height:auto}
+  .lenis.lenis-smooth{scroll-behavior:auto!important}
+  .lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+  .lenis.lenis-stopped{overflow:hidden}
+  .lenis.lenis-smooth iframe{pointer-events:none}
+  body{
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;letter-spacing:-.01em;
+  }
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;
+    color:var(--green-d);letter-spacing:.02em;text-transform:uppercase}
+  .eyebrow::before{content:"";width:18px;height:2px;background:var(--green);border-radius:2px}
+  h1,h2,h3{letter-spacing:-.02em;line-height:1.2;font-weight:600}
+  .sec{padding:96px 0}
+  .sec-head{max-width:640px;margin-bottom:44px}
+  .sec-head h2{font-size:clamp(26px,3.4vw,38px);margin:14px 0 12px}
+  .sec-head p{color:var(--muted);font-size:16.5px}
+
+  /* 애플식 스쿼클(연속 곡률) — 지원 브라우저에선 부드러운 모서리, 아니면 일반 라운드로 폴백 */
+  .btn,.btn-nav,.btn-line,.scard,.svc,.member,.ref,form.card,
+  .field input,.field select,.field textarea{corner-shape:squircle}
+
+  /* ============ 버튼 ============ */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-family:inherit;font-weight:700;font-size:15px;border:0;cursor:pointer;
+    padding:13px 22px;border-radius:12px;transition:transform .18s var(--ease),
+    background-color .18s var(--ease),box-shadow .18s var(--ease),color .18s var(--ease);
+    will-change:transform}
+  .btn-primary{background:var(--green);color:#0d2116;box-shadow:var(--shadow-green)}   /* 밝은 라임 위 대비 위해 글씨 어둡게 */
+  .btn-primary:hover{background:var(--green-d);transform:translateY(-2px) scale(1.015)}
+  .btn-primary:active{background:var(--green-dd);transform:translateY(0) scale(.97)}
+  .btn-primary:focus-visible{outline:none;box-shadow:0 0 0 4px var(--green-ring)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--gray-200);box-shadow:var(--shadow-sm)}
+  .btn-ghost:hover{border-color:var(--green);color:var(--green-d);transform:translateY(-2px)}
+  .btn-ghost:active{transform:translateY(0) scale(.98)}
+  .btn-ghost:focus-visible{outline:none;box-shadow:0 0 0 4px var(--green-ring)}
+
+  /* ============ 네비 ============ */
+  /* 네비: 상단(흰 배경)=먹글씨 / 영상 풀스크린 구간=흰글씨(ondark) / 히어로 지나면 solid(흰배경+중앙로고) */
+  header.nav{position:fixed;top:0;left:0;right:0;z-index:50;color:#161514;
+    transition:background .3s var(--ease),box-shadow .3s var(--ease),border-color .3s,color .13s,transform .45s var(--ease)}
+  header.nav.hide{transform:translateY(-105%)}   /* 내릴 때 숨김 */
+  header.nav.ondark{color:#fff}
+  header.nav.solid{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);color:#161514;
+    border-bottom:1px solid var(--gray-200);box-shadow:var(--shadow-sm)}
+  .nav-in{display:grid;grid-template-columns:1fr auto;align-items:center;height:64px;padding:0 40px}   /* 좌:링크 / 우:로고 */
+  .nav-left{justify-self:start;display:flex;align-items:center;gap:16px}
+  .nav-links{display:flex;align-items:center;gap:26px;opacity:0;transform:translateY(-3px);
+    transition:opacity .6s var(--ease) .6s}   /* 인트로 후반 페이드인, 살짝 위로 */
+  .nav-links a{font-size:14.5px;font-weight:500;color:currentColor;opacity:.8;transition:opacity .15s}
+  .nav-links a:hover{opacity:1}
+  /* 중앙 로고 — 창 밖(위)에서 내려와 상단 안착. top(=padding-top) 고정, 커진 만큼 아래로 확장(line-height:1+align-start). */
+  .nav-logo{justify-self:center;align-self:start;padding-top:8px;line-height:1;
+    font-family:var(--brand-font);font-size:26px;font-weight:400;letter-spacing:.04em;color:currentColor;
+    pointer-events:none;transform:translateY(-60vh);will-change:transform;
+    transition:transform .9s var(--ease) .3s,color .13s}
+  .nav-right{justify-self:end;display:flex;align-items:center;gap:12px}
+  /* 문의하기 = 상단바 흰색(solid)일 때만 나타남. 그 전(영상 위)엔 숨김 */
+  .btn-nav{font-size:14px;font-weight:600;color:var(--green-d);padding:9px 16px;border:1px solid var(--green);
+    border-radius:10px;opacity:0;pointer-events:none;transition:opacity .3s var(--ease),background .2s,color .2s}
+  header.nav.solid .btn-nav{opacity:1;pointer-events:auto}
+  header.nav.solid .btn-nav:hover{background:var(--green);color:#fff}
+  .menu-btn{display:none;background:none;border:0;cursor:pointer;padding:8px}
+  .menu-btn span{display:block;width:22px;height:2px;background:currentColor;margin:4px 0;border-radius:2px}
+  @media(max-width:860px){.nav-links{display:none}.menu-btn{display:block}.nav-right .btn-nav{display:none}}
+
+  /* ============ 히어로 ============ */
+  /* 히어로 = 핀 스크롤(높이 200vh). 영상은 '처음부터 풀스크린 고정'.
+     글자 안무: (A) 큰 글자 왼쪽 → 위로 올라가며 사라짐  →  (B) 작은 글자 중앙에서 천천히 내려옴. */
+  /* 히어로 = 화면에 고정(fixed). 아래 흰 콘텐츠(#siteBody)가 위로 차오르며 영상을 덮음 */
+  .hero{position:fixed;top:0;left:0;width:100%;height:100vh;background:#161514;z-index:0;overflow:hidden}
+  .hero-stick{position:absolute;inset:0;overflow:hidden;background:#1A1A1A}
+  #siteBody{position:relative;z-index:1;background:#fff;margin-top:300vh;
+    margin-bottom:294px;border-bottom-left-radius:30px;border-bottom-right-radius:30px}   /* 아래 여백=푸터 높이(드러날 공간), 하단 둥근 모서리 */
+  .hero-vid{position:absolute;inset:0;overflow:hidden;background:#0f0d0a}
+  .hv{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;display:block;
+    opacity:0;transition:opacity .8s var(--ease)}   /* contain = 안 짤림(대신 여백은 검정) */
+  .hv.active{opacity:1}
+  .hv.hv-dim{filter:saturate(.62) brightness(.72)}   /* 23258: 채도↓·어둡게 */
+  .hero-vid .ov{position:absolute;inset:0;z-index:2;
+    background:
+      linear-gradient(105deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,.22) 42%,rgba(0,0,0,.12) 100%),
+      linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,.42) 45%,rgba(0,0,0,.62))}
+  /* 하단 진행 바(영상 개수만큼). 활성 바가 재생시간 따라 채워짐. 클릭=해당 영상 이동 */
+  .hero-bars{position:absolute;bottom:30px;left:50%;transform:translate(-50%,30px);opacity:0;z-index:5;display:flex;gap:10px;
+    transition:transform .5s var(--ease),opacity .5s var(--ease)}   /* 리버스(올릴때)=딜레이 없이 빠르게 */
+  .hbar{width:62px;height:3px;padding:0;border:0;border-radius:3px;background:rgba(255,255,255,.28);
+    position:relative;overflow:hidden;cursor:pointer;transition:height .15s}
+  .hbar:hover{height:4px}
+  .hbar i{position:absolute;left:0;top:0;height:100%;width:100%;background:#fff;border-radius:3px;
+    transform:scaleX(0);transform-origin:left;will-change:transform}
+  /* (A) 큰 글자 — 왼쪽, 흰색 */
+  /* 맨 위에서 초록 밴드 경계에 걸침(하단 58% 영상 위). 색=흰색(살짝 회색기), 모던 세리프 */
+  .hero-word-big img{display:block;width:clamp(300px,44vw,700px);height:auto;filter:drop-shadow(0 6px 24px rgba(0,0,0,.45))}
+  /* [히어로 카피] 로고 사라진 뒤 아래→위 라인별 시차 등장(녹화6) */
+  .hero-copy{position:absolute;top:22vh;left:3.5vw;z-index:3;max-width:min(940px,92vw);text-align:left;pointer-events:none}
+  .hero-copy .hc-line{opacity:0;transform:translateY(90px);will-change:transform,opacity;
+    transition:opacity 1.7s var(--ease),transform 1.7s var(--ease)}
+  .hero-copy .hc-big1{font-family:var(--brand-font);color:#fff;font-weight:400;
+    font-size:clamp(28px,4.08vw,56px);letter-spacing:-.01em;line-height:1.15;margin:0 0 0 16px}
+  .hero-copy .hc-big2{color:var(--green);font-weight:800;
+    font-size:clamp(69px,10.5vw,156px);letter-spacing:-.03em;line-height:1.02;margin:2px 0 0;
+    filter:drop-shadow(0 4px 20px rgba(0,0,0,.4))}
+  .hero-copy .hc-small{color:rgba(255,255,255,.82);font-weight:500;
+    font-size:clamp(21px,2.3vw,28px);line-height:1.2;margin:8px 0 0 16px;
+    transform:translateY(-90px)}   /* 작은 글씨는 위에서 아래로 내려옴(녹화6), 더 크게 */
+  .hero-copy .hc-small-b{margin-top:6px}   /* 바이럴~ ↔ 비즈니스에~ 간격 */
+  .hero-copy .hc-small2{margin-top:8px;color:rgba(255,255,255,.92);font-weight:600}   /* 비즈니스에~ ↔ 실행연구소 마케팅~ 간격 */
+  body.hero-go .hero-copy .hc-line{opacity:1;transform:none}
+  body.hero-go .hero-copy .hc-big1{transition-delay:.55s}
+  body.hero-go .hero-copy .hc-big2{transition-delay:.66s}
+  body.hero-go .hero-copy .hc-small{transition-delay:.55s}
+  body.hero-go .hero-copy .hc-small2{transition-delay:.66s}
+  @media(max-width:640px){.hero-copy{top:19vh}}
+  .hero-word-big{position:absolute;top:20vh;left:3.5vw;z-index:3;pointer-events:none;white-space:nowrap;
+    font-family:var(--brand-font);font-weight:400;letter-spacing:-.01em;line-height:.9;font-size:clamp(50px,11.7vw,189px);
+    color:#EEF0EE;will-change:transform;transition:transform .9s var(--ease) .6s}   /* 리버스=늦게 내려옴 */
+  /* (B) 작은 글자 — 중앙, 처음엔 숨김 → 위에서 내려옴 */
+  .btn-line{display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;
+    min-width:132px;padding:12px 22px;border-radius:12px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.55);
+    transition:background .2s,color .2s,transform .18s var(--ease)}
+  .btn-line:hover{transform:translateY(-2px)}
+  .hero-cta{position:absolute;left:50%;bottom:13vh;translate:-50% 0;z-index:4;display:flex;gap:12px;
+    opacity:0;pointer-events:none;transition:opacity .4s var(--ease)}   /* 리버스=바와 함께 빠르게 사라짐 */
+  /* 스크롤 살짝 내리면(body.hero-go) 아래 상태로 '자동재생' — 더 안 내려도 완성됨 */
+  body.hero-go .hero-word-big{transform:translateY(-80vh);transition:transform .9s var(--ease)}   /* 내릴때=바로 위로 */
+  body.hero-go .nav-logo{transform:translateY(0)}            /* 중앙 로고 내려와 안착 */
+  body.hero-go .nav-links{opacity:1}                          /* 네비 메뉴 페이드인 */
+  body.hero-go .hero-bars{transform:translate(-50%,0);opacity:1;
+    transition:transform .7s var(--ease) .5s,opacity .7s var(--ease) .5s}  /* 내릴때=딜레이 두고 올라옴 */
+  body.hero-go .hero-scroll{opacity:0;transition:opacity .3s var(--ease)}  /* 내릴때=바로 사라짐 */
+  body.hero-go .hero-cta{opacity:1;pointer-events:auto;transition:opacity .5s var(--ease) .6s}   /* 내릴때=딜레이 후 등장 */
+  .hero-scroll{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:4;color:rgba(255,255,255,.55);
+    font-size:15px;font-weight:200;letter-spacing:.22em;transition:opacity .4s var(--ease) .7s}   /* 리버스=바 다 올라간 뒤(.7s) 등장 */
+  @media(max-width:860px){
+    .hero-word-big{top:20vh;left:20px;font-size:clamp(46px,15vw,120px)}
+  }
+
+  /* ============ [가로 스크롤 에디토리얼] 마케팅의 이유 ============ */
+  .hsec{position:relative;height:1100vh;background:#fff}   /* 가로(03 홀드) + Work 벌어짐/로고/통계 통합 */
+  .hsec .hstick{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center}
+  .hsec .htrack{position:relative;display:flex;align-items:center;height:100%;padding:0 9vw;gap:8vw;will-change:transform}
+  .hsec .hgroup{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:32vw;height:100%}
+  .hsec .hline{position:absolute;left:0;right:-30vw;top:calc(50% + 10px);height:1.7px;background:#111111}   /* 03(비지니스 파트너) 바로 앞에서 끊김, 굵기 85% */
+  .hsec .hgap{flex:0 0 auto;width:68vw}   /* 03↔WORK 간격(1.3배) */
+  .hsec .hcol-up{transform:translateY(-48px)}     /* 줄 위 */
+  .hsec .hcol-2a{margin-left:-14vw}               /* 어떤 사업이라도~ 왼쪽으로 */
+  .hsec .hcol-down{transform:translateY(70px);margin-left:-26vw}    /* 하지만~ 줄 아래(위로 조금 올림). 간격 원래대로 */
+  .hsec .hcol-mid{transform:translateY(10px)}     /* 가운데 줄이 가로선 중앙에 오도록 */
+  .hsec .hcol-last{position:relative;margin-left:24vw}   /* 03: 2b와 간격 넓게, 비지니스 파트너로서가 선 사이에 끼게 */
+  .hsec .hcol-last::after{content:"";position:absolute;left:100%;top:50%;margin-left:1.6vw;width:13vw;height:1.7px;background:#111111;transform:translateY(-0.85px)}   /* 파트너 뒤에서 다시 시작해 조금 이어짐, 굵기 85% */
+  .hsec .hcol{flex:0 0 auto;position:relative}
+  .hsec .hrule{flex:0 0 auto;width:1px;height:60vh;background:rgba(0,0,0,.16)}
+  .hsec .hspacer{flex:0 0 auto;width:9vw}
+  .hsec .heyebrow{display:block;font-family:var(--num);font-weight:700;font-size:13px;letter-spacing:2px;color:var(--green-d);white-space:nowrap}
+  .hsec .hmeta{display:block;margin-top:14px;font-weight:600;font-size:clamp(15px,1.5vw,19px);line-height:1.5;color:var(--muted);white-space:nowrap}
+  .hsec .hnum{position:absolute;top:-46px;left:2px;font-family:var(--num);font-weight:800;font-size:15px;color:var(--green-d)}
+  .hsec .hbig{font-weight:800;font-size:clamp(23px,5.25vw,84px);line-height:1.0;letter-spacing:-.035em;color:#111111;white-space:nowrap;margin:0}
+  .hsec .hbig-em{color:#3DBB45}   /* 가로섹션 전용 초록(다른 섹션과 별개) */
+  .hsec .hsub{font-weight:600;font-size:clamp(23px,3.24vw,47px);line-height:1.18;letter-spacing:-.02em;color:#141414;white-space:nowrap;margin:0}   /* 90% 축소 */
+  .hsec .hsub b{color:#111111;font-weight:800}
+  .hsec .hwork{font-weight:500;font-size:clamp(34px,7.34vw,121px);line-height:.9;letter-spacing:-.03em;color:#111111;white-space:nowrap;margin:0}
+  .hsec .hwork-w{display:inline-block;will-change:transform,opacity}
+  .hsec .hwork-em{display:inline-block;color:#111111;margin-left:.38em;will-change:transform,opacity}   /* 19-26 검정, Work와의 간격 */
+  @media(prefers-reduced-motion:reduce){.hsec .htrack{transform:none!important}}
+
+  /* ============ [스탯] Work 벌어짐 → 원형 로고 → 실적 통계 ============ */
+  .msec{position:relative;height:520vh;background:#fff}
+  .m-stick{position:sticky;top:0;height:100vh;overflow:hidden}
+  .m-wordwrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.38em}
+  .m-word{font-weight:500;letter-spacing:-.03em;
+    font-size:clamp(34px,7.34vw,121px);color:#111111;white-space:nowrap;will-change:transform,opacity}
+  .m-ring{position:absolute;left:50%;top:50%;width:0;height:0;perspective:1200px;transform-style:preserve-3d}
+  .m-logo{position:absolute;left:0;top:0;width:clamp(40px,4.2vw,62px);max-width:none;height:auto;opacity:0;
+    border-radius:22%;box-shadow:0 6px 16px rgba(0,0,0,.12);will-change:transform,opacity}   /* 앱 아이콘: 라운드+그림자 */
+  .m-stats{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:max-content}
+  .m-stats .m-eyebrow{font-family:var(--num);font-weight:700;font-size:14px;letter-spacing:2px;color:var(--green-d);opacity:0;margin:0 0 18px}
+  .m-stat{font-family:'Pretendard','Pretendard Variable',-apple-system,sans-serif;font-weight:700;font-size:clamp(34px,5.2vw,72px);letter-spacing:-.02em;color:#111111;line-height:1.18;margin:0;opacity:0;transform:translateY(16px);white-space:nowrap}   /* Pretendard SemiBold~Bold */
+  .m-stat .num{font-family:inherit;font-weight:700}
+  .m-stat .plus{color:#111111;font-weight:600}
+  .m-stat em{font-style:normal;font-weight:600;font-size:0.9em;color:#111111;margin-left:.24em;letter-spacing:-.02em}   /* 한글 라벨만 90% */
+  @media(prefers-reduced-motion:reduce){.m-logo,.m-stat,.m-stats .m-eyebrow{opacity:1}.m-word{opacity:1}}
+
+  /* ============ 통계(숫자) ============ */
+  /* 스탯 = 핀 시네마틱: 사진 팝업 → 확대되어 배경 → 카드 등장 */
+  .stats{position:relative;height:300vh;background:#fff}
+  .stats-stick{position:sticky;top:0;height:100vh;overflow:hidden;background:#fff}
+  .st-bg{position:absolute;left:50%;top:50%;width:360px;height:230px;transform:translate(-50%,-50%);
+    border-radius:22px;corner-shape:squircle;overflow:hidden;box-shadow:var(--shadow-md);z-index:1;will-change:transform,width,height}
+  .st-bg img{width:100%;height:100%;object-fit:cover;display:block}
+  .st-ov{position:absolute;inset:0;background:#0e1210;opacity:0}
+  .st-rise{position:absolute;inset:0;z-index:3;background:#fff;transform:translateY(100%);will-change:transform}   /* 스탯 끝 흰색 차오름 */
+  .st-content{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+    opacity:0;will-change:opacity,transform}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;max-width:1330px}   /* 1.15배 */
+  .stat-grid .scard.reveal{opacity:1;transform:none;filter:none;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+  /* 전부 밝은 회색 카드 · 라운드 · 부드러운 레이어드 그림자 + 헤어라인 · hover 리프트 */
+  .scard{position:relative;overflow:hidden;min-height:530px;border-radius:8px;background:#EEF1EF;
+    box-shadow:0 1px 2px rgba(18,26,22,.04),0 12px 30px rgba(18,26,22,.06);
+    outline:1px solid rgba(18,26,22,.05);outline-offset:-1px;
+    transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+  .scard:hover{transform:translateY(-6px);box-shadow:0 2px 6px rgba(18,26,22,.06),0 24px 50px rgba(18,26,22,.12)}
+  /* 이미지 넣을 자리(나중에): .scard 안에 <img class="sc-bg"> 넣으면 hover 시 살짝 확대 */
+  .sc-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+    transition:transform .5s var(--ease)}
+  .scard:hover .sc-bg{transform:scale(1.04)}
+  /* 스탯 카드 아주 느리고 미세한 둥둥(위아래) — 카드마다 살짝 다른 주기/위상 */
+  @keyframes statFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .stat-grid .scard{animation:statFloat 8s ease-in-out infinite;will-change:transform}
+  .stat-grid .scard:nth-child(2){animation-duration:9.4s;animation-delay:-2.1s}
+  .stat-grid .scard:nth-child(3){animation-duration:8.6s;animation-delay:-4.3s}
+  @media(prefers-reduced-motion:reduce){.stat-grid .scard{animation:none}}
+  .scard .sc-body{position:relative;z-index:2;padding:38px 32px;display:flex;flex-direction:column;height:100%;color:var(--ink)}
+  .sc-label{font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--green-d);margin-bottom:auto}   /* 작은 라벨 위로, 숫자는 아래로 */
+  .sc-num{font-size:clamp(52px,5.6vw,78px);font-weight:200;letter-spacing:-.03em;line-height:1;
+    font-variant-numeric:tabular-nums;margin:0 0 14px}   /* 얇은 큰 숫자 */
+  .sc-plus{color:var(--green);font-weight:300;margin-left:2px}
+  .sc-desc{font-size:14.5px;line-height:1.7;color:var(--muted)}
+  /* 이미지 들어간 카드: 어두운 오버레이 + 흰 글자 */
+  .scard.has-img::after{content:"";position:absolute;inset:0;z-index:1;
+    background:linear-gradient(180deg,rgba(12,18,15,.20),rgba(12,18,15,.68))}
+  .scard.has-img .sc-body{color:#fff}
+  .scard.has-img .sc-label{color:#bfe9d5}
+  .scard.has-img .sc-plus{color:#7ef0bd}
+  .scard.has-img .sc-desc{color:rgba(255,255,255,.85)}
+  @media(max-width:860px){.stat-grid{grid-template-columns:1fr}.scard{min-height:280px}}
+
+  /* ============ 십자가 시네마틱 ============ */
+  .crossfx{position:relative;height:426vh;background:#fff;margin-top:60vh}   /* 높일수록 스크롤 더 굴려야 진행. 끝에 '서비스 유지' 구간 포함. margin-top=스텟↔십자가 거리(1.5배) */
+  .cf-stick{position:sticky;top:0;height:100vh;overflow:hidden;background:#fff}
+  .cf-panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:718px;height:320px;background:#1A1A1A;border-radius:0;
+    overflow:hidden;z-index:1;will-change:width,height}   /* overflow:hidden → 십자가는 박스 안에서만 보임. 가로 1.15배 */
+  .cf-title{position:absolute;left:50%;top:5vh;transform:translateX(-50%);z-index:0;opacity:0;
+    font-family:'Wanted Sans Variable','Wanted Sans','Pretendard',sans-serif;
+    color:#1A1A1A;font-size:clamp(31px,4.08vw,53px);font-weight:630;letter-spacing:-.02em;
+    white-space:nowrap;pointer-events:none;will-change:transform,opacity}   /* 박스 밖 인트로 타이틀(Wanted Sans, 박스와 같은색) → JS로 페이드+상승 등장 → 박스 커지며 잠식 */
+  .cf-cross{position:absolute;left:50%;top:50%;z-index:2;will-change:transform}
+  .cf-tile{position:absolute;left:0;top:0;background:var(--green);will-change:transform,opacity}
+  /* [X1] 십자가 부서진 뒤 회색 전체화면에 서비스 등장 (로고+이름만, hover 시 홈페이지+설명) */
+  .cf-svc{position:absolute;inset:0;z-index:3;display:grid;place-content:center;justify-items:center;
+    padding:6vh 5vw;opacity:0;pointer-events:none;transition:opacity .55s var(--ease-apple)}
+  .cf-svc.show{opacity:1}
+  .cf-svc.live{pointer-events:auto}
+  .cf-svc-head{text-align:center;margin-bottom:34px}
+  .cf-svc-head .eyebrow{color:var(--green)}
+  .cf-svc-head h2{color:#fff;font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;margin-top:6px}
+  .cf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;width:min(980px,92vw);align-items:start}
+  .cf-s{position:relative;display:block;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.12);
+    border-radius:16px;padding:22px 20px;overflow:hidden;
+    transition:background .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease)}
+  .cf-s:hover{background:rgba(255,255,255,.075);border-color:var(--green);transform:translateY(-3px)}
+  .cf-s-top{display:flex;align-items:center;gap:12px}
+  .cf-s .ico{width:42px;height:42px;border-radius:11px;background:var(--green-dim);display:grid;place-items:center;flex:0 0 auto}
+  .cf-s .ico span{width:18px;height:18px;border-radius:5px;background:var(--green)}
+  .cf-s h3{color:#fff;font-size:16px;letter-spacing:-.01em}
+  /* 홈페이지 미리보기 창(브라우저 창처럼 커서 근처 팝업) */
+  #cfPreview{position:fixed;z-index:220;width:340px;pointer-events:none;opacity:0;
+    transform:translateY(10px) scale(.95);transform-origin:top left;
+    background:#fff;border:1px solid var(--gray-200);border-radius:14px;overflow:hidden;
+    box-shadow:0 24px 60px -12px rgba(0,0,0,.55),0 8px 20px -8px rgba(0,0,0,.4);
+    transition:opacity .22s var(--ease-apple),transform .22s var(--ease-apple)}
+  #cfPreview.on{opacity:1;transform:translateY(0) scale(1)}
+  #cfPreview .bar{display:flex;align-items:center;gap:6px;padding:9px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+  #cfPreview .bar i{width:9px;height:9px;border-radius:50%;background:var(--gray-300);display:inline-block}
+  #cfPreview .bar .u{margin-left:8px;font-size:11.5px;color:var(--faint);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #cfPreview img{width:100%;height:190px;object-fit:cover;object-position:top;background:var(--gray-100);display:block}
+  #cfPreview .cap{padding:11px 14px;font-size:13px;font-weight:600;color:var(--muted);line-height:1.55}
+  @media(hover:none){#cfPreview{display:none}}
+  @media(max-width:860px){.cf-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.cf-grid{grid-template-columns:1fr}}
+
+  /* ============ 서비스 (hover 미리보기) ============ */
+  /* 서비스 = 평범한 흰 배경 섹션(효과 없음) */
+  #services{background:#fff}
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .svc{position:relative;background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);
+    padding:26px 24px;box-shadow:var(--shadow-sm);transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .2s var(--ease);
+    cursor:pointer;overflow:hidden}
+  .svc:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--green)}
+  .svc::before{content:"";position:absolute;inset:0 auto auto 0;width:100%;height:3px;
+    background:linear-gradient(90deg,var(--green),#9CFD97);transform:scaleX(0);transform-origin:left;transition:transform .25s var(--ease)}
+  .svc:hover::before{transform:scaleX(1)}
+  .svc .ico{width:46px;height:46px;border-radius:12px;background:var(--green-dim);display:grid;place-items:center;margin-bottom:16px}
+  .svc-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .svc-top .ico{margin-bottom:0}
+  .svc-url{font-size:13px;font-weight:600;color:var(--green-d)}
+  .svc .ico span{width:20px;height:20px;border-radius:5px;background:var(--green)}
+  .svc h3{font-size:18px;margin-bottom:8px}
+  .svc p{color:var(--muted);font-size:14.5px;margin-bottom:16px}
+  .svc .more{display:inline-flex;align-items:center;gap:6px;color:var(--green-d);font-weight:700;font-size:14px}
+  .svc .more::after{content:"→";transition:transform .2s var(--ease)}
+  .svc:hover .more::after{transform:translateX(4px)}
+  @media(max-width:860px){.svc-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.svc-grid{grid-template-columns:1fr}}
+  /* 커서 따라다니는 웹페이지 미리보기 팝업 */
+  #svc-preview{position:fixed;z-index:80;width:320px;pointer-events:none;opacity:0;transform:translateY(8px) scale(.96);
+    transition:opacity .16s var(--ease),transform .16s var(--ease);background:#fff;border:1px solid var(--gray-200);
+    border-radius:14px;overflow:hidden;box-shadow:var(--shadow-md)}
+  #svc-preview.on{opacity:1;transform:translateY(0) scale(1)}
+  #svc-preview .bar{display:flex;align-items:center;gap:6px;padding:9px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+  #svc-preview .bar i{width:9px;height:9px;border-radius:50%;background:var(--gray-300);display:inline-block}
+  #svc-preview .bar .u{margin-left:8px;font-size:11.5px;color:var(--faint);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #svc-preview img{width:100%;height:180px;object-fit:cover;background:var(--gray-100)}
+  #svc-preview .cap{padding:10px 13px;font-size:13px;font-weight:600;color:var(--muted)}
+  @media(hover:none){#svc-preview{display:none}}
+
+  /* ============ 조직도 ============ */
+  #team{position:relative;background:#fff}
+  /* Phase 1: 인트로 띠(가로 블록 왼→오 차오름) */
+  .team-intro-wrap{position:relative;height:230vh}   /* 채움+홀드+사라짐 스크롤 길이 */
+  .team-intro{position:sticky;top:0;height:100vh;overflow:hidden;display:grid;place-items:center start;padding-left:7vw;background:#fff}   /* 왼쪽 정렬 */
+  .band-fill{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}   /* 섹션 꽉 채움(아래→위) */
+  .team-intro-title{position:relative;z-index:2;text-align:left;opacity:0;will-change:opacity}
+  .team-intro-title h2{font-size:clamp(26px,3.4vw,38px);font-weight:480;letter-spacing:-.02em;color:#111111;margin:0 0 0 10px;text-transform:uppercase}   /* OUR TEAM 대문자, 크기 반, 검정, 살짝 오른쪽 */
+  .team-intro-title p{font-size:clamp(66px,7.2vw,93px);color:#111111;margin:8px 0 0;font-weight:600;line-height:1.1}   /* 한글 3배, 검정 */
+  .rot-word{display:inline-block;overflow:hidden;height:1.1em;line-height:1.1;vertical-align:bottom}   /* 세로 롤 창(녹화13) */
+  .rot-reel{display:block;will-change:transform}
+  .rot-reel span{display:block;height:1.1em;line-height:1.1}
+  /* Phase 2: 검정 카드창(페이지 고정, 안쪽만 스크롤, 2줄) */
+  .team-cards-wrap{position:relative;height:560vh}   /* 내부 스크롤 길이(전환 더 나중에) */
+  .team-tail{height:160vh;background:#fff}   /* 검정 박스 아래 흰 공간(섹션 길이). refs가 끝 100vh 덮음 → 실제 흰 ~60vh */
+  /* 플렉서스(5노드 궤도) */
+  .team-plexus-wrap{position:relative;height:720vh;background:#55E85C}
+  .team-plexus{position:sticky;top:0;height:100vh;overflow:hidden;background:#55E85C}
+  #plexusCv{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
+  .plexus-exit{position:absolute;left:7vw;top:50%;transform:translateY(-50%);z-index:4;color:#111111;font-weight:600;font-size:clamp(48px,7.2vw,93px);line-height:1.1}
+  .plexus-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;text-align:center;color:#111111;font-weight:700;font-size:clamp(22px,2.6vw,34px);line-height:1.45;opacity:0;pointer-events:none;white-space:nowrap}
+  .plexus-node{position:absolute;left:0;top:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;will-change:transform,opacity;pointer-events:none}
+  .plexus-node .pn-dot{width:66px;height:66px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,0,0,.18);flex:0 0 auto}
+  .plexus-node .pn-dot svg{width:30px;height:30px}
+  .plexus-node .pn-ai{font-size:22px;font-weight:800;color:#111111;letter-spacing:.5px}
+  .plexus-node .pn-lab{text-align:center;line-height:1.2}
+  .plexus-node .pn-lab b{display:block;font-size:16px;font-weight:800;color:#111111}
+  .plexus-node .pn-lab i{display:block;font-size:11px;font-style:normal;letter-spacing:1.5px;color:#111111;opacity:.7;margin-top:2px}
+  .team-cards{position:sticky;top:0;height:100vh;display:grid;place-items:center;background:#fff}
+  .cards-viewport{position:relative;width:min(1120px,92%);height:82vh;background:#111111;border-radius:13px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.22)}   /* 곡률 13px */
+  .cards-inner{position:absolute;left:0;top:0;width:100%;padding:0 44px;will-change:transform}
+  .team-group{height:82vh;display:flex;flex-direction:column;justify-content:center;margin:0}   /* 그룹=페이지(카드·글씨 중앙, 위아래 여백) */
+  .team-group:last-child{margin-bottom:0}
+  .team-group h3{font-size:15px;color:#3DBB45;margin-bottom:16px;display:flex;align-items:center;gap:10px}   /* 부서 제목(검정 위 초록) */
+  .team-group h3::before{content:"";width:8px;height:8px;border-radius:3px;background:#3DBB45}
+  .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:25px 18px;max-width:85%;margin:0 auto}   /* 카드 85%, 위아래 간격 1.4배(row 25px) */
+  /* 초상 카드 — 효과 전부 제거(정적), 하단에 이름·직책 */
+  .member{position:relative;aspect-ratio:25/28;border-radius:0;overflow:hidden;background:var(--gray-100);cursor:pointer}   /* 높이 1.2배(15/14→25/28) */
+  .member img{width:100%;height:100%;object-fit:cover}
+  /* 가독용 최소 그라디언트(블러·hover 효과 없음) */
+  .member::after{content:"";position:absolute;left:0;right:0;bottom:0;height:38%;z-index:1;
+    background:linear-gradient(180deg,transparent,rgba(0,0,0,.42))}
+  /* 이름·직책 한 줄 */
+  .m-cap{position:absolute;left:18px;right:18px;bottom:16px;z-index:2;color:#fff;
+    display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+  .m-nm{font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+  .m-role{font-size:12.5px;color:rgba(255,255,255,.8)}
+  .m-desc{font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.85);margin-top:8px;
+    max-height:0;opacity:0;overflow:hidden;transition:max-height .45s var(--ease),opacity .45s var(--ease)}
+  .member:hover .m-desc{max-height:80px;opacity:1}
+  /* 영업부서 지그재그 배치: 1행 왼쪽2(c1,c2) / 2행 가운데-오른쪽2(c2,c3) / 3행 3개(c1~c3) — 데스크탑만, 3열×3행 */
+  @media(min-width:861px){
+    .team-grid.stagger .member:nth-child(1){grid-column:1;grid-row:1}
+    .team-grid.stagger .member:nth-child(2){grid-column:2;grid-row:1}
+    .team-grid.stagger .member:nth-child(3){grid-column:2;grid-row:2}
+    .team-grid.stagger .member:nth-child(4){grid-column:3;grid-row:2}
+    .team-grid.stagger .member:nth-child(5){grid-column:1;grid-row:3}
+    .team-grid.stagger .member:nth-child(6){grid-column:2;grid-row:3}
+    .team-grid.stagger .member:nth-child(7){grid-column:3;grid-row:3}
+  }
+  @media(max-width:860px){.team-group{max-width:none}.team-grid{grid-template-columns:repeat(3,1fr);gap:14px}}
+  @media(max-width:560px){.team-grid{grid-template-columns:repeat(2,1fr)}}
+  /* 담당자 상세 모달 */
+  #member-modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:24px}
+  #member-modal.open{display:flex}
+  #member-modal .mm-back{position:absolute;inset:0;background:rgba(10,14,12,.10);backdrop-filter:blur(1px)}
+  #member-modal .mm-card{position:relative;z-index:1;background:#fff;border-radius:30px;corner-shape:squircle;
+    max-width:420px;width:100%;max-height:88vh;overflow:hidden;box-shadow:var(--shadow-md);
+    opacity:0;transform:scale(.82);transform-origin:center;
+    transition:opacity .28s var(--ease),transform .42s cubic-bezier(.34,1.42,.5,1)}   /* 가운데서 쫙 펼쳐짐(살짝 탄력) */
+  #member-modal.open .mm-card{opacity:1;transform:scale(1)}
+  /* 실제 스크롤 영역(네이티브 스크롤바 숨김) */
+  .mm-scroll{max-height:88vh;overflow-y:auto;padding:32px;scrollbar-width:none}
+  .mm-scroll::-webkit-scrollbar{display:none}
+  /* 커스텀 스크롤바 — 짧고 가운데, 얇음 (움직임 범위=가운데 34% 밴드) */
+  .mm-bar{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:4px;height:34%;
+    background:rgba(0,0,0,.06);border-radius:10px;z-index:3;opacity:0;transition:opacity .25s}
+  .mm-card:hover .mm-bar{opacity:1}
+  .mm-thumb{position:absolute;left:0;top:0;width:100%;height:40%;background:rgba(0,0,0,.3);border-radius:10px}
+  .mm-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:0;
+    background:var(--gray-100);cursor:pointer;font-size:15px;color:var(--muted);line-height:1}
+  .mm-close:hover{background:var(--gray-200);color:var(--ink)}
+  .mm-name{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+  .mm-role{font-size:14px;color:var(--green-d);font-weight:600;margin-top:1px}   /* 이름과 여백 최소 */
+  .mm-photo{margin:18px 0;border-radius:20px;overflow:hidden;aspect-ratio:3/4;background:var(--gray-100);corner-shape:squircle}
+  .mm-photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(1)}
+  .mm-bio{font-size:14.5px;line-height:1.8;color:var(--ink);white-space:pre-line}
+  .mm-extra{margin-top:14px;display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.75;color:var(--muted)}
+  .mm-extra p{margin:0}
+  .mm-qr{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:26px;padding-top:24px;
+    border-top:1px solid var(--gray-200);text-align:center;color:var(--muted);font-size:12.5px;font-weight:600;transition:color .2s}
+  .mm-qr img{width:150px;height:150px;border-radius:12px;corner-shape:squircle}
+  .mm-qr:hover{color:var(--green-d)}
+
+  /* ============ 성과 & 레퍼런스 ============ */
+  /* ===== 성과·레퍼런스 = 카드 컨베이어(녹화11 핵심 모션) ===== */
+  #refs.refsec{position:relative;height:620vh;background:#111111;margin-top:-100vh;z-index:1}   /* 480→620vh: 마지막 Stage1↔2 겹치는 구간 스크롤 길이↑ = 더 느리게. 담당자 밑에 겹쳐 깔림 → 올라가며 드러남 */
+  #about{position:relative;z-index:2;margin-top:-100vh;min-height:140vh;padding:0}   /* Stage2에서 about 커버. dwell 축소(200→140vh)로 contact 전환 더 부드럽게 */
+  #about .rv-stick{position:sticky;top:0;min-height:100vh;display:grid;place-items:center;padding:80px 0}
+  .refstick{position:sticky;top:0;height:100vh;overflow:hidden;background:transparent}   /* 다크는 #refs가 담당(부드럽게) → 언핀 튐 없음 */
+  .refbg{position:absolute;left:4vw;top:50%;transform:translateY(-50%);z-index:0;
+    font-family:'Wanted Sans Variable','Pretendard',sans-serif;font-weight:640;
+    font-size:clamp(64px,13.5vw,240px);line-height:.84;letter-spacing:-.035em;
+    color:rgba(255,255,255,.065);white-space:nowrap;pointer-events:none;user-select:none}
+  .rcard{position:absolute;left:50%;top:50%;width:min(448px,37vw);
+    transform:translate(-50%,-50%);border-radius:0;padding:18px 19px 19px;
+    opacity:0;will-change:transform,opacity;z-index:1;
+    box-shadow:0 28px 58px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:13px}
+  .rcard.c-white{background:#F4F4F2;color:#111111}
+  .rcard.c-green{background:#55E85C;color:#0d2116}
+  .rcard.c-lime{background:#E8F58C;color:#111111}
+  .rcard.c-mint{background:#C3EFCE;color:#111111}
+  .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .rc-no{font-size:11px;font-weight:700;letter-spacing:1.4px;opacity:.6;padding-top:5px}
+  .rico{width:44px;height:44px;border-radius:0;background:#141414;flex:0 0 auto;display:grid;place-items:center}
+  .rico svg{width:44px;height:44px}
+  .rico circle{fill:#e9e9e9}
+  .rico circle.g{fill:#55E85C}
+  .rc-body img{width:100%;border-radius:0;display:block}
+  .rc-chat{display:flex;flex-direction:column;gap:7px;padding:2px 0}
+  .rb{max-width:84%;padding:8px 12px;border-radius:12px;font-size:12.5px;line-height:1.45;font-weight:500}
+  .rb.them{align-self:flex-start;background:rgba(0,0,0,.09)}
+  .rb.me{align-self:flex-end;background:#141414;color:#fff}
+  .rc-foot{display:flex;align-items:center;gap:9px;font-size:clamp(14px,1.36vw,17px);font-weight:800;letter-spacing:-.01em}
+  .rc-foot .d{width:9px;height:9px;border-radius:50%;background:currentColor;flex:0 0 auto}
+  @media(max-width:860px){.rcard{width:80vw}}
+
+  /* ============ 문의 ============ */
+  .contact{background:var(--bg-soft);position:relative;
+    border-bottom-left-radius:30px;border-bottom-right-radius:30px;min-height:190vh}   /* about식 sticky 홀드용 높이(박스 고정 dwell + 아래 여백) */
+  .contact-stick{position:sticky;top:0;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:90px 0 40px}   /* 박스 화면중앙 고정(dwell) → 풀리면 푸터 리빌(about 느낌) */
+  .contact-in{display:grid;grid-template-columns:.85fr 1.15fr;gap:64px;align-items:start;
+    background:#fff;border:1.6px solid #111111;padding:54px 62px}   /* 검정 선 네모 안에 내용 */
+  .contact-info .eyebrow{color:#111111}
+  .contact-info h2{font-size:clamp(32px,4.6vw,58px);font-weight:800;letter-spacing:-.02em;line-height:1.03;margin:20px 0 20px;color:#111111}
+  .contact-info p{color:#3a3a3a;margin-bottom:0;max-width:420px;font-size:16.5px;line-height:1.55}
+  form.card{background:none;border:0;border-radius:0;padding:0;box-shadow:none}
+  .field{margin-bottom:30px}
+  .field label{display:block;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:12px;color:#111111}
+  .field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:16px;color:#111111;
+    padding:9px 2px;border:0;border-bottom:1.5px solid #111111;border-radius:0;background:transparent;transition:border-color .15s}
+  .field input::placeholder,.field textarea::placeholder{color:#bdbdbd}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-bottom-color:var(--green-d);box-shadow:none;background:transparent}
+  .field textarea{resize:vertical;min-height:80px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:34px}
+  .consent{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:#555;margin:6px 0 24px;line-height:1.6}
+  .consent input{width:17px;height:17px;margin-top:2px;accent-color:var(--green);flex:0 0 auto}
+  form.card .btn-primary{width:auto;padding:16px 36px;letter-spacing:1px;border-radius:0}
+  @media(max-width:860px){.contact-in{grid-template-columns:1fr;gap:32px;padding:32px 26px}.row2{grid-template-columns:1fr}}
+
+  /* ============ 푸터 ============ */
+  footer.ft{background:#1A1A1A;color:#BDBDBD;padding:52px 0 30px;
+    position:fixed;left:0;right:0;bottom:0;z-index:0;visibility:hidden}   /* 하단 고정 → 콘텐츠가 올라가며 드러남(Mobbin식). 히어로 존에선 숨김(JS로 표시) */
+  body.ft-on footer.ft{visibility:visible}
+  .ft-wrap{padding:0 clamp(28px,4vw,72px)}
+  .ft-top{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;padding-bottom:30px}
+  .ft-logo{display:inline-block;margin-top:14px;font-family:var(--brand-font);font-size:24px;font-weight:400;letter-spacing:.04em;color:#fff}
+  .ft-logo{pointer-events:none}   /* 클릭·호버 없는 순수 이미지 */
+  .ft-logo img{display:block;height:162px;width:auto;filter:brightness(.6);transform:translate(-40px,70px)}   /* 1.5배 + 왼쪽 아래로, 소셜 아이콘과 같은 회색 톤 */
+  .ft-desc{max-width:340px;font-size:14px;margin-top:14px;color:#9A9A9A}
+  .ft-social{margin-top:24px;display:flex;gap:26px;align-items:center}
+  .soc{display:inline-grid;place-items:center;color:#9A9A9A;transition:color .2s,filter .2s}
+  .soc:hover{color:#5E5E5E}   /* 확대 아님 — 로고가 더 어두워짐 */
+  .soc svg{width:27px;height:27px;fill:currentColor}
+  .soc img{width:29px;height:29px;object-fit:contain}
+  .soc:hover img{filter:brightness(.62)}   /* 가공 이미지(카톡)도 hover 시 어두워짐 */
+  .soc:nth-child(2) svg{width:32px;height:32px}   /* 유튜브 1.2배 크게 */
+  /* 사업자정보: 블록은 오른쪽, 글자는 왼쪽정렬 */
+  .ft-biz{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;align-self:flex-end}
+  .ft-biz span{font-size:13px;color:#9A9A9A}
+  .ft-biz span b{color:#CFCFCF;font-weight:600;margin-right:8px}
+  @media(max-width:640px){.ft-biz{margin-top:20px}}
+  .ft-cols{display:flex;gap:56px;flex-wrap:wrap}
+  .ft-col h4{color:#fff;font-size:14px;margin-bottom:12px}
+  .ft-col a{display:block;font-size:14px;color:#8FA199;margin-bottom:9px;transition:color .15s}
+  .ft-col a:hover{color:var(--green)}
+  .ft-bot{margin-top:30px;padding-top:22px;border-top:1px solid rgba(255,255,255,.08);
+    font-size:13px;color:#757575;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+  /* ============ 스크롤 등장 애니 (reveal) — 애플식: 블러 걷히며 미세 스케일+상승 ============ */
+  .reveal{opacity:0;transform:translateY(26px) scale(.986);filter:blur(4px);
+    transition:opacity .9s var(--ease-apple),transform .9s var(--ease-apple),filter .9s var(--ease-apple)}
+  .reveal.in{opacity:1;transform:none;filter:none}
+  /* reveal 변형 — 다양성 */
+  .reveal.rv-scale{transform:scale(.93);filter:blur(5px)}
+  .reveal.rv-left{transform:translateX(-42px);filter:blur(3px)}
+  .reveal.rv-right{transform:translateX(42px);filter:blur(3px)}
+  .reveal.rv-scale.in,.reveal.rv-left.in,.reveal.rv-right.in{transform:none;filter:none}
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;scroll-behavior:auto!important}
+    .reveal{opacity:1;transform:none;transition:none}
+  }
+
+  /* 토스트 */
+  #toast{position:fixed;left:50%;bottom:30px;translate:-50% 0;background:var(--ink);color:#fff;
+    padding:13px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:var(--shadow-md);
+    opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:90;white-space:pre-line;text-align:center}
+  #toast.show{opacity:1;transform:translateY(-4px)}
+
+  /* ================================================================
+     시네마틱 효과 — 섹션별 번호 (나중에 "H1", "R2"처럼 지칭해서 수정)
+     G=전역 · H=히어로 · S=서비스 · T=담당자 · R=성과 · C=문의
+     ================================================================ */
+
+  /* [G8] 로드 인트로 — 검은 화면에서 '실행연구소'가 흐릿하게 떠올라 선명해진 뒤 사라짐 */
+  #intro{position:fixed;inset:0;z-index:200;background:#0E0E0E;display:grid;place-items:center;
+    transition:opacity .9s var(--ease-apple);will-change:opacity}
+  #intro.hide{opacity:0;pointer-events:none}
+  /* 5글자 균일 소프트페이드 → 히어로 글자로 morph */
+  #intro .intro-word{font-family:var(--brand-font);color:#EEF0EE;
+    font-size:clamp(25px,4.2vw,58px);letter-spacing:-.01em;line-height:.9;
+    display:inline-flex;transform-origin:50% 100%;will-change:transform;
+    transition:transform .7s var(--ease-apple)}
+  #intro .intro-word .ic{display:inline-block;opacity:0;filter:blur(6px);transform:translateY(7px);
+    transition:opacity .6s var(--ease-apple),filter .6s var(--ease-apple),transform .6s var(--ease-apple)}
+  #intro .intro-word .ic.on{opacity:1;filter:blur(0);transform:none}
+
+  /* [G7] 범용 패럴럭스 — data-par 요소에 JS가 translate/scale 적용(이동+스케일 깊이감) */
+  [data-par]{will-change:transform}
+
+  /* [G1] 상단 스크롤 진행바 (얇은 그린 라인) */
+  #scroll-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;transform:scaleX(0);
+    transform-origin:left;background:linear-gradient(90deg,var(--green),#9CFD97);
+    will-change:transform;pointer-events:none}
+
+  /* [G4] 텍스트 마스크 리빌 — 제목이 아래에서 쓸려 올라오며 나타남 */
+  .mask-reveal{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em}
+  .mask-reveal>span{display:inline-block;transform:translateY(110%);transition:transform 1.05s var(--ease-apple)}
+  .mask-reveal.in>span{transform:translateY(0)}
+
+  /* [G5] 커스텀 커서 (그린 화살표, 맥 커서 모양, hover 시 확대) — 마우스 기기만 */
+  @media(hover:hover) and (pointer:fine){
+    .cur-dot{position:fixed;top:0;left:0;z-index:120;pointer-events:none;will-change:transform;
+      margin:-2px 0 0 -3px}   /* 화살표 tip(3,2)이 실제 커서 위치에 오도록 보정 */
+    .cur-dot svg{display:block;width:26px;height:26px;transform-origin:3px 2px;
+      transition:transform .2s var(--ease);filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+    .cur-dot svg path{fill:var(--green);stroke:#fff;stroke-width:1.4;stroke-linejoin:round}
+    .cur-dot.big svg{transform:scale(1.45)}   /* 링크·버튼 위에서 커짐 */
+    body.has-cur,body.has-cur *{cursor:none!important}   /* cursor:pointer 등 전부 눌러 숨김 */
+  }
+
+  /* [H3] 히어로 커서 글로우 — 커서 따라다니는 은은한 빛 번짐 */
+  .hero-glow{position:absolute;top:0;left:0;width:174px;height:174px;z-index:2;pointer-events:none;
+    margin:-87px 0 0 -87px;border-radius:50%;opacity:0;transition:opacity .8s var(--ease);   /* 크기 절반 */
+    background:radial-gradient(circle,rgba(11,132,89,.20),rgba(11,132,89,0) 62%);
+    mix-blend-mode:screen;will-change:transform}
+  .hero-stick:hover .hero-glow{opacity:1}
+
+  /* [H1+H4] 히어로 영상 패럴럭스 — 마우스(--mx/--my) + 스크롤(--sy) 합성, 살짝 확대해 가장자리 가림 */
+  #heroVid{will-change:transform;
+    transform:scale(1.15) translate(var(--mx,0px), calc(var(--sy,0px) + var(--my,0px)))}  /* 부드러움은 JS lerp가 담당 */
+
+  /* [H2] 실행연구소 큰 글자 — 글자별 순차 등장(그려지듯) */
+  .hero-word-big .ch{display:inline-block;opacity:0;transform:translateY(30px) rotate(5deg);
+    transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  .hero-word-big.drawn .ch{opacity:1;transform:none}
+
+  /* [S1/S2] 제거 — 서비스는 이제 평범한 흰 섹션(카드는 기본 reveal로 등장) */
+
+  /* [T2] 이름 마퀴 — 제거됨 */
+
+  /* [R2/#5] 레퍼런스 — 이미지 카드는 원형 아이리스로 열림, 카톡 말풍선은 페이드업 */
+  .ref:not(.kakao){clip-path:circle(0% at 50% 52%)}
+  .ref:not(.kakao).shown{clip-path:circle(150% at 50% 52%);transition:clip-path 1.2s var(--ease-apple)}
+  .ref.kakao{opacity:0;transform:translateY(22px)}
+  .ref.kakao.shown{opacity:1;transform:none;transition:opacity .9s var(--ease-apple),transform .9s var(--ease-apple)}
+
+  /* [R3] 로고/캡처 무한 흐름 마퀴 */
+  .logo-marquee{overflow:hidden;margin-top:44px;
+    -webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+    mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+  .logo-marquee .track{display:flex;gap:54px;width:max-content;will-change:transform;animation:logomq 32s linear infinite}
+  .logo-marquee .lg{display:flex;align-items:center;height:36px;white-space:nowrap;
+    color:var(--faint);font-weight:800;font-size:19px;letter-spacing:.02em;opacity:.65}
+  @keyframes logomq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* [C1] 입력칸 포커스 시 그린 글로우 (강화) */
+  .field input:focus,.field select:focus,.field textarea:focus{
+    box-shadow:0 0 0 4px var(--green-ring),0 10px 26px rgba(85,232,92,.20)}
+
+  /* [C2] 제출 성공 체크 애니메이션 */
+  .form-ok{text-align:center;padding:26px 8px}
+  .ok-check{width:66px;height:66px;margin:0 auto 16px;border-radius:50%;background:var(--green-dim);display:grid;place-items:center}
+  .ok-check svg{width:34px;height:34px;fill:none;stroke:var(--green);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+  .ok-check path{stroke-dasharray:40;stroke-dashoffset:40;animation:okdraw .7s var(--ease) .12s forwards}
+  @keyframes okdraw{to{stroke-dashoffset:0}}
+  .form-ok h3{font-size:20px;margin-bottom:8px}
+  .form-ok p{color:var(--muted);font-size:14.5px;line-height:1.7}
+
+  @media(prefers-reduced-motion:reduce){
+    .mask-reveal>span,#svcGrid .svc,.hero-word-big .ch,.team-grid .member{transform:none!important;opacity:1!important}
+    .ref{clip-path:none!important}
+    .name-marquee .track,.logo-marquee .track,.svc-bg img{animation:none!important}
+  }
+</style>
+</head>
+<body>
+
+
+<div id="scroll-progress"></div>          <!-- [G1] 스크롤 진행바 -->
+<div class="cur-dot" id="curDot"><!-- [G5] 커스텀 커서(초록 화살표) -->
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 2 L3 20.5 L8.2 15.5 L11.6 22 L14.4 20.6 L11 14.2 L18 14.2 Z"/></svg>
+</div>
+
+<!-- ===== 네비 ===== -->
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <div class="nav-left">
+      <button class="menu-btn" id="menuBtn" aria-label="메뉴"><span></span><span></span><span></span></button>
+      <nav class="nav-links">
+        <a href="#services">서비스</a>
+        <a href="#team">담당자</a>
+        <a href="#refs">성과</a>
+        <a href="#about">회사소개</a>
+      </nav>
+    </div>
+    <div class="nav-right">
+      <a href="#top" class="nav-logo">실행연구소</a>
+    </div>
+  </div>
+</header>
+
+<span id="top"></span>
+
+<!-- ===== 히어로 (핀 스크롤 리빌) ===== -->
+<section class="hero" id="hero">
+  <div class="hero-stick">
+    <div class="hero-glow" id="heroGlow"></div>  <!-- [H3] 커서 글로우 -->
+    <!-- 영상 박스 → 스크롤하면 풀스크린. 나중에 <video autoplay muted loop playsinline poster="..."> 로 교체 -->
+    <div class="hero-vid" id="heroVid">
+      <video class="hv active" muted playsinline preload="auto" src="assets/영상/7653228-hd_1920_1080_25fps.mp4"></video>
+      <video class="hv" muted playsinline preload="metadata" src="assets/영상/21118-315137091_medium.mp4"></video>
+      <video class="hv hv-dim" muted playsinline preload="metadata" src="assets/영상/23258-334228230.mp4"></video>
+      <video class="hv" muted playsinline preload="metadata" src="assets/영상/3134-166335905.mp4"></video>
+      <video class="hv" muted playsinline preload="metadata" src="assets/영상/337459_medium.mp4"></video>
+      <video class="hv hv-dim" muted playsinline preload="metadata" src="assets/영상/7989836-hd_1920_1080_25fps.mp4"></video>
+      <div class="ov"></div>
+    </div>
+    <div class="hero-bars" id="heroBars">
+      <button class="hbar" aria-label="영상 1"><i></i></button>
+      <button class="hbar" aria-label="영상 2"><i></i></button>
+      <button class="hbar" aria-label="영상 3"><i></i></button>
+      <button class="hbar" aria-label="영상 4"><i></i></button>
+      <button class="hbar" aria-label="영상 5"><i></i></button>
+      <button class="hbar" aria-label="영상 6"><i></i></button>
+    </div>
+    <div class="hero-word-big" id="heroBig"><img src="assets/로고_검은배경.png" alt="실행연구소" /></div>
+    <div class="hero-copy" id="heroCopy">
+      <p class="hc-line hc-big1">성공적인 비지니스의 시작,</p>
+      <p class="hc-line hc-big2">실행연구소</p>
+      <p class="hc-line hc-small">바이럴, 상위 노출, SNS, 숏폼, SEO 까지</p>
+      <p class="hc-line hc-small hc-small-b">비즈니스에 꼭 필요한 마케팅 상품들을 한번에</p>
+      <p class="hc-line hc-small hc-small2">실행연구소 마케팅 통합 솔루션을 만나보세요</p>
+    </div>
+    <div class="hero-cta" id="heroCta">
+      <a href="#contact" class="btn-line" style="background:#fff;color:#161514;border-color:#fff">무료 상담</a>
+      <a href="#services" class="btn-line">서비스 보기</a>
+    </div>
+    <div class="hero-scroll" id="heroScroll">SCROLL DOWN</div>
+  </div>
+</section>
+
+<!-- ===== 흰 콘텐츠(영상 위로 차오름) ===== -->
+<div id="siteBody">
+
+<!-- ===== [가로 스크롤 에디토리얼] 마케팅의 이유 ===== -->
+<section class="hsec" id="stats">
+  <div class="hstick">
+    <div class="htrack" id="statsTrack">
+      <div class="hgroup">
+        <div class="hline"></div>
+        <div class="hcol hcol-big hcol-up">
+          <h2 class="hbig">마케팅의 이유, <span class="hbig-em">실행연구소</span>는 잘 알고 있습니다.</h2>
+        </div>
+        <div class="hcol hcol-sub hcol-up hcol-2a">
+          <p class="hsub">어떤 사업이라도 <span class="hbig-em">마케팅이 꼭 필요하다</span>는 것은<br />누구나 알고 있습니다.</p>
+        </div>
+        <div class="hcol hcol-sub hcol-down">
+          <p class="hsub"><b>하지만 마케팅을 <span class="hbig-em">누구나 할 수 없다</span>는 것도<br />알고 있습니다.</b></p>
+        </div>
+      </div>
+      <div class="hcol hcol-sub hcol-mid hcol-last">
+        <p class="hsub"><span class="hbig-em">실행연구소</span>는 당신의<br />비지니스 파트너로서<br /><b>함께 성장합니다.</b></p>
+      </div>
+      <div class="hgap"></div>
+      <div class="hcol hcol-work">
+        <h2 class="hwork"><span class="hwork-w" id="mLeft">Work</span><span class="hwork-em" id="mRight">19-26</span></h2>
+      </div>
+      <div class="hspacer" style="width:14vw"></div>
+    </div>
+    <div class="m-ring" id="mRing">
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75.webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(14).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(2).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(21).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(4).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(5).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(6).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(7).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(8).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(9).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(10).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(11).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(12).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(13).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(1).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(15).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(16).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(17).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(18).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(19).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(20).webp" alt="" loading="lazy" />
+      <img class="m-logo" src="assets/업체/앱스토어/200x200bb-75%20(3).webp" alt="" loading="lazy" />
+    </div>
+    <div class="m-stats" id="mStats">
+      <p class="m-stat" data-count="134"><b class="num">0</b><span class="plus">+</span> <em>상품</em></p>
+      <p class="m-stat" data-count="437"><b class="num">0</b><span class="plus">+</span> <em>대행사</em></p>
+      <p class="m-stat" data-count="86"><b class="num">0</b><span class="plus">+</span> <em>클라이언트</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 십자가 시네마틱 (스크롤: 밖에서 내려옴 → 회색화면 커짐 → 회전 → 부서짐) ===== -->
+<section class="crossfx" id="crossFx">
+  <div class="cf-stick">
+    <div class="cf-title">실행연구소의 서비스</div>
+    <div class="cf-panel" id="cfPanel"><div class="cf-cross" id="cfCross"></div>
+      <!-- [X1] 부서진 뒤 회색 화면에 뜨는 서비스 (로고+이름만, hover 시 홈페이지 미리보기 창 팝업) -->
+      <div class="cf-svc" id="cfSvc">
+        <div class="cf-svc-head"><span class="eyebrow">Services</span></div>
+        <div class="cf-grid">
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/55E85C?text=인기글+상위노출" data-desc="블로그탭 인기글 영역을 선점합니다. 전 업종 레퍼런스로 증명.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>네이버 인기글 상위노출</h3></div>
+          </a>
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/55E85C?text=플레이스+상위노출" data-desc="지역·업종 키워드로 지도/플레이스 상단을 공략합니다.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>네이버 플레이스 상위노출</h3></div>
+          </a>
+          <a class="cf-s" href="https://papastudio.co.kr" target="_blank" rel="noopener" data-url="papastudio.co.kr" data-shot="https://s.wordpress.com/mshots/v1/https%3A%2F%2Fpapastudio.co.kr?w=640&h=380" data-desc="전환에 최적화된 랜딩·기업 사이트를 빠르게 제작합니다. (파파스튜디오)">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>홈페이지 · 랜딩 제작</h3></div>
+          </a>
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/6B7A72?text=준비+중" data-desc="추가 서비스 항목이 들어갈 자리입니다.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>서비스 (준비 중)</h3></div>
+          </a>
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/6B7A72?text=준비+중" data-desc="추가 서비스 항목이 들어갈 자리입니다.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>서비스 (준비 중)</h3></div>
+          </a>
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/6B7A72?text=준비+중" data-desc="추가 서비스 항목이 들어갈 자리입니다.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>서비스 (준비 중)</h3></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- 홈페이지 미리보기 창(커서 따라 팝업) — 패널 밖(transform·overflow 영향 없게) -->
+<div id="cfPreview"><div class="bar"><i></i><i></i><i></i><span class="u"></span></div><img alt="" /><div class="cap"></div></div>
+
+<!-- ===== 서비스 섹션 자리 — 서비스는 위 십자가 회색화면에서 노출. 여기는 흰 화면으로 비워둠 ===== -->
+<section class="sec" id="services" style="min-height:100vh"></section>
+
+<!-- ===== 조직도 ===== -->
+<section class="sec" id="team" style="background:#fff">
+  <!-- Phase 1: 인트로 띠(가로 블록 왼→오) -->
+  <div class="team-intro-wrap" id="teamIntroWrap">
+    <div class="team-intro">
+      <canvas class="band-fill" id="bandFill" aria-hidden="true"></canvas>
+      <div class="team-intro-title" id="teamIntroTitle">
+        <h2>Our team</h2>
+        <p>실행연구소를<br><span class="rot-word"><span class="rot-reel" id="teamReel"><span>&nbsp;</span><span>설계하는</span><span>움직이는</span><span>완성하는</span></span></span> 사람들입니다.</p>
+      </div>
+    </div>
+  </div>
+  <!-- Phase 1.5: 플렉서스(5노드 궤도, 스크롤 카메라 여행) -->
+  <div class="team-plexus-wrap" id="teamPlexusWrap">
+    <div class="team-plexus">
+      <canvas id="plexusCv" aria-hidden="true"></canvas>
+      <div class="plexus-exit" id="plexusExit">실행연구소를<br>완성하는 사람들입니다.</div>
+      <div class="plexus-center" id="plexusCenter">각자의 전문성이 모여<br>하나의 실행을 만듭니다.</div>
+      <div class="plexus-node"><span class="pn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.3 1 2.5h6c0-1.2.3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg></span><span class="pn-lab"><b>기획</b><i>PLANNING</i></span></div>
+      <div class="plexus-node"><span class="pn-dot"><b class="pn-ai">AI</b></span><span class="pn-lab"><b>AI</b><i>AUTOMATION</i></span></div>
+      <div class="plexus-node"><span class="pn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg></span><span class="pn-lab"><b>개발</b><i>DEVELOPMENT</i></span></div>
+      <div class="plexus-node"><span class="pn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1L20 7l-3-3L5 16z"/><path d="M15 6l3 3"/></svg></span><span class="pn-lab"><b>디자인</b><i>DESIGN</i></span></div>
+      <div class="plexus-node"><span class="pn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></span><span class="pn-lab"><b>마케팅</b><i>MARKETING</i></span></div>
+    </div>
+  </div>
+  <!-- Phase 2: 검정 카드창(페이지 고정, 안쪽만 스크롤) -->
+  <div class="team-cards-wrap" id="teamCardsWrap">
+    <div class="team-cards">
+      <div class="cards-viewport">
+        <div class="cards-inner" id="cardsInner">
+
+    <div class="team-group">
+      <h3>영업부서</h3>
+      <div class="team-grid">
+        <div class="member" data-name="한정완" data-role="영업부서 · 팀장" data-photo="assets/team/한정완.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/한정완.jpg" alt="한정완" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=한정완'"><div class="m-cap"><div class="m-nm">한정완</div><div class="m-role">팀장</div></div></div>
+        <div class="member" data-name="황현민" data-role="영업부서 · 매니저" data-photo="assets/team/황현민.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/황현민.jpg" alt="황현민" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황현민'"><div class="m-cap"><div class="m-nm">황현민</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="권오찬" data-role="영업부서 · 매니저" data-photo="assets/team/권오찬.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/권오찬.jpg" alt="권오찬" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=권오찬'"><div class="m-cap"><div class="m-nm">권오찬</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="황도영" data-role="영업부서 · 매니저" data-photo="assets/team/황도영.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/황도영.jpg" alt="황도영" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황도영'"><div class="m-cap"><div class="m-nm">황도영</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="이혜빈" data-role="영업부서 · 매니저" data-photo="assets/team/이혜빈.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이혜빈.jpg" alt="이혜빈" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이혜빈'"><div class="m-cap"><div class="m-nm">이혜빈</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="김미정" data-role="영업부서 · 매니저" data-photo="assets/team/김미정.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/김미정.jpg" alt="김미정" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=김미정'"><div class="m-cap"><div class="m-nm">김미정</div><div class="m-role">매니저</div></div></div>      </div>
+    </div>
+
+    <div class="team-group">
+      <h3>경영 및 업무 지원</h3>
+      <div class="team-grid">
+        <div class="member" data-name="정용진" data-role="경영·업무지원 · 부장" data-photo="assets/team/정용진.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/정용진.jpg" alt="정용진" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=정용진'"><div class="m-cap"><div class="m-nm">정용진</div><div class="m-role">부장</div></div></div>
+        <div class="member" data-name="이지영" data-role="경영·업무지원 · 정산/회계 총무" data-photo="assets/team/이지영.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이지영.jpg" alt="이지영" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이지영'"><div class="m-cap"><div class="m-nm">이지영</div><div class="m-role">정산 / 회계 총무</div></div></div>
+        <div class="member" data-name="이정복" data-role="경영·업무지원 · 영업 지원 실장" data-photo="assets/team/이정복.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이정복.jpg" alt="이정복" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이정복'"><div class="m-cap"><div class="m-nm">이정복</div><div class="m-role">영업 지원 실장</div></div></div>
+      </div>
+    </div>
+
+    <div class="team-group" style="margin-bottom:0">
+      <h3>개발 부서</h3>
+      <div class="team-grid">
+        <div class="member" data-name="권용현" data-role="개발부서 · CTO · 풀스택" data-photo="assets/team/권용현.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/권용현.jpg" alt="권용현" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=권용현'"><div class="m-cap"><div class="m-nm">권용현</div><div class="m-role">CTO · 풀스택</div></div></div>
+        <div class="member" data-name="김득용" data-role="개발부서 · 백엔드·DB·운영체제" data-photo="assets/team/김득용.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/김득용.jpg" alt="김득용" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=김득용'"><div class="m-cap"><div class="m-nm">김득용</div><div class="m-role">백엔드 · DB · 운영체제</div></div></div>
+        <div class="member" data-name="이현수" data-role="개발부서 · DB관리·AI 개발" data-photo="assets/team/이현수.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이현수.jpg" alt="이현수" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이현수'"><div class="m-cap"><div class="m-nm">이현수</div><div class="m-role">DB 관리 · AI 개발</div></div></div>
+      </div>
+    </div>
+        </div><!-- /cards-inner -->
+      </div><!-- /cards-viewport -->
+    </div><!-- /team-cards -->
+  </div><!-- /team-cards-wrap -->
+  <div class="team-tail"></div><!-- 검정 박스 아래 흰 공간 -->
+</section>
+
+<!-- ===== 성과 & 레퍼런스 = 카드 컨베이어(녹화11) ===== -->
+<section class="refsec" id="refs">
+  <div class="refstick">
+    <div class="refbg" aria-hidden="true">REAL<br>RESULTS.</div>
+    <div class="rcards" id="rcards">
+
+      <article class="rcard c-white" data-i="0">
+        <div class="rc-top"><span class="rc-no">/01 &nbsp;RESULT</span><span class="rico"><svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg></span></div>
+        <div class="rc-body"><img src="https://placehold.co/720x430/EFF3F1/8B968F?text=RESULT+01" alt="인천 철거 인기글 상위노출 캡처" loading="lazy" /></div>
+        <div class="rc-foot"><span class="d"></span>인천 철거 · 인기글 상위노출</div>
+      </article>
+
+      <article class="rcard c-green" data-i="1">
+        <div class="rc-top"><span class="rc-no">/02 &nbsp;VOICE</span><span class="rico"><svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg></span></div>
+        <div class="rc-body rc-chat">
+          <div class="rb them">사장님, 이번에 올려주신 키워드 지금 1위 떴어요! 감사합니다 🙏</div>
+          <div class="rb me">넵 계속 관리해드리겠습니다 :)</div>
+          <div class="rb them">덕분에 문의가 확 늘었어요</div>
+        </div>
+        <div class="rc-foot"><span class="d"></span>고객 반응 · 인기글 1위 달성</div>
+      </article>
+
+      <article class="rcard c-lime" data-i="2">
+        <div class="rc-top"><span class="rc-no">/03 &nbsp;RESULT</span><span class="rico"><svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg></span></div>
+        <div class="rc-body"><img src="https://placehold.co/720x430/EFF3F1/8B968F?text=BLOG+RANK+%231" alt="강동구 세무사 비즈니스 인기글" loading="lazy" /></div>
+        <div class="rc-foot"><span class="d"></span>강동구 세무사 · 비즈니스 인기글</div>
+      </article>
+
+      <article class="rcard c-white" data-i="3">
+        <div class="rc-top"><span class="rc-no">/04 &nbsp;RESULT</span><span class="rico"><svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg></span></div>
+        <div class="rc-body"><img src="https://placehold.co/720x430/EFF3F1/8B968F?text=PLACE+TOP" alt="네이버 플레이스 상위노출" loading="lazy" /></div>
+        <div class="rc-foot"><span class="d"></span>네이버 플레이스 상위노출</div>
+      </article>
+
+      <article class="rcard c-mint" data-i="4">
+        <div class="rc-top"><span class="rc-no">/05 &nbsp;VOICE</span><span class="rico"><svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg></span></div>
+        <div class="rc-body rc-chat">
+          <div class="rb them">전환율이 눈에 띄게 올랐습니다</div>
+          <div class="rb me">리포트 곧 보내드릴게요!</div>
+          <div class="rb them">이번 달 문의가 지난달의 2배예요 👍</div>
+        </div>
+        <div class="rc-foot"><span class="d"></span>고객 반응 · 전환율 상승</div>
+      </article>
+
+      <article class="rcard c-white" data-i="5">
+        <div class="rc-top"><span class="rc-no">/06 &nbsp;WORK</span><span class="rico"><svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg></span></div>
+        <div class="rc-body"><img src="https://placehold.co/720x430/EFF3F1/8B968F?text=WEBSITE" alt="홈페이지 랜딩 제작 사례" loading="lazy" /></div>
+        <div class="rc-foot"><span class="d"></span>홈페이지 · 랜딩 제작 사례</div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== 회사소개(간단) ===== -->
+<section class="sec" id="about" style="background:var(--bg-soft);border-top:1px solid var(--gray-200)">
+  <div class="rv-stick">
+  <div class="wrap" style="max-width:760px;text-align:center" data-par data-par-y="-42">  <!-- [G7] 패럴럭스 드리프트 -->
+    <span class="eyebrow reveal" style="justify-content:center">About</span>
+    <h2 class="reveal" style="font-size:clamp(26px,3.4vw,38px);margin:16px 0 16px">실행연구소는<br />‘실행’을 연구합니다</h2>
+    <p class="reveal" style="color:var(--muted);font-size:17px">
+      화려한 제안서보다 실제 결과가 중요하다고 믿습니다. 실행연구소(파파컴퍼니)는
+      네이버 인기글·플레이스 상위노출과 홈페이지 제작을 통해, 업종과 지역을 가리지 않고
+      ‘실행되는 마케팅’을 만듭니다.
+    </p>
+  </div>
+  </div>
+</section>
+
+<!-- ===== 문의 ===== -->
+<section class="sec contact" id="contact">
+  <div class="contact-stick">
+  <div class="wrap contact-in">
+    <div class="contact-info">
+      <span class="eyebrow reveal">Contact Us</span>
+      <h2 class="reveal">궁금한 점이<br />있으신가요?</h2>
+      <p class="reveal">상품·서비스, 견적, 협업 무엇이든 남겨주세요.<br />담당자가 빠르게 연락드립니다.</p>
+    </div>
+    <form class="card reveal" id="contactForm" novalidate>
+      <div class="row2">
+        <div class="field"><label>이름</label><input type="text" name="name" placeholder="이름" required /></div>
+        <div class="field"><label>연락처</label><input type="tel" name="phone" inputmode="numeric" placeholder="하이픈 없이 숫자만" required /></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>이메일</label><input type="email" name="email" placeholder="you@example.com" /></div>
+        <div class="field"><label>관심 상품</label>
+          <select name="interest">
+            <option value="">선택 안 함</option>
+            <option>인기글 상위노출</option>
+            <option>플레이스 상위노출</option>
+            <option>홈페이지 · 랜딩 제작</option>
+            <option>기타 / 잘 모르겠어요</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>문의 내용</label><textarea name="message" placeholder="어떤 도움이 필요하신가요?"></textarea></div>
+      <label class="consent">
+        <input type="checkbox" name="privacy" />
+        <span>개인정보 수집·이용에 동의합니다. (수집 항목: 이름·연락처·이메일 / 목적: 상담 접수 및 연락 / 보유기간: 1년) — 필수</span>
+      </label>
+      <button type="submit" class="btn btn-primary">문의 보내기</button>
+    </form>
+  </div>
+  </div><!-- /contact-stick -->
+</section>
+
+<!-- ===== 담당자 상세 모달 ===== -->
+<div id="member-modal" aria-hidden="true">
+  <div class="mm-back" data-close></div>
+  <div class="mm-card" role="dialog" aria-modal="true">
+    <button class="mm-close" data-close aria-label="닫기">✕</button>
+    <div class="mm-scroll" data-lenis-prevent>
+    <div class="mm-name" id="mmName"></div>
+    <div class="mm-role" id="mmRole"></div>
+    <div class="mm-photo"><img id="mmPhoto" alt="" onerror="this.onerror=null;this.src='assets/team/_ph.svg'" /></div>
+    <div class="mm-bio" id="mmBio"></div>
+    <div class="mm-extra">
+      <p>담당 업무 — 마케팅 실행 전반(인기글·플레이스 상위노출, 홈페이지 제작 등)을 맡고 있습니다.</p>
+      <p>데이터 기반으로 결과를 만들고, 꾸준한 리포트로 고객 신뢰를 쌓아갑니다. 업종·지역을 가리지 않고 ‘실행되는’ 마케팅을 만듭니다.</p>
+      <p>작은 문의도 놓치지 않고 빠르게 응대합니다. 지금 겪고 계신 상황을 편하게 말씀해 주세요.</p>
+      <p>아래 QR을 스캔하거나 눌러 카카오톡으로 1:1 문의할 수 있습니다.</p>
+    </div>
+    <a class="mm-qr" id="mmQr" href="https://pf.kakao.com/_silhaeng" target="_blank" rel="noopener">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fpf.kakao.com%2F_silhaeng" alt="카카오톡 프로필 QR" />
+      <span>QR 스캔 · 카카오톡 프로필로 이동 (임시)</span>
+    </a>
+    </div>
+    <div class="mm-bar"><div class="mm-thumb"></div></div>
+  </div>
+</div>
+
+<!-- ===== 푸터 ===== -->
+</div><!-- /siteBody -->
+
+<footer class="ft" id="footer">
+  <div class="ft-wrap">
+    <div class="ft-top">
+      <div class="ft-brand">
+        <span class="ft-logo"><img src="assets/로고_검은배경_흰색.png" alt="실행연구소" /></span>
+        <div class="ft-social">
+          <a href="#" class="soc kakao todo" data-msg="카카오톡 채널 연결 예정입니다." aria-label="카카오톡 채널">
+            <img src="assets/kakao_gray.png?v=2" alt="카카오톡" />
+          </a>
+          <a href="#" class="soc todo" data-msg="유튜브 연결 예정입니다." aria-label="유튜브">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
+          <a href="#" class="soc todo" data-msg="인스타그램 연결 예정입니다." aria-label="인스타그램">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="ft-biz">
+        <span>(주)실행연구소 · 정용진</span>
+        <span>837-81-03316 · 2026-인천서구-2050</span>
+        <span>인천 청라동 143-6번지 3층 · lcm3564@naver.com</span>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <span>© 2026 (주)실행연구소. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<!-- ===== [G2/Lenis] 관성 스크롤 (Sobha식 부드러운 스크롤) ===== -->
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(reduce||!window.Lenis){return;}                 // 접근성/로드실패 시 네이티브 스크롤 유지
+  var lenis=new Lenis({ lerp:0.09, wheelMultiplier:1, smoothWheel:true, smoothTouch:false });
+  window.__lenis=lenis;
+  function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+  /* ===== [DEV 전용] 새로고침 시 스크롤 위치 유지 — 배포 전 이 블록 삭제 ===== */
+  var DEV_SCROLL_KEEP=true;
+  if(DEV_SCROLL_KEEP){
+    try{ history.scrollRestoration='manual'; }catch(e){}
+    var _sk='__devScroll';
+    var _saved=parseFloat(sessionStorage.getItem(_sk));
+    if(_saved>0){
+      var _restore=function(){ lenis.scrollTo(_saved,{immediate:true,force:true}); };
+      _restore(); setTimeout(_restore,60); setTimeout(_restore,200);   // 인트로/폰트 로드 후 재적용
+      if(_saved>120) document.body.classList.add('hero-go');           // 히어로 인트로 즉시 완료상태로
+    }
+    var _st=0;
+    window.addEventListener('scroll',function(){ if(_st)return; _st=setTimeout(function(){_st=0; sessionStorage.setItem(_sk, String(window.scrollY||lenis.scroll||0)); },120); },{passive:true});
+    window.addEventListener('beforeunload',function(){ sessionStorage.setItem(_sk, String(window.scrollY||lenis.scroll||0)); });
+  }
+  /* ===== [DEV 전용] 끝 ===== */
+  // 앵커 링크 부드럽게 이동(네비 높이 보정)
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var id=a.getAttribute('href');
+      if(id&&id.length>1){ var el=document.querySelector(id);
+        if(el){ e.preventDefault(); lenis.scrollTo(el,{offset:-64}); } }
+    });
+  });
+})();
+</script>
+
+
+<!-- ===== 시네마틱 효과 (섹션별 번호. 각 블록 독립 — 하나 실패해도 나머지 유지) ===== -->
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var fine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  function clamp(v,a,b){return v<a?a:(v>b?b:v);}
+  function each(sel,fn){[].slice.call(document.querySelectorAll(sel)).forEach(fn);}
+  function feat(fn){try{fn();}catch(e){}}   // 한 효과가 죽어도 나머지 살림
+
+  /* [G1] 상단 스크롤 진행바 */
+  feat(function(){
+    var bar=document.getElementById('scroll-progress'); if(!bar)return;
+    function up(){var m=(document.documentElement.scrollHeight-window.innerHeight)||1;
+      bar.style.transform='scaleX('+clamp(window.scrollY/m,0,1)+')';}
+    window.addEventListener('scroll',up,{passive:true});window.addEventListener('resize',up);up();
+  });
+
+  /* [G2] 부드러운 스크롤(관성) — 비활성화(버벅임 유발). 브라우저 기본 스크롤 사용.
+     다시 켜려면 아래 return 제거. 켤 땐 스크롤 핸들러들을 rAF 스로틀해야 부드러움. */
+  feat(function(){
+    return;
+  });
+
+  /* [G7] 범용 패럴럭스 엔진 — data-par 요소 이동(data-par-y)+스케일(data-par-scale) */
+  feat(function(){
+    if(reduce)return;
+    var els=[].slice.call(document.querySelectorAll('[data-par]'));
+    if(!els.length)return;
+    var data=els.map(function(el){return {
+      el:el,
+      y:parseFloat(el.getAttribute('data-par-y')||'0'),      // 진행도 1당 이동 px
+      sc:parseFloat(el.getAttribute('data-par-scale')||'0')  // 중앙에서 추가 스케일
+    };});
+    var ticking=false;
+    function upd(){
+      ticking=false;
+      var vh=window.innerHeight;
+      data.forEach(function(d){
+        var r=d.el.getBoundingClientRect();
+        var prog=((r.top+r.height/2)-vh/2)/vh;                // -1(위)~1(아래)
+        if(prog<-1.4||prog>1.4)return;                        // 화면 밖 스킵
+        var centered=1-Math.min(Math.abs(prog),1);
+        var tf='';
+        if(d.y)tf+='translateY('+(prog*d.y).toFixed(1)+'px)';
+        if(d.sc)tf+=' scale('+(1+centered*d.sc).toFixed(3)+')';
+        d.el.style.transform=tf;
+      });
+    }
+    function onScroll(){ if(!ticking){ticking=true;requestAnimationFrame(upd);} }
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onScroll);upd();
+  });
+
+  /* [G4] 텍스트 마스크 리빌 — 제목을 단어별 시차로 쓸어올림(애플식 디테일) */
+  feat(function(){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){
+        [].slice.call(e.target.querySelectorAll('.mask-reveal')).forEach(function(m){m.classList.add('in');});
+        io.unobserve(e.target);
+      }});},{threshold:.35});
+    each('#team .sec-head h2, #refs .sec-head h2, .contact-info h2',function(h){
+      var words=(h.textContent||'').split(/\s+/).filter(Boolean);
+      h.innerHTML=words.map(function(w,i){
+        return '<span class="mask-reveal"><span style="transition-delay:'+(i*95)+'ms">'+w+'</span></span>';
+      }).join(' ');
+      io.observe(h);
+    });
+  });
+
+  /* [G6] reveal 형제 요소 시차(stagger) — 같은 부모의 reveal들이 줄줄이 등장 */
+  feat(function(){
+    var groups=[];
+    each('.reveal',function(el){
+      var p=el.parentElement; if(!p)return;
+      var g=null; for(var i=0;i<groups.length;i++){if(groups[i].p===p){g=groups[i];break;}}
+      if(!g){g={p:p,items:[]};groups.push(g);}
+      g.items.push(el);
+    });
+    groups.forEach(function(g){ if(g.items.length<2)return;
+      g.items.forEach(function(el,i){ el.style.transitionDelay=(i*95)+'ms'; }); });
+    // 변형 몇 군데 — 다양성
+    var form=document.querySelector('#contact form.card'); if(form)form.classList.add('rv-scale');
+  });
+
+  /* [G5] 커스텀 커서 (점만, hover 시 점이 커짐) */
+  feat(function(){
+    if(reduce||!fine)return;
+    var dot=document.getElementById('curDot'); if(!dot)return;
+    document.body.classList.add('has-cur');
+    window.addEventListener('mousemove',function(e){
+      dot.style.transform='translate('+e.clientX+'px,'+e.clientY+'px)';
+    });
+    each('a,button,input,textarea,select,label,.member,.svc,.hbar',function(el){
+      el.addEventListener('mouseenter',function(){dot.classList.add('big');});
+      el.addEventListener('mouseleave',function(){dot.classList.remove('big');});
+    });
+  });
+
+  /* [H1] 히어로 영상 마우스 패럴럭스 + [H3] 커서 글로우 (변수로 → 스크롤 패럴럭스와 합성) */
+  feat(function(){
+    var stick=document.querySelector('.hero-stick'),vid=document.getElementById('heroVid'),
+        glow=document.getElementById('heroGlow'); if(!stick)return;
+    var amt=4, tx=0,ty=0,cx=0,cy=0,vx=0,vy=0;         // 스프링: target/current/velocity (기우는 범위 1/3)
+    var K=0.014, D=0.90;                              // K 낮을수록 느림 · D 높을수록 관성(여운)↑
+    stick.addEventListener('mousemove',function(e){
+      var r=stick.getBoundingClientRect();
+      var nx=(e.clientX-r.left)/r.width-0.5, ny=(e.clientY-r.top)/r.height-0.5;
+      tx=-nx*amt; ty=-ny*amt;
+      if(glow)glow.style.transform='translate('+(e.clientX-r.left)+'px,'+(e.clientY-r.top)+'px)';
+    });
+    stick.addEventListener('mouseleave',function(){ tx=0;ty=0; });
+    (function loop(){                                 // 속도 기반 스프링 → 느리고 관성 있게(여운)
+      vx=vx*D+(tx-cx)*K; cx+=vx;
+      vy=vy*D+(ty-cy)*K; cy+=vy;
+      if(vid&&!reduce){vid.style.setProperty('--mx',cx.toFixed(2)+'px');vid.style.setProperty('--my',cy.toFixed(2)+'px');}
+      requestAnimationFrame(loop);
+    })();
+  });
+
+  /* [H4] 히어로 배경영상 스크롤 패럴럭스 — 스크롤 내리면 영상이 천천히 위로(jarallax 느낌) */
+  feat(function(){
+    if(reduce)return;
+    var hero=document.getElementById('hero'),vid=document.getElementById('heroVid'); if(!hero||!vid)return;
+    var ticking=false;
+    function upd(){ ticking=false;
+      var h=hero.offsetHeight, r=hero.getBoundingClientRect();
+      var prog=clamp(-r.top/(h||1),0,1);          // 0(맨위)~1(히어로 다 지남)
+      vid.style.setProperty('--sy',(prog*-60)+'px');
+    }
+    window.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(upd);}},{passive:true});
+    window.addEventListener('resize',upd);upd();
+  });
+
+  /* [H2] 비활성화 — 글자 돌면서 올라오는 모션 제거(오찬 요청). 큰 글자는 그냥 표시 */
+  feat(function(){
+    return;
+  });
+
+  /* [S1] 제거 — 서비스 카드는 기본 reveal 시차(G6)로 등장 */
+  feat(function(){ return; });
+
+  /* [T1] 담당자 카드 아래서 순차(stagger) 올라오기 */
+  feat(function(){
+    each('.team-grid',function(grid){
+      var ms=[].slice.call(grid.querySelectorAll('.member'));
+      ms.forEach(function(m){m.style.opacity='0';m.style.transform='translateY(40px)';});
+      var io=new IntersectionObserver(function(es){es.forEach(function(e){
+        if(!e.isIntersecting)return; io.disconnect();
+        ms.forEach(function(m,i){ setTimeout(function(){
+          m.style.transition='opacity .7s var(--ease),transform .7s var(--ease)';
+          m.style.opacity='1';m.style.transform='none';
+          setTimeout(function(){m.style.transition='';m.style.transform='';},760);
+        }, i*90); });
+      });},{threshold:.15});
+      io.observe(grid);
+    });
+  });
+
+  /* [T2] 이름 마퀴 — 제거됨 */
+
+  /* [T3] 담당자 카드 hover 밀림 — 효과 제거(비활성) */
+  feat(function(){
+    return;   // 카드 효과 전부 제거 요청 → hover 밀림 끔
+    each('.team-grid',function(grid){
+      var ms=[].slice.call(grid.querySelectorAll('.member'));
+      ms.forEach(function(m,idx){
+        m.addEventListener('mouseenter',function(){
+          ms.forEach(function(o,j){ if(j===idx)return;
+            var d=j-idx, dir=d<0?-1:1, ad=Math.abs(d);
+            var push=ad===1?14:(ad===2?6:0);
+            if(push)o.style.transform='translateX('+(dir*push)+'px)';
+          });
+        });
+        m.addEventListener('mouseleave',function(){
+          ms.forEach(function(o,j){ if(j!==idx)o.style.transform=''; });
+        });
+      });
+    });
+  });
+
+  /* [T4-A] 인트로 — 초록 블록 아래→위 섹션 꽉 채움 → OUR TEAM 뜸(무너짐 없음, 차오르기만) */
+  feat(function(){
+    var wrap=document.getElementById('teamIntroWrap'), cv=document.getElementById('bandFill'), title=document.getElementById('teamIntroTitle');
+    if(!wrap||!cv)return;
+    var reel=document.getElementById('teamReel');
+    // 세로 롤(녹화13): 4단계 공백(0)→설계(1)→움직(2)→완성(3), hold→roll→hold
+    function reelPos(pp){
+      if(pp<0.45) return 0;                         // 공백
+      if(pp<0.57) return (pp-0.45)/0.12;            // →설계하는
+      if(pp<0.65) return 1;
+      if(pp<0.77) return 1+(pp-0.65)/0.12;          // →움직이는
+      if(pp<0.85) return 2;
+      if(pp<0.97) return 2+(pp-0.85)/0.12;          // →완성하는
+      return 3;
+    }
+    var ctx=cv.getContext('2d'), dpr=Math.min(window.devicePixelRatio||1,2);
+    var cols=0,rows=0,tile=0,thr=[],W=0,H=0;
+    function hash(x){ var s=Math.sin(x*127.1)*43758.5453; return Math.abs(s-Math.floor(s)); }
+    function cl(v){return v<0?0:v>1?1:v;}
+    function build(){
+      W=cv.clientWidth; H=cv.clientHeight;
+      tile=Math.max(28,Math.round(W/44));
+      cols=Math.ceil(W/tile); rows=Math.max(1,Math.ceil(H/tile));
+      cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+      cv.style.width=W+'px'; cv.style.height=H+'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      thr=[];
+      for(var c=0;c<cols;c++){ thr[c]=[];
+        for(var rb=0;rb<rows;rb++){
+          var base=rb/rows;                      // rb=0=바닥 → 아래(0)에서 위(1)로
+          var j=hash(c*997+rb*13+1);
+          thr[c][rb]=Math.min(0.999, base*0.86 + j*0.14);
+        }
+      }
+    }
+    function draw(){
+      var r=wrap.getBoundingClientRect(), vh=window.innerHeight, range=wrap.offsetHeight-vh;
+      var p=range>0?cl(-r.top/range):0;
+      var fillP=cl(p/0.40);                       // 아래→위 채움
+      var titleOp=cl((p-0.40)/0.08);              // 다 찬 뒤 OUR TEAM 뜸(유지, 페이드아웃 없음)
+      if(title) title.style.opacity=String(cl(titleOp));
+      // 단어 세로 롤(스크롤 연동, 교체당 2단계): 설계하는→움직이는→완성하는 → 다 바뀌면 스크롤 계속(검정창)
+      if(reel){ reel.style.transform='translateY('+(-reelPos(p)*1.1)+'em)'; }
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle='#55E85C';   // 더 연한 초록(사이트 메인 --green, 기존 #3DBB45보다 밝음)
+      for(var c=0;c<cols;c++) for(var rb=0;rb<rows;rb++){
+        if(fillP>=thr[c][rb]) ctx.fillRect(c*tile, H-(rb+1)*tile, tile, tile);   // 바닥부터(무너짐 없음)
+      }
+    }
+    function all(){ build(); draw(); }
+    var raf=false;
+    function onScroll(){ if(raf)return; raf=true; requestAnimationFrame(function(){ raf=false; draw(); }); }
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',all);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(all);
+    setTimeout(all,300); all();
+  });
+
+  /* [T4-B] 검정 카드창 — 페이지 고정, 안쪽 카드만 위로 스크롤(2줄 보임) */
+  feat(function(){
+    var wrap=document.getElementById('teamCardsWrap'), inner=document.getElementById('cardsInner');
+    if(!wrap||!inner)return;
+    var vp=inner.parentNode;
+    function cl(v){return v<0?0:v>1?1:v;}
+    function draw(){
+      var r=wrap.getBoundingClientRect(), vh=window.innerHeight, range=wrap.offsetHeight-vh;
+      var p=range>0?cl(-r.top/range):0;
+      var vpH=vp.clientHeight;
+      // 3 페이지: 영업(hold) → roll → 경영(hold) → roll → 개발(hold). 페이지당 2스크롤 느낌
+      var pc;
+      if(p<0.25) pc=0;
+      else if(p<0.40) pc=(p-0.25)/0.15;
+      else if(p<0.60) pc=1;
+      else if(p<0.75) pc=1+(p-0.60)/0.15;
+      else pc=2;
+      inner.style.transform='translateY('+(-pc*vpH)+'px)';
+    }
+    var raf=false;
+    function onScroll(){ if(raf)return; raf=true; requestAnimationFrame(function(){ raf=false; draw(); }); }
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',draw);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(draw);
+    setTimeout(draw,300); draw();
+  });
+
+  /* [T4-D] 플렉서스 — 5노드 궤도, 떠다님 + 스크롤 카메라 여행(전체↔노드) */
+  feat(function(){
+    var wrap=document.getElementById('teamPlexusWrap'), cv=document.getElementById('plexusCv');
+    var exitEl=document.getElementById('plexusExit'), centerEl=document.getElementById('plexusCenter');
+    if(!wrap||!cv)return;
+    var nodes=[].slice.call(wrap.querySelectorAll('.plexus-node'));
+    var ctx=cv.getContext('2d'), dpr=Math.min(window.devicePixelRatio||1,2), W=0,H=0;
+    function cl(v){return v<0?0:v>1?1:v;}
+    var pos=[[0.50,0.15],[0.12,0.50],[0.88,0.42],[0.28,0.85],[0.72,0.85]];  // 기획,AI,개발,디자인,마케팅(DOM순, 가운데 문구 안 겹치게 바깥으로)
+    var visit=[0,2,4,3,1];  // 여행 순서: 기획→개발→마케팅→디자인→AI
+    function resize(){ W=wrap.clientWidth; H=window.innerHeight; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); cv.style.width=W+'px'; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); }
+    resize(); window.addEventListener('resize',resize);
+    function camAt(q){   // stops: 전체,노드,전체,노드,...
+      var stops=[[0.5,0.5,1]];
+      for(var k=0;k<visit.length;k++){ var p=pos[visit[k]]; stops.push([p[0],p[1],2.6]); stops.push([0.5,0.5,1]); }
+      var seg=stops.length-1, t=cl(q)*seg, idx=Math.min(seg-1,Math.floor(t)), lt=t-idx;
+      var e=lt<0.5?2*lt*lt:1-Math.pow(-2*lt+2,2)/2;
+      var a=stops[idx], b=stops[idx+1];
+      return [a[0]+(b[0]-a[0])*e, a[1]+(b[1]-a[1])*e, a[2]+(b[2]-a[2])*e];
+    }
+    var g_q=0, g_intro=0;
+    function fx(){
+      var r=wrap.getBoundingClientRect(), vh=window.innerHeight, range=wrap.offsetHeight-vh;
+      var p=range>0?cl(-r.top/range):0;
+      g_intro=cl(p/0.10); g_q=cl((p-0.10)/0.90);
+      if(exitEl){ exitEl.style.transform='translate('+(-g_intro*135)+'%, -50%)'; exitEl.style.opacity=String(1-g_intro); }
+    }
+    window.addEventListener('scroll',fx,{passive:true});
+    function raf(t){
+      var tt=t/1000, c=camAt(g_q), cx=c[0], cy=c[1], zoom=c[2];
+      var S=Math.min(W,H)*0.78;
+      function mapx(wx){return W/2+(wx-cx)*zoom*S;}
+      function mapy(wy){return H/2+(wy-cy)*zoom*S;}
+      var scr=[];
+      for(var i=0;i<pos.length;i++){
+        var fxo=Math.sin(tt*0.6+i*1.7)*0.010, fyo=Math.cos(tt*0.5+i*2.3)*0.010;   // 떠다님
+        var sx=mapx(pos[i][0]+fxo), sy=mapy(pos[i][1]+fyo);
+        scr.push([sx,sy]);
+        if(nodes[i]){ var sc=Math.pow(zoom,0.72)*g_intro; nodes[i].style.transform='translate('+sx+'px,'+sy+'px) translate(-50%,-50%) scale('+sc+')'; nodes[i].style.opacity=String(g_intro); }
+      }
+      ctx.clearRect(0,0,W,H);
+      // 궤도 타원
+      ctx.strokeStyle='rgba(255,255,255,'+(0.32*g_intro)+')'; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.ellipse(mapx(0.5),mapy(0.5),0.40*zoom*S,0.37*zoom*S,0,0,6.2832); ctx.stroke();
+      // 노드 연결선
+      ctx.strokeStyle='rgba(255,255,255,'+(0.26*g_intro)+')'; ctx.lineWidth=1;
+      for(var a=0;a<scr.length;a++)for(var b=a+1;b<scr.length;b++){ ctx.beginPath(); ctx.moveTo(scr[a][0],scr[a][1]); ctx.lineTo(scr[b][0],scr[b][1]); ctx.stroke(); }
+      // 가운데 문구(전체일 때만)
+      if(centerEl){ centerEl.style.opacity=String(cl((1.55-zoom)/0.55)*g_intro); centerEl.style.transform='translate(-50%,-50%) translate('+((0.5-cx)*zoom*S)+'px,'+((0.5-cy)*zoom*S)+'px)'; }
+      requestAnimationFrame(raf);
+    }
+    fx(); requestAnimationFrame(raf);
+  });
+
+  /* [R1] 성과 열별 패럴럭스 + [R2] 클립 마스크 리빌 */
+  feat(function(){
+    var refs=[].slice.call(document.querySelectorAll('#refs .ref')); if(!refs.length)return;
+    var refsSec=document.getElementById('refs');
+    function revealAll(){ refs.forEach(function(r,i){ setTimeout(function(){ r.classList.add('shown'); }, i*80); }); }
+    // R2: 섹션이 보이기 시작하면 카드들 시차로 clip 열림 (섹션 단위라 확실히 트리거)
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){ revealAll(); io.disconnect(); }});},{threshold:0.05});
+    io.observe(refsSec);
+    // 안전망: 어떤 이유로든 안 열리면 강제로 보이게(빈 화면 방지)
+    setTimeout(function(){ refs.forEach(function(r){ r.classList.add('shown'); }); },1500);
+    // R1: 열(offsetLeft)마다 다른 속도로 translateY (hover는 --par와 합성)
+    var depths=[];
+    function assign(){ var cols={},order=[];
+      refs.forEach(function(r){ var x=Math.round(r.offsetLeft);
+        if(!(x in cols)){cols[x]=order.length;order.push(x);} });
+      refs.forEach(function(r,i){ var x=Math.round(r.offsetLeft);
+        var ci=cols[x]; depths[i]=(ci%2===0)?26:-22;   // 홀짝 열 반대방향
+      });
+    }
+    function par(){ var vh=window.innerHeight;
+      refs.forEach(function(r,i){ var rect=r.getBoundingClientRect();
+        var prog=(rect.top+rect.height/2 - vh/2)/vh;    // -1(위) ~ 1(아래)
+        r.style.setProperty('--par', (prog*(depths[i]||0)).toFixed(1)+'px');   // 이동
+        var centered=1-Math.min(Math.abs(prog),1);       // 화면 중앙일수록 1
+        r.style.setProperty('--pscale', (1+centered*0.05).toFixed(3));         // 중앙에서 살짝 확대
+      });
+    }
+    assign(); par();
+    window.addEventListener('scroll',par,{passive:true});
+    window.addEventListener('resize',function(){assign();par();});
+  });
+
+  /* [스탯 안착] 비활성화 — 스탯이 서비스식 핀 시네마틱으로 바뀌어 불필요. 다시 켜려면 return 제거 */
+  feat(function(){
+    return;
+    if(reduce)return;
+    var sec=document.getElementById('stats'); if(!sec)return;
+    var lastY=window.scrollY,dir=1,t=null;
+    function settle(){
+      var range=sec.offsetHeight-window.innerHeight; if(range<=0)return;
+      var r=sec.getBoundingClientRect(); var p=-r.top/range;
+      // 내려오며 진입하자마자(p≈0)~진입 구간에서 멈추면 가운데(p≈0.42)로 자동 안착
+      if(dir>=0 && p>-0.03 && p<0.40){
+        var target=(r.top+window.scrollY)+0.42*range;
+        var dist=Math.abs(target-window.scrollY);
+        if(dist<6)return;
+        // 거리에 비례한 일정 속도 글라이드(멀수록 시간↑) — 로켓처럼 빨라지는 것 방지
+        var dur=Math.max(1.0,Math.min(dist/(window.innerHeight*0.85),3.0));
+        var easeInOut=function(x){return x<0.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;};
+        if(window.__lenis) window.__lenis.scrollTo(target,{duration:dur,easing:easeInOut});
+        else window.scrollTo({top:target,behavior:'smooth'});
+      }
+    }
+    window.addEventListener('scroll',function(){
+      var y=window.scrollY; dir=y>=lastY?1:-1; lastY=y;
+      clearTimeout(t); t=setTimeout(settle,170);   // 스크롤 멈춘 뒤(관성 끝나고) 발동
+    },{passive:true});
+  });
+
+  /* [R3] 거래처/클라이언트 로고 무한 마퀴 (실제 로고 주면 <img>로 교체) */
+  feat(function(){
+    var refsWrap=document.querySelector('#refs .wrap'); if(!refsWrap)return;
+    var labels=['NAVER','KAKAO','거래처 A','에이전시 B','클라이언트 C','브랜드 D','파트너 E','스튜디오 F'];
+    var one=labels.map(function(l){return '<div class="lg">'+l+'</div>';}).join('');
+    var mq=document.createElement('div'); mq.className='logo-marquee';
+    mq.innerHTML='<div class="track">'+one+one+'</div>';
+    refsWrap.appendChild(mq);
+  });
+
+  /* [녹화11] 성과·레퍼런스 카드 컨베이어 — 오른쪽 아래→왼쪽 위 대각선, 겹치며 연속 흐름 */
+  feat(function(){
+    var sec=document.getElementById('refs'); if(!sec)return;
+    var cards=[].slice.call(document.querySelectorAll('#rcards .rcard')); if(!cards.length)return;
+    var aboutEl=document.getElementById('about');
+    var stick=sec.querySelector('.refstick');   // 카드 앵커(top:50%)의 기준 = refstick
+    var refbg=sec.querySelector('.refbg');       // REAL RESULTS 배경 글씨
+    var gapLock=null;   // /06 가운데 안착 순간의 about과의 간격(그대로 유지)
+    var N=cards.length;
+    function cl(v){return v<0?0:v>1?1:v;}
+    function lp(a,b,t){return a+(b-a)*t;}
+    var GAP=0.14, SPAN=0.30;             // 카드 간격 / 이동 구간(/06 가운데 안착 → 대기 → 다음섹션과 같은 속도로 상승)
+    var CAPT=0.58;   // 마지막 카드 정지 지점(0.5=가운데, >0.5=조금 더 위)
+    var centerP=(cards.length-1)*GAP + CAPT*SPAN;   // 마지막 카드가 정지점 도달하는 p
+    function fx(){
+      var vh=window.innerHeight, vw=window.innerWidth, r=sec.getBoundingClientRect(), range=sec.offsetHeight-vh;
+      var rv=vh;   // 첫 1화면 = 담당자 리빌 구간(컨베이어 정지 → 다크 인트로 깨끗이 드러남)
+      var p=(range>rv)?cl((-r.top - rv)/(range - rv)):0;
+      // ===== 이중 스크롤 =====
+      var C=0.85;                          // Stage1(카드) 끝 지점 — 리빌(p≈0.64~1)과 겹치도록 뒤로. 마지막 카드들이 리빌과 같이 상승(오버랩)
+      var cardP=cl(p/C);                   // Stage1 진행도(카드는 여기 안에서 다 올라감)
+      var s2=cl((p-C)/(1-C));              // Stage2 진행도(REAL RESULTS·회색 섹션이 스크롤로 올라감)
+      for(var i=0;i<N;i++){
+        var t=cl((cardP - i*GAP)/SPAN);    // 카드는 Stage1(cardP) 안에서 다 상승
+        var y=lp(vh*0.70, -vh*0.70, t);          // 수직 상승만(아래 → 위)
+        var op=(t>0.0005 && t<0.9995)?1:0;       // 페이드 없음(양끝 오프스크린)
+        var cw=cards[i].offsetWidth;
+        var xFull=vw/2 - 44 - cw/2;              // 완전 오른쪽 정렬(오른쪽 여백 44)
+        var xh=(i%2===0) ? xFull*0.3 : xFull;    // 지그재그: 짝=중앙쪽(더 왼쪽) / 홀=완전 오른쪽
+        cards[i].style.transform='translate(calc(-50% + '+xh+'px), calc(-50% + '+y+'px))';
+        cards[i].style.opacity=String(op);
+        cards[i].style.zIndex=String(10+i);
+      }
+      if(refbg && stick){   // REAL RESULTS: Stage1 고정 → Stage2에서 위로 슬라이드(회색 섹션 스크롤). viewport기준 → 언핀 튐 없음
+        var sr2=stick.getBoundingClientRect();
+        var stickC=sr2.top + sr2.height*0.5;                 // refbg 기본 viewport center(refstick 중심, 언핀 반영)
+        var desiredC=vh*0.5;                                 // 항상 viewport 중앙 고정(언핀돼도 안 튐, Stage2에서도 안 움직임)
+        refbg.style.transform='translateY(calc(-50% + '+(desiredC - stickC)+'px))';
+      }
+      if(aboutEl){   // about이 완전히 덮은 뒤 #refs(다크) 페이드(안 보이는 페이드)
+        var at=aboutEl.getBoundingClientRect().top;
+        sec.style.opacity=String(cl((at + vh*0.10)/(vh*0.10)));
+      }
+    }
+    window.addEventListener('resize',fx);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fx);
+    (function loop(){ fx(); requestAnimationFrame(loop); })();   // 매 프레임 → about 추종 부드럽게(버벅 제거)
+  });
+})();
+</script>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ===== 히어로 핀 스크롤 리빌 ===== */
+  var nav=document.getElementById('nav');
+  var navLogo=document.querySelector('.nav-logo');
+  var navLinks=document.querySelector('.nav-links');
+  var hero=document.getElementById('hero');
+  var heroBig=document.getElementById('heroBig');
+  var heroVid=document.getElementById('heroVid');
+  var heroCta=document.getElementById('heroCta');
+  var heroScroll=document.getElementById('heroScroll');
+  var heroBars=document.getElementById('heroBars');
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function clamp(v){return Math.min(Math.max(v,0),1);}
+  var siteBody=document.getElementById('siteBody');
+  var lastNavY=0, navAnchor=0, navDir=0;   // navAnchor=방향 전환 기준점, navDir=1내림/-1올림
+  function heroFx(){
+    if(!hero){return;}
+    var y=window.scrollY;
+    // 네비바: 내리면 숨김 / 올리면 보임(맨 위 근처는 항상 보임)
+    if(y<80){ nav.classList.remove('hide'); navAnchor=y; navDir=0; }   // 맨 위 근처는 항상 보임
+    else if(y>lastNavY){                              // 내리는 중
+      if(navDir!==1){ navDir=1; navAnchor=y; }        // 방향 바뀌면 기준점 리셋
+      if(y>navAnchor+40) nav.classList.add('hide');   // 누적 40px 내리면 숨김(천천히도 됨)
+    } else if(y<lastNavY){                            // 올리는 중
+      if(navDir!==-1){ navDir=-1; navAnchor=y; }
+      if(y<navAnchor-20) nav.classList.remove('hide');// 누적 20px 올리면 바로 보임
+    }
+    lastNavY=y;
+    // 스크롤 살짝 내리면 인트로 자동재생(시간기반 CSS). 맨 위로 오면 리셋.
+    document.body.classList.toggle('hero-go', y>120);
+    document.body.classList.toggle('ft-on', !!siteBody && siteBody.getBoundingClientRect().top <= 0);   // siteBody가 화면을 덮은 뒤에만 푸터 표시(히어로 비침 방지)
+    // 네비: 영상 위=투명+흰글씨(ondark), 흰 콘텐츠가 네비 뒤까지 차오르면 solid(흰배경+먹글씨)
+    var whiteBehind = siteBody ? (siteBody.getBoundingClientRect().top <= 66) : (y > window.innerHeight);
+    nav.classList.toggle('solid',whiteBehind);
+    nav.classList.toggle('ondark',!whiteBehind);
+  }
+  window.addEventListener('scroll',heroFx,{passive:true});
+  window.addEventListener('resize',heroFx); heroFx();
+
+  /* 푸터: sticky 홀드(dwell) + 자석 스냅 병행. dwell은 contact 박스 고정, 자석은 마지막 푸터 리빌 경계에서 착 */
+  (function(){
+    var footer=document.getElementById('footer'); if(!footer)return;
+    var MAGNET=true; if(!MAGNET) return;
+    var settling=false, lastY=window.scrollY;
+    function snap(){
+      if(settling || !window.__lenis) return;
+      var maxS=document.documentElement.scrollHeight - window.innerHeight;
+      var fh=footer.offsetHeight || 294;      // 푸터 높이 = 드러날 공간
+      var B=maxS, A=maxS - fh;                // A=컨텍트어스(홀드) / B=푸터 전체
+      if(A<0){ lastY=window.scrollY; return; }
+      var y=window.scrollY, down=y>lastY;
+      if(y>A+10 && y<B-10){                    // 전환 구간이면 방향으로 착 붙음
+        settling=true;
+        var tp=down?B:A;
+        window.__lenis.scrollTo(tp,{duration:1.28,lock:true,onComplete:function(){settling=false;}});
+      }
+      lastY=y;
+    }
+    window.addEventListener('scroll',snap,{passive:true});
+  })();
+
+  /* 모바일 메뉴(간단: 문의로 스크롤) */
+  document.getElementById('menuBtn').addEventListener('click',function(){
+    document.getElementById('services').scrollIntoView({behavior:reduce?'auto':'smooth'});
+  });
+
+  /* reveal on scroll */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+
+  /* 숫자 카운트업 — 스탯 카드 텍스트가 뜨는 순간(enter)에 1회 발동 */
+  var counted=false;
+  window.__runStatsCount=function(){
+    if(counted)return; counted=true;
+    document.querySelectorAll('.num').forEach(function(el){
+      var target=parseInt(el.getAttribute('data-count'),10)||0;
+      if(reduce||target===0){el.textContent=target;return;}
+      var t0=null,dur=1200;
+      function step(ts){if(!t0)t0=ts;var p=Math.min((ts-t0)/dur,1);
+        el.textContent=Math.floor(p*target);if(p<1)requestAnimationFrame(step);else el.textContent=target;}
+      requestAnimationFrame(step);
+    });
+  };
+
+  /* 서비스 hover 미리보기 팝업 (커서 따라감) — 서비스가 십자가 화면으로 이동해 지금은 미사용, 가드만 */
+  var pv=document.getElementById('svc-preview');
+  if(pv){
+  var pvImg=pv.querySelector('img'), pvCap=pv.querySelector('.cap'), pvU=pv.querySelector('.u');
+  var curCard=null;
+  document.querySelectorAll('.svc').forEach(function(card){
+    card.addEventListener('mouseenter',function(){
+      curCard=card;
+      pvImg.src=card.getAttribute('data-preview')||'';
+      pvCap.textContent=card.getAttribute('data-title')||'';
+      pvU.textContent=(card.getAttribute('data-url')||'#');
+      pv.classList.add('on');
+    });
+    card.addEventListener('mouseleave',function(){curCard=null;pv.classList.remove('on');});
+    card.addEventListener('click',function(e){
+      var url=card.getAttribute('data-url');
+      if(!url||url==='#'){e.preventDefault();toast('링크 준비 중입니다.\n실제 서비스 페이지 주소를 주시면 연결합니다.');}
+    });
+  });
+  window.addEventListener('mousemove',function(e){
+    if(!curCard)return;
+    var w=pv.offsetWidth,h=pv.offsetHeight,pad=18;
+    var x=e.clientX+pad, y=e.clientY+pad;
+    if(x+w>window.innerWidth)x=e.clientX-w-pad;
+    if(y+h>window.innerHeight)y=e.clientY-h-pad;
+    pv.style.left=x+'px'; pv.style.top=y+'px';
+  },{passive:true});
+  }
+
+  /* 문의 폼 (데모모드: Supabase 연결 전) */
+  var f=document.getElementById('contactForm');
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var need=['name','phone'];
+    for(var i=0;i<need.length;i++){var el=f.querySelector('[name="'+need[i]+'"]');if(!el.value.trim()){toast('이름과 연락처를 입력해주세요.');el.focus();return;}}
+    var cons=f.querySelector('[name="privacy"]');
+    if(cons&&!cons.checked){toast('개인정보 수집·이용 동의가 필요합니다.');return;}
+    /* TODO: window.__supa 연결되면 여기서 insert */
+    /* [C2] 제출 성공 → 체크 애니메이션 패널로 교체 */
+    var h=f.offsetHeight;
+    f.style.minHeight=h+'px';
+    f.innerHTML='<div class="form-ok">'+
+      '<div class="ok-check"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5 11-11"/></svg></div>'+
+      '<h3>문의가 접수되었습니다</h3>'+
+      '<p>담당자가 빠르게 연락드리겠습니다.<br />감사합니다.</p></div>';
+  });
+
+  var t=document.getElementById('toast'),tt;
+  function toast(m){t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},3200);}
+  window.__toast=toast;
+
+  /* 준비중 링크(개인정보처리방침·카카오 채널) */
+  document.querySelectorAll('.todo').forEach(function(el){
+    el.addEventListener('click',function(e){e.preventDefault();toast(el.getAttribute('data-msg')||'준비 중입니다.');});
+  });
+
+  /* [가로+스탯 통합] 가로 스크롤 → Work(단일) 벌어짐 → 로고 링 상승/확산 → 통계 하나씩 */
+  (function(){
+    var sec=document.getElementById('stats'); if(!sec)return;
+    var track=document.getElementById('statsTrack'); if(!track)return;
+    var big=track.querySelector('.hcol-big');
+    var mLeft=document.getElementById('mLeft'), mRight=document.getElementById('mRight');
+    var ring=document.getElementById('mRing');
+    var logos=ring?[].slice.call(ring.querySelectorAll('.m-logo')):[];
+    var wrap=document.getElementById('mStats');
+    var eyebrow=wrap?wrap.querySelector('.m-eyebrow'):null;
+    var stats=wrap?[].slice.call(wrap.querySelectorAll('.m-stat')):[];
+    var N=logos.length, counted=stats.map(function(){return false;});
+    function cl(v){return v<0?0:(v>1?1:v);}
+    function lp(a,b,t){return a+(b-a)*t;}
+    function hs(n){var s=Math.sin(n*127.1)*43758.5453;return s-Math.floor(s);}
+    var jitA=[],jitR=[],fAmp=[],fSpx=[],fSpy=[],fPx=[],fPy=[],baseX=[],baseY=[],baseOp=[],sxA=[],syA=[];
+    for(var k=0;k<N;k++){
+      jitA[k]=(hs(k+1)-0.5)*0.55; jitR[k]=(hs(k+21)-0.5)*0.42;
+      fAmp[k]=(9+hs(k+41)*10)*0.7; fSpx[k]=(0.4+hs(k+61)*0.5)*0.7; fSpy[k]=(0.4+hs(k+81)*0.5)*0.7;   // 흔들림 범위·속도 70%
+      fPx[k]=hs(k+101)*6.28; fPy[k]=hs(k+121)*6.28; baseX[k]=0;baseY[k]=0;baseOp[k]=0;sxA[k]=0;syA[k]=0;
+    }
+    var scW=0,scH=0;
+    // 피보나치 구 분포(단위벡터) — 퍼지기 전 지구본 형태
+    var sphU=[]; (function(){ var GA=Math.PI*(3-Math.sqrt(5)), CAP=0.82;   // CAP<1 → 극(최상·최하) 비움
+      for(var i=0;i<N;i++){ var yy=CAP - (i/Math.max(1,N-1))*2*CAP;
+        yy += (hs(i+700)-0.5)*0.14; if(yy>CAP)yy=CAP; if(yy<-CAP)yy=-CAP;   // 위도 살짝 불규칙
+        var rr=Math.sqrt(Math.max(0,1-yy*yy)), ph=i*GA + (hs(i+800)-0.5)*0.7;   // 경도 살짝 불규칙
+        sphU.push({x:Math.cos(ph)*rr, y:yy, z:Math.sin(ph)*rr}); } })();
+    var g_pb=0, g_riseK=0, g_vw=0, g_vh=0;   // fx→raf 공유(구 회전은 raf에서 시간기반)
+    function computeScatter(vw,vh){   // 2번 사진 배열 그대로 하드코딩(중심원점 비율 → px). 회전·펼침 모션은 그대로.
+      // DOM 인덱스 순서(0=OK토끼,1=스캔,2=B,3=LPOINT,4=스마일,5=superSOL,6=syrup,7=링,8=K,9=블루,
+      // 10=계단,11=신발코인,12=번개,13=ABLY,14=신발노랑,15=WON,16=allOne,17=Z,18=Tmoney,19=HappyPoint,20=M,21=pay)
+      var SC=[[-0.05,-0.33],[0.18,-0.39],[0.15,-0.22],[0.32,-0.15],[0.31,-0.39],[0.07,-0.44],[0.38,0.05],[0.23,0.01],[0.30,0.29],[0.20,0.21],[0.085,0.34],[-0.04,0.37],[-0.18,0.36],[-0.21,0.22],[-0.30,0.30],[-0.405,0.12],[-0.26,0.08],[-0.30,-0.37],[-0.35,-0.12],[-0.12,-0.45],[-0.245,-0.13],[-0.18,-0.31]];
+      var YOFF=0.05;   // 전체 살짝 아래로
+      for(var i=0;i<N;i++){ var s=SC[i]||[0,0]; sxA[i]=vw*s[0]; syA[i]=vh*(s[1]+YOFF); }
+    }
+    function countUp(el){var to=+el.getAttribute('data-count'),num=el.querySelector('.num'),t0=null,dur=688;   // 카운트업 1.6배 빠르게
+      function step(ts){if(t0==null)t0=ts;var kk=cl((ts-t0)/dur);num.textContent=Math.round(lp(0,to,kk));if(kk<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+    var FADE=0.04, HSTART=0.06, HEND=0.56;   // 마케팅 페이드 / 가로(03 중앙 홀드 포함) ~ WORK 중앙
+    var A1=0.24, A2=0.38, B1=0.58, B2=0.70;  // u기준: 2a+2b 홀드[A1~A2] / 03 홀드[B1~B2](짧게)
+    var SPLIT0=0.62, SPLIT1=0.70;            // WORK 벌어짐 + 로고 상승
+    var EXP0=0.76, EXP1=0.84;                // WORK 하강 + 링 확산
+    var targetX=0,curX=0,curInit=false;      // 가로 트랙 감쇠 추종
+    var lastP=0, settling=false, settled=false, clientHeld=false;   // 홀드→WORK 자동 안착 스크롤 / clientHeld=클라이언트 등장 후 1회 홀드
+    function fx(){
+      var vh=window.innerHeight, vw=window.innerWidth, r=sec.getBoundingClientRect(), range=sec.offsetHeight-vh;
+      var p=range>0?cl(-r.top/range):0;
+      if(big){ big.style.opacity=cl(p/FADE); }
+      var u=cl((p-HSTART)/(HEND-HSTART));
+      var workCol=track.querySelector('.hcol-work'), lastCol=track.querySelector('.hcol-last');
+      var max=workCol ? Math.max(1,(workCol.offsetLeft+workCol.offsetWidth/2)-vw/2) : Math.max(1,track.scrollWidth-vw);  // WORK 중심을 화면 정중앙에
+      var t03=lastCol ? ((lastCol.offsetLeft+lastCol.offsetWidth/2)-vw/2) : max*0.5;
+      var hp03=cl((t03 + vw*0.32)/max);     // 03을 더 왼쪽에 둔 지점에서 홀드
+      var el2a=track.querySelector('.hcol-2a'), el2b=track.querySelector('.hcol-down');
+      var c2ab=(el2a&&el2b) ? ((el2a.offsetLeft+el2a.offsetWidth/2 + el2b.offsetLeft+el2b.offsetWidth/2)/2 - vw/2) : (t03*0.5);
+      var hp2ab=cl((c2ab + vw*0.08)/max);   // 2a+2b 둘 다 보이는 지점(어떤 사업 안 잘리게)
+      // 4개 프레임 홀드: 중심(u) 유지 + 홀드 반폭 HH 통일(모든 홀드 동일 강도 = 옛 2ab의 60%)
+      var uM=0.07, u2=0.31, u3=0.64, HH=0;   // HH=0 → 홀드(플래토) 제거, 프레임은 점 + 자석 스냅만
+      var mE=uM+HH, aS=u2-HH, aE=u2+HH, bS=u3-HH, bE=u3+HH, wS=1-HH;
+      var hp;
+      if(u<mE) hp=0;                                           // 마케팅의 이유 홀드
+      else if(u<aS) hp=hp2ab*((u-mE)/(aS-mE));                 // 마케팅 → 2ab
+      else if(u<aE) hp=hp2ab;                                  // 2a+2b 홀드
+      else if(u<bS) hp=hp2ab+(hp03-hp2ab)*((u-aE)/(bS-aE));    // 2ab → 03
+      else if(u<bE) hp=hp03;                                   // 03 홀드
+      else if(u<wS) hp=hp03+(1-hp03)*((u-bE)/(wS-bE));         // 03 → WORK
+      else hp=1;                                               // WORK 홀드
+      targetX=-hp*max; if(!curInit){curX=targetX;curInit=true;}   // 감쇠 추종
+      // ===== 4개 프레임 양방향 자동 안착(Lenis scrollTo, 잠금으로 스킵 방지) =====
+      // 프레임: 마케팅의 이유(M) → 어떤 사업 2ab → 실행연구소는 03 → WORK
+      function u2p(uu){ return HSTART+uu*(HEND-HSTART); }
+      function settleP(pp){ settling=true;
+        var ty=window.scrollY + r.top + pp*range;
+        window.__lenis.scrollTo(ty,{duration:1.35,lock:true,onComplete:function(){settling=false;}}); }
+      function settleTo(uu){ settleP(u2p(uu)); }
+      var SH=HH*(HEND-HSTART)*0.5;   // 클라이언트 홀드 반폭 = 가로 홀드의 50%(p환산)
+      var pC=0.985;                  // 클라이언트 안착점(또렷할 때)
+      var down=p>lastP;
+      if(!settling && window.__lenis){
+        if(p>0.006 && u<uM){ if(down) settleTo(uM); }        // 진입: 마케팅 나타나기 시작 → 완전히
+        else if(u>mE && u<aS) settleTo(down?u2:uM);          // 마케팅 ↔ 2ab
+        else if(u>aE && u<bS) settleTo(down?u3:u2);          // 2ab ↔ 03
+        else if(u>bE && u<wS) settleTo(down?1:u3);           // 03 ↔ WORK
+        else if(down && !clientHeld && p>0.965 && p<0.99){ clientHeld=true; settleP(0.992); }   // 클라이언트(마지막 숫자)까지 다 뜬 뒤 1회 홀드(잠금 중 카운트업도 완료)
+      }
+      if(p<0.9) clientHeld=false;   // 위로 되돌아가면 홀드 재장전
+      lastP=p;
+      var pa=cl((p-SPLIT0)/(SPLIT1-SPLIT0));
+      var pb=cl((p-EXP0)/(EXP1-EXP0));
+      // WORK: 벌어짐만 지구본 곡선 따라(가로 벌어지며 중간에 살짝 위로 볼록=구 어깨) → 사이드 홀드 → 이후 낙하+페이드(기존)
+      var splitAmt=Math.sin(pa*Math.PI/2);          // 벌어짐 진행(부드럽게, pa=SPLIT0~SPLIT1)
+      var xS=vw*0.24*splitAmt;                       // 최종 벌어짐 유지(0.30→0.24, 덜 벌어지게)
+      var yBow=-vh*0.12*Math.sin(pa*Math.PI);        // 곡선: 중간에 위로 볼록, 시작·끝=0(직선 아닌 아크)
+      var dropWord=lp(0,vh*1.2,pb);                  // 홀드 후 낙하(기존)
+      var wordOp=1-cl((p-EXP0-0.01)/0.07);
+      if(mLeft){ mLeft.style.transform='translate('+(-xS)+'px, '+(yBow+dropWord)+'px)'; mLeft.style.opacity=String(cl(wordOp)); }
+      if(mRight){ mRight.style.transform='translate('+(xS)+'px, '+(yBow+dropWord)+'px)'; mRight.style.opacity=String(cl(wordOp)); }
+      var riseK=cl((p-SPLIT0)/(SPLIT1-SPLIT0));
+      if(vw!==scW||vh!==scH){ computeScatter(vw,vh); scW=vw; scH=vh; }   // 크기 바뀔 때만 재계산
+      g_pb=pb; g_riseK=riseK; g_vw=vw; g_vh=vh;   // 구↔산개 진행도 공유(실제 배치는 raf에서)
+      if(eyebrow) eyebrow.style.opacity=String(cl((p-0.86)/0.04));
+      var trig=[0.84,0.89,0.94];   // 확산 후 하나씩(끝 전에 충분히 카운트업)
+      for(var s=0;s<stats.length;s++){
+        var sp=cl((p-trig[s])/0.05);
+        stats[s].style.opacity=String(sp);
+        stats[s].style.transform='translateY('+lp(200,0,sp)+'px)';   // 더 아래에서 올라옴
+        if(sp>0.5 && !counted[s]){ counted[s]=true; countUp(stats[s]); }
+      }
+    }
+    function raf(t){
+      curX = targetX;                                // 지연(감쇠) 제거 → 즉시 추종(자석 스냅이 이동 담당)
+      track.style.transform='translateX('+curX+'px)';
+      var tt=t/1000;
+      var vw=g_vw||window.innerWidth, vh=g_vh||window.innerHeight, pb=g_pb, riseK=g_riseK;
+      var R=Math.min(vw,vh)*0.35;               // 구 반지름(1.3배)
+      var theta=tt*0.30, TILT=0.34;             // 자동 회전(느리게) + 살짝 기울여 보기
+      var cyy=Math.cos(theta), syy=Math.sin(theta), cxx=Math.cos(TILT), sxx=Math.sin(TILT), RAD=180/Math.PI;
+      var riseOff=lp(vh*0.5,0,riseK);           // 아래서 떠올라 구 형성
+      for(var i=0;i<N;i++){
+        var u=sphU[i];
+        var x1=u.x*cyy + u.z*syy, z1=-u.x*syy + u.z*cyy, y1=u.y;   // Y축 회전
+        var y2=y1*cxx - z1*sxx, z2=y1*sxx + z1*cxx;                // X축 기울임
+        var Xs=x1*R, Ys=y2*R, Zs=z2*R;
+        var RYs=Math.atan2(x1, z2)*RAD, RXs=-Math.asin(Math.max(-1,Math.min(1,y2)))*RAD;  // 구면 접선 방향
+        var sphOp=(0.28 + (z2+1)/2*0.72) * cl(riseK);   // 앞면 밝게, 등장 페이드
+        var dx=fAmp[i]*Math.sin(tt*fSpx[i]+fPx[i])*pb;  // 흔들림(산개 시)
+        var dy=fAmp[i]*Math.cos(tt*fSpy[i]+fPy[i])*pb;
+        var X=lp(Xs, sxA[i]+dx, pb);            // 구 → 평면 산개 모프
+        var Y=lp(Ys+riseOff, syA[i]+dy, pb);
+        var Z=lp(Zs, 0, pb);
+        var RY=lp(RYs,0,pb), RX=lp(RXs,0,pb);
+        var op=lp(sphOp, cl(1.0 - i*0.008), pb);
+        logos[i].style.transform='translate(-50%,-50%) translate3d('+X+'px,'+Y+'px,'+Z+'px) rotateY('+RY+'deg) rotateX('+RX+'deg)';
+        logos[i].style.opacity=String(op);
+      }
+      requestAnimationFrame(raf);
+    }
+    window.addEventListener('scroll',fx,{passive:true});
+    window.addEventListener('resize',fx);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fx);
+    fx(); requestAnimationFrame(raf);
+  })();
+
+  /* 십자가 시네마틱 — 밖에서 내려옴 → 회색 패널 커짐 → 회전 → 부서지며 사라짐 */
+  (function(){
+    var sec=document.getElementById('crossFx'),panel=document.getElementById('cfPanel'),cross=document.getElementById('cfCross'),svc=document.getElementById('cfSvc');
+    var ttl=sec?sec.querySelector('.cf-title'):null;
+    if(!sec||!panel||!cross)return;
+    function cl(v){return v<0?0:(v>1?1:v);}
+    function lp(a,b,t){return a+(b-a)*t;}
+    var lastP=0, settling=false, svcSnapped=false;   // 십자가 부서진 뒤 서비스 목록으로 자석 스냅
+    // 직선 십자가 = 작은 정사각형 타일들을 빽빽이 채워 만듦(부서지면 그 타일들이 조각)
+    var s=11, H=6, TH=0, ts=s+1, tiles=[], seen={};   // s=격자간격, H=팔 절반길이, TH=두께 절반(0→1타일=얇음), ts=표시크기(겹쳐 경계 숨김)
+    function addTile(cx,cy){
+      var el=document.createElement('span'); el.className='cf-tile';
+      el.style.width=ts+'px'; el.style.height=ts+'px'; el.style.margin=(-ts/2)+'px 0 0 '+(-ts/2)+'px';
+      var x=cx*s, y=cy*s, ang=(x||y)?Math.atan2(y,x):Math.random()*6.283;
+      ang+=(Math.random()-0.5)*0.8;
+      tiles.push({el:el,x:x,y:y,dx:Math.cos(ang),dy:Math.sin(ang),
+        rot:(Math.random()-0.5)*760, rnd:0.6+Math.random()*0.9});
+      cross.appendChild(el);
+    }
+    for(var cy=-H;cy<=H;cy++) for(var cx=-TH;cx<=TH;cx++){ var k=cx+','+cy; if(!seen[k]){seen[k]=1;addTile(cx,cy);} }  // 세로 바
+    for(var bx=-H;bx<=H;bx++) for(var by=-TH;by<=TH;by++){ var k2=bx+','+by; if(!seen[k2]){seen[k2]=1;addTile(bx,by);} } // 가로 바
+    function fx(){
+      var vh=window.innerHeight,vw=window.innerWidth,range=sec.offsetHeight-vh,r=sec.getBoundingClientRect();
+      var p=range>0?cl(-r.top/range):0;
+      if(ttl){ var tp=cl(p/0.11);                               // 인트로 타이틀: 페이드+상승 등장(느리게, 스크롤 0~0.11)
+        ttl.style.opacity=String(tp);
+        ttl.style.transform='translateX(-50%) translateY('+lp(30,0,tp)+'px)'; }
+      var gp=cl((p-0.26)/0.40);                                 // 패널 커짐(안착·정지 후 시작)
+      panel.style.width=lp(718,vw,gp)+'px';
+      panel.style.height=lp(320,vh,gp)+'px';
+      var desc=cl(p/0.10);                                      // 밖에서 내려옴 → 안착(p0.10, 더 일찍 도착)
+      var ty=lp(-72,0,desc)*vh/100;
+      var rot=lp(0,270,cl((p-0.26)/0.40));                      // 안착 후 살짝 멈췄다(0.16~0.26) 회전 시작
+      var scl=lp(0.8,2.2,gp);                                   // 확대
+      cross.style.transform='translate(0px,'+ty+'px) rotate('+rot+'deg) scale('+scl+')';
+      var sh=cl((p-0.70)/0.12);                                 // 회전 끝나고 조금 더 내린 뒤 부서짐(끝나면 p~0.82, 이후 서비스 유지 구간)
+      for(var i=0;i<tiles.length;i++){ var t=tiles[i];
+        var sd=sh*sh*520*t.rnd;                                 // 가속하며 흩어짐
+        var rz=sh*t.rot;                                        // 조각 회전
+        t.el.style.transform='translate('+(t.x+t.dx*sd)+'px,'+(t.y+t.dy*sd)+'px) rotate('+rz+'deg)';
+        t.el.style.opacity=String(cl(1-sh*1.15));
+      }
+      if(svc){                                                   // 부서짐 거의 끝나면 회색 화면에 서비스 등장
+        if(sh>0.85){ svc.classList.add('show'); } else { svc.classList.remove('show','live'); }
+        if(sh>=0.999){ svc.classList.add('live'); } else { svc.classList.remove('live'); }
+      }
+      // 십자가 부서지기 시작하면 → 스크롤 안 해도 자동으로 서비스 목록까지 재생(Lenis lock)
+      var down=p>lastP;
+      if(!settling && window.__lenis && down && !svcSnapped && p>0.70 && p<0.92){
+        svcSnapped=true; settling=true;
+        var ty=window.scrollY + r.top + 0.94*range;
+        window.__lenis.scrollTo(ty,{duration:1.6,lock:true,onComplete:function(){settling=false;}});   // 부서짐 재생되며 서비스까지 자동 진행
+      }
+      if(p<0.66) svcSnapped=false;   // 위로 되돌아가면(회전 구간 전) 재장전
+      lastP=p;
+    }
+    window.addEventListener('scroll',fx,{passive:true});window.addEventListener('resize',fx);fx();
+  })();
+
+  /* [X1] 십자가 회색화면 서비스 — hover 시 홈페이지 미리보기 창 팝업(커서 따라감) */
+  (function(){
+    var pv=document.getElementById('cfPreview'); if(!pv)return;
+    var pvImg=pv.querySelector('img'), pvCap=pv.querySelector('.cap'), pvU=pv.querySelector('.u');
+    var cur=null;
+    document.querySelectorAll('#cfSvc .cf-s').forEach(function(card){
+      card.addEventListener('mouseenter',function(){
+        cur=card;
+        pvImg.src=card.getAttribute('data-shot')||'';
+        pvCap.textContent=card.getAttribute('data-desc')||'';
+        pvU.textContent=card.getAttribute('data-url')||'#';
+        pv.classList.add('on');
+      });
+      card.addEventListener('mouseleave',function(){ cur=null; pv.classList.remove('on'); });
+      card.addEventListener('click',function(e){
+        var url=card.getAttribute('data-url');
+        if(!url||url==='#'){ e.preventDefault(); if(window.__toast)window.__toast('링크 준비 중입니다.\n실제 서비스 페이지 주소를 주시면 연결합니다.'); }
+      });
+    });
+    window.addEventListener('mousemove',function(e){
+      if(!cur)return;
+      var w=pv.offsetWidth,h=pv.offsetHeight,pad=18;
+      var x=e.clientX+pad, y=e.clientY+pad;
+      if(x+w>window.innerWidth)x=e.clientX-w-pad;
+      if(y+h>window.innerHeight)y=e.clientY-h-pad;
+      pv.style.left=x+'px'; pv.style.top=y+'px';
+    },{passive:true});
+  })();
+
+  /* 서비스: 핀 시네마틱 제거됨 — 이제 평범한 흰 섹션(카드는 reveal로 등장) */
+
+  /* 담당자 클릭 → 상세 모달 */
+  (function(){
+    var modal=document.getElementById('member-modal');
+    if(!modal) return;
+    var nm=document.getElementById('mmName'),ro=document.getElementById('mmRole'),
+        ph=document.getElementById('mmPhoto'),bi=document.getElementById('mmBio');
+    var scroll=modal.querySelector('.mm-scroll'),bar=modal.querySelector('.mm-bar'),thumb=modal.querySelector('.mm-thumb');
+    function syncBar(){
+      if(!scroll||!bar||!thumb)return;
+      var max=scroll.scrollHeight-scroll.clientHeight;
+      if(max<=1){bar.style.display='none';return;}
+      bar.style.display='block';
+      var p=scroll.scrollTop/max;
+      var travel=bar.clientHeight-thumb.clientHeight;
+      thumb.style.transform='translateY('+(p*travel)+'px)';
+    }
+    if(scroll){scroll.addEventListener('scroll',syncBar,{passive:true});}
+    window.addEventListener('resize',syncBar);
+    function openM(el){
+      nm.textContent=el.getAttribute('data-name')||'';
+      ro.textContent=el.getAttribute('data-role')||'';
+      ph.src=el.getAttribute('data-photo')||'';
+      bi.textContent=el.getAttribute('data-bio')||'';
+      modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+      if(window.__lenis)window.__lenis.stop();   // 모달 열면 배경 관성스크롤 정지
+      if(scroll){scroll.scrollTop=0;}
+      requestAnimationFrame(syncBar);setTimeout(syncBar,120);
+    }
+    function closeM(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';
+      if(window.__lenis)window.__lenis.start();}
+    document.querySelectorAll('.member').forEach(function(m){
+      m.addEventListener('click',function(){openM(m);});
+      var img=m.querySelector('img');
+      if(img){
+        img.onerror=function(){this.onerror=null;this.src='assets/team/_ph.svg';};  // 사진 없으면 사람 실루엣
+        var real=m.getAttribute('data-photo'); if(real){img.src=real;}
+      }
+    });
+    modal.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',closeM);});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
+  })();
+
+  /* ===== 히어로 멀티 영상 캐러셀 (하단 바 진행표시 · 자동전환 · 바 클릭이동) ===== */
+  (function(){
+    var vids=[].slice.call(document.querySelectorAll('.hv'));
+    var bars=[].slice.call(document.querySelectorAll('.hbar'));
+    if(!vids.length){return;}
+    var cur=0;
+    function fill(i){return bars[i]?bars[i].querySelector('i'):null;}
+    function setFill(i,r){var f=fill(i); if(f){f.style.transform='scaleX('+Math.max(0,Math.min(r,1))+')';}}
+    function activate(i){
+      cur=i;
+      vids.forEach(function(v,k){
+        v.classList.toggle('active',k===i);
+        if(k!==i){try{v.pause();}catch(e){}}
+      });
+      bars.forEach(function(b,k){ if(k!==i) setFill(k,0); });
+      var v=vids[i];
+      try{v.currentTime=0;}catch(e){}
+      var p=v.play(); if(p&&p.catch){p.catch(function(){});}
+    }
+    vids.forEach(function(v,i){
+      v.addEventListener('ended',function(){ if(i===cur){activate((cur+1)%vids.length);} });
+    });
+    bars.forEach(function(b,i){ b.addEventListener('click',function(){ activate(i); }); });
+    function tick(){                       // 매 프레임 갱신 → 부드러운 진행바
+      var v=vids[cur], d=(v&&v.duration)||0;
+      if(d){ setFill(cur, v.currentTime/d); }
+      requestAnimationFrame(tick);
+    }
+    activate(0);
+    requestAnimationFrame(tick);
+  })();
+})();
+</script>
+</body>
+</html>
