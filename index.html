@@ -1120,8 +1120,8 @@
       }
     },{passive:true});
   })();
-  /* ===== [DEV 전용] 새로고침 시 스크롤 위치 유지 — 배포 전 이 블록 삭제 ===== */
-  var DEV_SCROLL_KEEP=true;
+  /* ===== 새로고침 스크롤: 로컬(개발)=위치 유지 / 배포=항상 맨 위 (hostname 자동 구분) ===== */
+  var DEV_SCROLL_KEEP=/^(localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.|10\.)/.test(location.hostname)||location.protocol==='file:';
   if(DEV_SCROLL_KEEP){
     try{ history.scrollRestoration='manual'; }catch(e){}
     var _sk='__devScroll';
@@ -1134,8 +1134,11 @@
     var _st=0;
     window.addEventListener('scroll',function(){ if(_st)return; _st=setTimeout(function(){_st=0; sessionStorage.setItem(_sk, String(window.scrollY||lenis.scroll||0)); },120); },{passive:true});
     window.addEventListener('beforeunload',function(){ sessionStorage.setItem(_sk, String(window.scrollY||lenis.scroll||0)); });
+  } else {                                              // 배포: 새로고침 시 항상 맨 위에서 시작
+    try{ history.scrollRestoration='manual'; }catch(e){}
+    window.scrollTo(0,0); if(lenis) lenis.scrollTo(0,{immediate:true,force:true});
   }
-  /* ===== [DEV 전용] 끝 ===== */
+  /* ===== 스크롤 유지 블록 끝 ===== */
   // 네비 클릭 = 콘텐츠 줌 크로스페이드(현재 축소+페이드아웃 → 다음 페이드인+확대). 그 외 앵커 = 기존 이동
   var siteBody=document.getElementById('siteBody');
   var backdrop=document.createElement('div'); backdrop.id='navBackdrop'; document.body.appendChild(backdrop);
