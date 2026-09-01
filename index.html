@@ -1106,6 +1106,20 @@
   window.__lenis=lenis;
   function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
   requestAnimationFrame(raf);
+  /* 강하게 연속 스크롤(플릭)하면 자석·홀드 락(lock:true) 무시하고 그 방향으로 뚫고 진행 — "빨리 내려도 안 넘어감" 방지 */
+  (function(){ var acc=0, t0=0;
+    window.addEventListener('wheel',function(e){
+      var now=e.timeStamp||0;
+      if(now-t0>190) acc=0;                                  // 잠깐 쉬면 리셋
+      t0=now;
+      acc = (acc>0)===(e.deltaY>0) ? acc+e.deltaY : e.deltaY;// 같은 방향만 누적
+      if(Math.abs(acc)>560){                                 // 강한 연속 스크롤 = 락 뚫기
+        var dir=acc>0?1:-1, base=(lenis.animatedScroll!=null?lenis.animatedScroll:window.scrollY);
+        lenis.scrollTo(base+dir*window.innerHeight*0.92,{duration:0.5,force:true,lock:false});
+        acc=0;
+      }
+    },{passive:true});
+  })();
   /* ===== [DEV 전용] 새로고침 시 스크롤 위치 유지 — 배포 전 이 블록 삭제 ===== */
   var DEV_SCROLL_KEEP=true;
   if(DEV_SCROLL_KEEP){
@@ -1406,7 +1420,7 @@
         if(titleOn) title.classList.add('shown'); else if(p<0.06) title.classList.remove('shown'); }   // 재장전(위로 되감으면 리셋)
       // 회전단어 자석: 설계·움직·완성 각각에 착 안착(슬라이드 전까지)
       var iDown=p>iLastP; iLastP=p;
-      if(!iSettling && window.__lenis && range>0 && p<SLIDE0 && Math.abs(window.__lenis.velocity||0)<60){
+      if(!iSettling && window.__lenis && range>0 && p<SLIDE0 && Math.abs(window.__lenis.velocity||0)<40){
         var DZ=0.012, tgt=-1;
         if(p<WP[0]-DZ){ if(iDown && p>0.15) tgt=WP[0]; }   // 채움 후 → 설계
         else for(var wk=0;wk<WP.length-1;wk++){ if(p>WP[wk]+DZ && p<WP[wk+1]-DZ){ tgt=iDown?WP[wk+1]:WP[wk]; break; } }
@@ -1572,7 +1586,7 @@
       if(lead){ lead.style.opacity=String(cl(g_intro/0.5)); }   // 패널 슬라이드로 들어옴 — 페이드만
       // 키워드 자석: 각 안착점으로 착(양방향, 짧은 홀드), 5개 전부 (슬라이드 끝난 뒤)
       var down=p>lastP; lastP=p;
-      if(!settling && window.__lenis && p>SLIDE1 && range>0 && Math.abs(window.__lenis.velocity||0)<60){
+      if(!settling && window.__lenis && p>SLIDE1 && range>0 && Math.abs(window.__lenis.velocity||0)<40){
         var DZ=0.022, tgt=-1;
         if(pp<KP[0]-DZ){ if(down) tgt=KP[0]; }
         else{ for(var k=0;k<4;k++){ if(pp>KP[k]+DZ && pp<KP[k+1]-DZ){ tgt=down?KP[k+1]:KP[k]; break; } } }
@@ -1804,12 +1818,12 @@
   function clamp(v){return Math.min(Math.max(v,0),1);}
   var siteBody=document.getElementById('siteBody');
   var lastNavY=0, navAnchor=0, navDir=0;   // navAnchor=방향 전환 기준점, navDir=1내림/-1올림
+  nav.classList.add('hide');   // 처음엔 네비 숨김(빈 프로스티드 바 안 보이게) — 올릴 때만 나타남
   function heroFx(){
     if(!hero){return;}
     var y=window.scrollY;
-    // 네비바: 내리면 숨김 / 올리면 보임(맨 위 근처는 항상 보임)
-    if(y<80){ nav.classList.remove('hide'); navAnchor=y; navDir=0; }   // 맨 위 근처는 항상 보임
-    else if(y>lastNavY){                              // 내리는 중
+    // 네비바: 처음/내리는 중=숨김 / 올리는 중=보임 (맨 위 강제표시 제거)
+    if(y>lastNavY){                                   // 내리는 중
       if(navDir!==1){ navDir=1; navAnchor=y; }        // 방향 바뀌면 기준점 리셋
       if(y>navAnchor+40 && !navHover) nav.classList.add('hide');   // 누적 40px 내리면 숨김(단, 마우스 올려져 있으면 유지)
     } else if(y<lastNavY){                            // 올리는 중
@@ -1834,7 +1848,7 @@
     var MAGNET=true; if(!MAGNET) return;
     var settling=false, lastY=window.scrollY;
     function snap(){
-      if(settling || !window.__lenis || Math.abs(window.__lenis.velocity||0)>=60) return;   // 빠르게 확 내리면 자석 스킵
+      if(settling || !window.__lenis || Math.abs(window.__lenis.velocity||0)>=40) return;   // 빠르게 확 내리면 자석 스킵
       var maxS=document.documentElement.scrollHeight - window.innerHeight;
       var fh=footer.offsetHeight || 294;      // 푸터 높이 = 드러날 공간
       var B=maxS, A=maxS - fh;                // A=컨텍트어스(홀드) / B=푸터 전체
@@ -2011,7 +2025,7 @@
       var SH=HH*(HEND-HSTART)*0.5;   // 클라이언트 홀드 반폭 = 가로 홀드의 50%(p환산)
       var pC=0.985;                  // 클라이언트 안착점(또렷할 때)
       var down=p>lastP;
-      if(!settling && window.__lenis && Math.abs(window.__lenis.velocity||0)<60){   // 빠르게 확 내리면 안착 스킵
+      if(!settling && window.__lenis && Math.abs(window.__lenis.velocity||0)<40){   // 빠르게 확 내리면 안착 스킵
         if(p>0.006 && u<uM){ if(down) settleTo(uM); }        // 진입: 마케팅 나타나기 시작 → 완전히
         else if(u>mE && u<aS) settleTo(down?u2:uM);          // 마케팅 ↔ 2ab
         else if(u>aE && u<bS) settleTo(down?u3:u2);          // 2ab ↔ 03
@@ -2124,7 +2138,7 @@
       }
       // 부서지기 시작하면 → 스크롤 안 해도 자동으로 서비스까지 재생(양방향)
       var down=p>lastP;
-      if(!settling && window.__lenis && Math.abs(window.__lenis.velocity||0)<60){   // 빠르게 확 내리면 안착 스킵
+      if(!settling && window.__lenis && Math.abs(window.__lenis.velocity||0)<40){   // 빠르게 확 내리면 안착 스킵
         if(down && !svcSnapped && p>0.70 && p<0.94){          // 아래로: 서비스까지 자동(조금 느리게)
           svcSnapped=true; settling=true;
           window.__lenis.scrollTo(window.scrollY+r.top+0.96*range,{duration:2.1,lock:true,onComplete:function(){settling=false;}});
