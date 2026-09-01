@@ -93,20 +93,26 @@
 
   /* ============ 네비 ============ */
   /* 네비: 상단(흰 배경)=먹글씨 / 영상 풀스크린 구간=흰글씨(ondark) / 히어로 지나면 solid(흰배경+중앙로고) */
-  header.nav{position:fixed;top:0;left:0;right:0;z-index:50;color:#161514;
+  header.nav{position:fixed;top:14px;left:6%;right:6%;z-index:50;color:#161514;
+    border-radius:16px;   /* 아이폰식 플로팅 아일랜드(위·양옆 여백, 둥근 모서리) */
+    background:linear-gradient(180deg,rgba(255,255,255,.60),rgba(255,255,255,.42));
+    -webkit-backdrop-filter:blur(24px) saturate(185%);backdrop-filter:blur(24px) saturate(185%);
+    border:none;
+    box-shadow:0 4px 13px rgba(17,17,17,.08);   /* 애플 유리: 강블러+채도(뒤 화면 배어남), 테두리·sheen 제거, 그림자 더 축소(60%) */
     transition:background .3s var(--ease),box-shadow .3s var(--ease),border-color .3s,color .13s,transform .45s var(--ease)}
-  header.nav.hide{transform:translateY(-105%)}   /* 내릴 때 숨김 */
-  header.nav.ondark{color:#fff}
-  header.nav.solid{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);color:#161514;
-    border-bottom:1px solid var(--gray-200);box-shadow:var(--shadow-sm)}
-  .nav-in{display:grid;grid-template-columns:1fr auto;align-items:center;height:64px;padding:0 40px}   /* 좌:링크 / 우:로고 */
+  header.nav.hide{transform:translateY(-140%)}   /* 내릴 때 숨김(여백까지 완전히) */
+  #siteBody{will-change:transform,opacity}   /* 네비 클릭 줌 크로스페이드용 */
+  #navBackdrop{position:fixed;inset:0;z-index:0;background:#f3f4f1;opacity:0;pointer-events:none}   /* 페이드 중 뒤 히어로 가림(즉시 on/off) */
+  header.nav.ondark{color:#161514}   /* 항상 흰 프로스티드 → 글씨 계속 어둡게(흰글씨 중화) */
+  header.nav.solid{box-shadow:0 4px 14px rgba(17,17,17,.10)}   /* 스크롤 시 그림자만(더 축소 60%) */
+  .nav-in{display:grid;grid-template-columns:1fr auto;align-items:center;height:50px;padding:0 24px}   /* 좌:링크 / 우:로고 (플로팅 바, 0.9배) */
   .nav-left{justify-self:start;display:flex;align-items:center;gap:16px}
-  .nav-links{display:flex;align-items:center;gap:26px;opacity:0;transform:translateY(-3px);
+  .nav-links{display:flex;align-items:center;gap:26px;opacity:0;transform:translateY(0px);
     transition:opacity .6s var(--ease) .6s}   /* 인트로 후반 페이드인, 살짝 위로 */
   .nav-links a{font-size:14.5px;font-weight:500;color:currentColor;opacity:.8;transition:opacity .15s}
   .nav-links a:hover{opacity:1}
   /* 중앙 로고 — 창 밖(위)에서 내려와 상단 안착. top(=padding-top) 고정, 커진 만큼 아래로 확장(line-height:1+align-start). */
-  .nav-logo{justify-self:center;align-self:start;padding-top:8px;line-height:1;
+  .nav-logo{justify-self:center;align-self:center;padding-top:0;line-height:1;
     font-family:var(--brand-font);font-size:26px;font-weight:400;letter-spacing:.04em;color:currentColor;
     pointer-events:none;transform:translateY(-60vh);will-change:transform;
     transition:transform .9s var(--ease) .3s,color .13s}
@@ -141,7 +147,9 @@
   .hero-bars{position:absolute;bottom:30px;left:50%;transform:translate(-50%,30px);opacity:0;z-index:5;display:flex;gap:10px;
     transition:transform .5s var(--ease),opacity .5s var(--ease)}   /* 리버스(올릴때)=딜레이 없이 빠르게 */
   .hbar{width:62px;height:3px;padding:0;border:0;border-radius:3px;background:rgba(255,255,255,.28);
-    position:relative;overflow:hidden;cursor:pointer;transition:height .15s}
+    position:relative;cursor:pointer;transition:height .15s}
+  .hbar::before{content:"";position:absolute;left:0;right:0;top:-16px;bottom:-16px}   /* 보이는 바는 그대로, 클릭범위만 위아래로 확장 */
+  .hbar i{border-radius:3px}   /* overflow 제거 대비: 채움바 모서리 유지 */
   .hbar:hover{height:4px}
   .hbar i{position:absolute;left:0;top:0;height:100%;width:100%;background:#fff;border-radius:3px;
     transform:scaleX(0);transform-origin:left;will-change:transform}
@@ -193,17 +201,18 @@
   }
 
   /* ============ [가로 스크롤 에디토리얼] 마케팅의 이유 ============ */
-  .hsec{position:relative;height:1100vh;background:#fff}   /* 가로(03 홀드) + Work 벌어짐/로고/통계 통합 */
+  .hsec{position:relative;height:1130vh;background:#fff}   /* 가로+Work+로고+통계 (끝에 클라 홀드 +30vh) */
+  .stats-refs-gap{height:150vh;background:#fff}   /* 스탯↔레퍼런스 흰 버퍼(레퍼런스 -100vh가 이걸 덮음 → 통계 다 보인 뒤 전환) */
   .hsec .hstick{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center}
   .hsec .htrack{position:relative;display:flex;align-items:center;height:100%;padding:0 9vw;gap:8vw;will-change:transform}
   .hsec .hgroup{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:32vw;height:100%}
-  .hsec .hline{position:absolute;left:0;right:-30vw;top:calc(50% + 10px);height:1.7px;background:#111111}   /* 03(비지니스 파트너) 바로 앞에서 끊김, 굵기 85% */
+  .hsec .hline{position:absolute;left:0;right:-30vw;top:calc(50% + 10px);height:1.7px;background:#111111}   /* 03(비즈니스 파트너) 바로 앞에서 끊김, 굵기 85% */
   .hsec .hgap{flex:0 0 auto;width:68vw}   /* 03↔WORK 간격(1.3배) */
   .hsec .hcol-up{transform:translateY(-48px)}     /* 줄 위 */
   .hsec .hcol-2a{margin-left:-14vw}               /* 어떤 사업이라도~ 왼쪽으로 */
   .hsec .hcol-down{transform:translateY(70px);margin-left:-26vw}    /* 하지만~ 줄 아래(위로 조금 올림). 간격 원래대로 */
   .hsec .hcol-mid{transform:translateY(10px)}     /* 가운데 줄이 가로선 중앙에 오도록 */
-  .hsec .hcol-last{position:relative;margin-left:24vw}   /* 03: 2b와 간격 넓게, 비지니스 파트너로서가 선 사이에 끼게 */
+  .hsec .hcol-last{position:relative;margin-left:24vw}   /* 03: 2b와 간격 넓게, 비즈니스 파트너로서가 선 사이에 끼게 */
   .hsec .hcol-last::after{content:"";position:absolute;left:100%;top:50%;margin-left:1.6vw;width:13vw;height:1.7px;background:#111111;transform:translateY(-0.85px)}   /* 파트너 뒤에서 다시 시작해 조금 이어짐, 굵기 85% */
   .hsec .hcol{flex:0 0 auto;position:relative}
   .hsec .hrule{flex:0 0 auto;width:1px;height:60vh;background:rgba(0,0,0,.16)}
@@ -364,37 +373,64 @@
 
   /* ============ 조직도 ============ */
   #team{position:relative;background:#fff}
-  /* Phase 1: 인트로 띠(가로 블록 왼→오 차오름) */
-  .team-intro-wrap{position:relative;height:230vh}   /* 채움+홀드+사라짐 스크롤 길이 */
-  .team-intro{position:sticky;top:0;height:100vh;overflow:hidden;display:grid;place-items:center start;padding-left:7vw;background:#fff}   /* 왼쪽 정렬 */
-  .band-fill{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}   /* 섹션 꽉 채움(아래→위) */
+  /* 팀 가로 스테이지: 인트로(왼쪽 패널) → 스크롤로 트랙 왼쪽 이동 → 플렉서스(오른쪽 패널) */
+  .team-stage-wrap{position:relative;height:860vh;z-index:1}   /* 스테이지 스크롤 길이 */
+  .team-stage{position:sticky;top:0;height:100vh;overflow:hidden;
+    background:linear-gradient(180deg,#7CFF76 0%,#67F061 50%,#4CDD55 100%)}   /* A: 연한 세로 그라데이션(패널과 통일, 경계 안 끊김) */
+  /* B: 미세 그레인(필름 노이즈) — 초록 평평함 제거 */
+  .team-stage::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;opacity:.10;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:140px 140px}
+  .team-track{position:absolute;top:0;left:0;width:200vw;height:100%;will-change:transform}   /* 가로 트랙(2패널) */
+  .stage-panel{position:absolute;top:0;width:100vw;height:100%;overflow:hidden}
+  .intro-panel{left:0;background:#fff;display:grid;place-items:center start;padding-left:7vw}   /* 왼쪽 정렬 */
+  .plexus-panel{left:100vw;background:linear-gradient(180deg,#7CFF76 0%,#67F061 50%,#4CDD55 100%)}   /* A: 세로 그라데이션(패널 경계 안 끊기게 linear로 통일) */
+  .band-fill{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}   /* 패널 꽉 채움(아래→위) */
   .team-intro-title{position:relative;z-index:2;text-align:left;opacity:0;will-change:opacity}
   .team-intro-title h2{font-size:clamp(26px,3.4vw,38px);font-weight:480;letter-spacing:-.02em;color:#111111;margin:0 0 0 10px;text-transform:uppercase}   /* OUR TEAM 대문자, 크기 반, 검정, 살짝 오른쪽 */
   .team-intro-title p{font-size:clamp(66px,7.2vw,93px);color:#111111;margin:8px 0 0;font-weight:600;line-height:1.1}   /* 한글 3배, 검정 */
+  .team-intro-title .bw{display:inline-block;filter:blur(16px);opacity:0;transition:filter .43s var(--ease),opacity .43s var(--ease);transition-delay:calc(var(--i,0)*0.087s)}   /* 단어별 초점 인(녹화14: 블러+투명도, 읽는 순서 시차, 1.5배 빠름) */
+  .team-intro-title.shown .bw{filter:blur(0);opacity:1}
   .rot-word{display:inline-block;overflow:hidden;height:1.1em;line-height:1.1;vertical-align:bottom}   /* 세로 롤 창(녹화13) */
   .rot-reel{display:block;will-change:transform}
   .rot-reel span{display:block;height:1.1em;line-height:1.1}
   /* Phase 2: 검정 카드창(페이지 고정, 안쪽만 스크롤, 2줄) */
-  .team-cards-wrap{position:relative;height:560vh}   /* 내부 스크롤 길이(전환 더 나중에) */
+  .team-cards-wrap{position:relative;height:180vh}   /* 인물1 대체: 카드 부채꼴(핀 dwell 확보 → 위아래 인접섹션 안 삐져나옴) */
   .team-tail{height:160vh;background:#fff}   /* 검정 박스 아래 흰 공간(섹션 길이). refs가 끝 100vh 덮음 → 실제 흰 ~60vh */
-  /* 플렉서스(5노드 궤도) */
-  .team-plexus-wrap{position:relative;height:720vh;background:#55E85C}
-  .team-plexus{position:sticky;top:0;height:100vh;overflow:hidden;background:#55E85C}
+  /* 플렉서스(3D 별자리) — 오른쪽 패널 */
   #plexusCv{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
-  .plexus-exit{position:absolute;left:7vw;top:50%;transform:translateY(-50%);z-index:4;color:#111111;font-weight:600;font-size:clamp(48px,7.2vw,93px);line-height:1.1}
-  .plexus-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;text-align:center;color:#111111;font-weight:700;font-size:clamp(22px,2.6vw,34px);line-height:1.45;opacity:0;pointer-events:none;white-space:nowrap}
-  .plexus-node{position:absolute;left:0;top:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;will-change:transform,opacity;pointer-events:none}
-  .plexus-node .pn-dot{width:66px;height:66px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,0,0,.18);flex:0 0 auto}
-  .plexus-node .pn-dot svg{width:30px;height:30px}
-  .plexus-node .pn-ai{font-size:22px;font-weight:800;color:#111111;letter-spacing:.5px}
-  .plexus-node .pn-lab{text-align:center;line-height:1.2}
-  .plexus-node .pn-lab b{display:block;font-size:16px;font-weight:800;color:#111111}
-  .plexus-node .pn-lab i{display:block;font-size:11px;font-style:normal;letter-spacing:1.5px;color:#111111;opacity:.7;margin-top:2px}
-  .team-cards{position:sticky;top:0;height:100vh;display:grid;place-items:center;background:#fff}
-  .cards-viewport{position:relative;width:min(1120px,92%);height:82vh;background:#111111;border-radius:13px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.22)}   /* 곡률 13px */
+  .plexus-lead{position:absolute;left:6vw;top:40%;transform:translateY(-50%);z-index:2;color:#111111;font-weight:700;font-size:clamp(36px,4.4vw,62px);line-height:1.4;opacity:0;will-change:opacity}   /* 왼쪽 위 */
+  .plexus-lead::before{content:"";position:absolute;inset:-40px -90px;z-index:-1;   /* 뒤 노드 블러(프로스트, 강하게) */
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    -webkit-mask:radial-gradient(120% 115% at 45% 50%,#000 58%,transparent 100%);mask:radial-gradient(120% 115% at 45% 50%,#000 58%,transparent 100%)}
+  .team-cards{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;background-color:#f3f4f1;background-image:radial-gradient(rgba(118,124,112,.18) 0.9px,transparent 1.05px);background-size:16.8px 16.8px}   /* 연한 회백색+회색점 바탕. overflow:hidden=옆 카드 가로넘침 클립 */
+  /* ===== 담당자 = 카드 스택 + 부서 탭 (인물1 대체) ===== */
+  #teamData{display:none}
+  .tstack{position:relative;width:min(600px,94vw);height:min(468px,58vh);margin-bottom:34px;touch-action:none}
+  .tcard{position:absolute;left:50%;bottom:0;width:min(248px,64vw);background:#fff;border-radius:16px;overflow:hidden;
+    box-shadow:0 16px 40px rgba(17,17,17,.16);cursor:pointer;transform-origin:50% 50%;will-change:transform,opacity;
+    transition:transform .5s cubic-bezier(.2,.85,.25,1),opacity .4s ease,box-shadow .4s}
+  .tcard.front{box-shadow:0 30px 66px rgba(17,17,17,.26)}
+  .tc-photo{position:relative;width:100%;aspect-ratio:1/1;background:var(--gray-100);overflow:hidden}
+  .tc-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .tc-body{padding:13px 16px 15px}
+  .tc-name{font-family:var(--brand-font,'ZEN-SERIF',serif);font-size:clamp(19px,2.3vw,25px);font-weight:500;color:#111;letter-spacing:-.01em;margin:0 0 2px}
+  .tc-role{font-size:11.5px;color:#1f9b34;font-weight:700;margin-bottom:6px}
+  .tc-bio{font-size:11.5px;line-height:1.55;color:#666;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .dept-tabs{position:relative;display:inline-flex;gap:2px;background:#fff;border-radius:999px;padding:5px;box-shadow:0 12px 32px rgba(17,17,17,.12)}
+  .dept-tab-ind{position:absolute;top:5px;bottom:5px;left:0;width:0;background:var(--green,#55E85C);border-radius:999px;z-index:0;
+    transition:left .4s cubic-bezier(.16,1,.3,1),width .4s cubic-bezier(.16,1,.3,1)}   /* 부서 전환 시 좌우로 슬라이드 */
+  .dept-tab{position:relative;z-index:1;border:none;background:transparent;padding:11px 18px;border-radius:999px;font-size:14px;font-weight:600;color:#555;cursor:pointer;white-space:nowrap;transition:color .3s}
+  .dept-tab:hover{color:#111}
+  .dept-tab.is-on{color:#0d2116}
+  @media(max-width:560px){.dept-tab{padding:9px 12px;font-size:12px}}
+  .cards-viewport{position:relative;width:min(1120px,92%);height:82vh;background:#fff;border-radius:13px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.22)}   /* 곡률 13px · 카드창 안 = 흰색 */
   .cards-inner{position:absolute;left:0;top:0;width:100%;padding:0 44px;will-change:transform}
   .team-group{height:82vh;display:flex;flex-direction:column;justify-content:center;margin:0}   /* 그룹=페이지(카드·글씨 중앙, 위아래 여백) */
   .team-group:last-child{margin-bottom:0}
+  /* 부서 사이 공간 + 그라데이션(그룹 크기 82vh는 그대로, 넘어갈 때 이 구간이 지나감) */
+  .team-divider{height:34vh;position:relative;pointer-events:none}
+  .team-divider::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 55% at 50% 50%,rgba(61,187,69,.10),rgba(61,187,69,0) 68%)}
+  .team-divider::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(78%,480px);height:1px;background:linear-gradient(90deg,transparent,rgba(61,187,69,.5),transparent)}
   .team-group h3{font-size:15px;color:#3DBB45;margin-bottom:16px;display:flex;align-items:center;gap:10px}   /* 부서 제목(검정 위 초록) */
   .team-group h3::before{content:"";width:8px;height:8px;border-radius:3px;background:#3DBB45}
   .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:25px 18px;max-width:85%;margin:0 auto}   /* 카드 85%, 위아래 간격 1.4배(row 25px) */
@@ -470,10 +506,10 @@
     transform:translate(-50%,-50%);border-radius:0;padding:18px 19px 19px;
     opacity:0;will-change:transform,opacity;z-index:1;
     box-shadow:0 28px 58px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:13px}
-  .rcard.c-white{background:#F4F4F2;color:#111111}
-  .rcard.c-green{background:#55E85C;color:#0d2116}
-  .rcard.c-lime{background:#E8F58C;color:#111111}
-  .rcard.c-mint{background:#C3EFCE;color:#111111}
+  .rcard.c-white{background:#F4F4F2;color:#111111;box-shadow:0 28px 58px rgba(0,0,0,.45), 0 12px 48px rgba(244,244,242,.13)}
+  .rcard.c-green{background:#55E85C;color:#0d2116;box-shadow:0 28px 58px rgba(0,0,0,.40), 0 14px 54px rgba(85,232,92,.42), 0 0 92px rgba(85,232,92,.20)}
+  .rcard.c-lime{background:#E8F58C;color:#111111;box-shadow:0 28px 58px rgba(0,0,0,.40), 0 14px 54px rgba(232,245,140,.42), 0 0 92px rgba(232,245,140,.20)}
+  .rcard.c-mint{background:#C3EFCE;color:#111111;box-shadow:0 28px 58px rgba(0,0,0,.42), 0 14px 54px rgba(195,239,206,.38), 0 0 92px rgba(195,239,206,.18)}
   .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
   .rc-no{font-size:11px;font-weight:700;letter-spacing:1.4px;opacity:.6;padding-top:5px}
   .rico{width:44px;height:44px;border-radius:0;background:#141414;flex:0 0 auto;display:grid;place-items:center}
@@ -586,6 +622,7 @@
   #scroll-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;transform:scaleX(0);
     transform-origin:left;background:linear-gradient(90deg,var(--green),#9CFD97);
     will-change:transform;pointer-events:none}
+  #scroll-progress.navmove{transition:transform .95s cubic-bezier(.33,0,.15,1)}   /* 네비 이동 시 게이지 더 느리고 부드럽게 차오름/줄어듦 */
 
   /* [G4] 텍스트 마스크 리빌 — 제목이 아래에서 쓸려 올라오며 나타남 */
   .mask-reveal{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em}
@@ -599,13 +636,13 @@
     .cur-dot svg{display:block;width:26px;height:26px;transform-origin:3px 2px;
       transition:transform .2s var(--ease);filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
     .cur-dot svg path{fill:var(--green);stroke:#fff;stroke-width:1.4;stroke-linejoin:round}
-    .cur-dot.big svg{transform:scale(1.45)}   /* 링크·버튼 위에서 커짐 */
+    .cur-dot.big svg{transform:scale(1.2)}   /* 링크·버튼 위에서 커짐 */
     body.has-cur,body.has-cur *{cursor:none!important}   /* cursor:pointer 등 전부 눌러 숨김 */
   }
 
   /* [H3] 히어로 커서 글로우 — 커서 따라다니는 은은한 빛 번짐 */
-  .hero-glow{position:absolute;top:0;left:0;width:174px;height:174px;z-index:2;pointer-events:none;
-    margin:-87px 0 0 -87px;border-radius:50%;opacity:0;transition:opacity .8s var(--ease);   /* 크기 절반 */
+  .hero-glow{position:absolute;top:0;left:0;width:87px;height:87px;z-index:2;pointer-events:none;
+    margin:-43.5px 0 0 -43.5px;border-radius:50%;opacity:0;transition:opacity .8s var(--ease);   /* 범위 반으로(174→87) */
     background:radial-gradient(circle,rgba(11,132,89,.20),rgba(11,132,89,0) 62%);
     mix-blend-mode:screen;will-change:transform}
   .hero-stick:hover .hero-glow{opacity:1}
@@ -672,10 +709,10 @@
     <div class="nav-left">
       <button class="menu-btn" id="menuBtn" aria-label="메뉴"><span></span><span></span><span></span></button>
       <nav class="nav-links">
-        <a href="#services">서비스</a>
-        <a href="#team">담당자</a>
-        <a href="#refs">성과</a>
-        <a href="#about">회사소개</a>
+        <a href="#stats" data-p="1.005" data-pre="1.005" data-off="-0.1">성과</a>
+        <a href="#crossFx" data-p="0.85" data-pre="0.6">서비스</a>
+        <a href="#teamCardsWrap" data-p="0.5">담당자</a>
+        <a href="#contact" data-p="0.1">문의</a>
       </nav>
     </div>
     <div class="nav-right">
@@ -710,7 +747,7 @@
     </div>
     <div class="hero-word-big" id="heroBig"><img src="assets/로고_검은배경.png" alt="실행연구소" /></div>
     <div class="hero-copy" id="heroCopy">
-      <p class="hc-line hc-big1">성공적인 비지니스의 시작,</p>
+      <p class="hc-line hc-big1">성공적인 비즈니스의 시작,</p>
       <p class="hc-line hc-big2">실행연구소</p>
       <p class="hc-line hc-small">바이럴, 상위 노출, SNS, 숏폼, SEO 까지</p>
       <p class="hc-line hc-small hc-small-b">비즈니스에 꼭 필요한 마케팅 상품들을 한번에</p>
@@ -744,7 +781,7 @@
         </div>
       </div>
       <div class="hcol hcol-sub hcol-mid hcol-last">
-        <p class="hsub"><span class="hbig-em">실행연구소</span>는 당신의<br />비지니스 파트너로서<br /><b>함께 성장합니다.</b></p>
+        <p class="hsub"><span class="hbig-em">실행연구소</span>는 당신의<br />비즈니스 파트너로서<br /><b>함께 성장합니다.</b></p>
       </div>
       <div class="hgap"></div>
       <div class="hcol hcol-work">
@@ -784,109 +821,7 @@
   </div>
 </section>
 
-<!-- ===== 십자가 시네마틱 (스크롤: 밖에서 내려옴 → 회색화면 커짐 → 회전 → 부서짐) ===== -->
-<section class="crossfx" id="crossFx">
-  <div class="cf-stick">
-    <div class="cf-title">실행연구소의 서비스</div>
-    <div class="cf-panel" id="cfPanel"><div class="cf-cross" id="cfCross"></div>
-      <!-- [X1] 부서진 뒤 회색 화면에 뜨는 서비스 (로고+이름만, hover 시 홈페이지 미리보기 창 팝업) -->
-      <div class="cf-svc" id="cfSvc">
-        <div class="cf-svc-head"><span class="eyebrow">Services</span></div>
-        <div class="cf-grid">
-          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/55E85C?text=인기글+상위노출" data-desc="블로그탭 인기글 영역을 선점합니다. 전 업종 레퍼런스로 증명.">
-            <div class="cf-s-top"><div class="ico"><span></span></div><h3>네이버 인기글 상위노출</h3></div>
-          </a>
-          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/55E85C?text=플레이스+상위노출" data-desc="지역·업종 키워드로 지도/플레이스 상단을 공략합니다.">
-            <div class="cf-s-top"><div class="ico"><span></span></div><h3>네이버 플레이스 상위노출</h3></div>
-          </a>
-          <a class="cf-s" href="https://papastudio.co.kr" target="_blank" rel="noopener" data-url="papastudio.co.kr" data-shot="https://s.wordpress.com/mshots/v1/https%3A%2F%2Fpapastudio.co.kr?w=640&h=380" data-desc="전환에 최적화된 랜딩·기업 사이트를 빠르게 제작합니다. (파파스튜디오)">
-            <div class="cf-s-top"><div class="ico"><span></span></div><h3>홈페이지 · 랜딩 제작</h3></div>
-          </a>
-          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/6B7A72?text=준비+중" data-desc="추가 서비스 항목이 들어갈 자리입니다.">
-            <div class="cf-s-top"><div class="ico"><span></span></div><h3>서비스 (준비 중)</h3></div>
-          </a>
-          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/6B7A72?text=준비+중" data-desc="추가 서비스 항목이 들어갈 자리입니다.">
-            <div class="cf-s-top"><div class="ico"><span></span></div><h3>서비스 (준비 중)</h3></div>
-          </a>
-          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/6B7A72?text=준비+중" data-desc="추가 서비스 항목이 들어갈 자리입니다.">
-            <div class="cf-s-top"><div class="ico"><span></span></div><h3>서비스 (준비 중)</h3></div>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- 홈페이지 미리보기 창(커서 따라 팝업) — 패널 밖(transform·overflow 영향 없게) -->
-<div id="cfPreview"><div class="bar"><i></i><i></i><i></i><span class="u"></span></div><img alt="" /><div class="cap"></div></div>
-
-<!-- ===== 서비스 섹션 자리 — 서비스는 위 십자가 회색화면에서 노출. 여기는 흰 화면으로 비워둠 ===== -->
-<section class="sec" id="services" style="min-height:100vh"></section>
-
-<!-- ===== 조직도 ===== -->
-<section class="sec" id="team" style="background:#fff">
-  <!-- Phase 1: 인트로 띠(가로 블록 왼→오) -->
-  <div class="team-intro-wrap" id="teamIntroWrap">
-    <div class="team-intro">
-      <canvas class="band-fill" id="bandFill" aria-hidden="true"></canvas>
-      <div class="team-intro-title" id="teamIntroTitle">
-        <h2>Our team</h2>
-        <p>실행연구소를<br><span class="rot-word"><span class="rot-reel" id="teamReel"><span>&nbsp;</span><span>설계하는</span><span>움직이는</span><span>완성하는</span></span></span> 사람들입니다.</p>
-      </div>
-    </div>
-  </div>
-  <!-- Phase 1.5: 플렉서스(5노드 궤도, 스크롤 카메라 여행) -->
-  <div class="team-plexus-wrap" id="teamPlexusWrap">
-    <div class="team-plexus">
-      <canvas id="plexusCv" aria-hidden="true"></canvas>
-      <div class="plexus-exit" id="plexusExit">실행연구소를<br>완성하는 사람들입니다.</div>
-      <div class="plexus-center" id="plexusCenter">각자의 전문성이 모여<br>하나의 실행을 만듭니다.</div>
-      <div class="plexus-node"><span class="pn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.3 1 2.5h6c0-1.2.3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg></span><span class="pn-lab"><b>기획</b><i>PLANNING</i></span></div>
-      <div class="plexus-node"><span class="pn-dot"><b class="pn-ai">AI</b></span><span class="pn-lab"><b>AI</b><i>AUTOMATION</i></span></div>
-      <div class="plexus-node"><span class="pn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg></span><span class="pn-lab"><b>개발</b><i>DEVELOPMENT</i></span></div>
-      <div class="plexus-node"><span class="pn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1L20 7l-3-3L5 16z"/><path d="M15 6l3 3"/></svg></span><span class="pn-lab"><b>디자인</b><i>DESIGN</i></span></div>
-      <div class="plexus-node"><span class="pn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></span><span class="pn-lab"><b>마케팅</b><i>MARKETING</i></span></div>
-    </div>
-  </div>
-  <!-- Phase 2: 검정 카드창(페이지 고정, 안쪽만 스크롤) -->
-  <div class="team-cards-wrap" id="teamCardsWrap">
-    <div class="team-cards">
-      <div class="cards-viewport">
-        <div class="cards-inner" id="cardsInner">
-
-    <div class="team-group">
-      <h3>영업부서</h3>
-      <div class="team-grid">
-        <div class="member" data-name="한정완" data-role="영업부서 · 팀장" data-photo="assets/team/한정완.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/한정완.jpg" alt="한정완" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=한정완'"><div class="m-cap"><div class="m-nm">한정완</div><div class="m-role">팀장</div></div></div>
-        <div class="member" data-name="황현민" data-role="영업부서 · 매니저" data-photo="assets/team/황현민.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/황현민.jpg" alt="황현민" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황현민'"><div class="m-cap"><div class="m-nm">황현민</div><div class="m-role">매니저</div></div></div>
-        <div class="member" data-name="권오찬" data-role="영업부서 · 매니저" data-photo="assets/team/권오찬.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/권오찬.jpg" alt="권오찬" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=권오찬'"><div class="m-cap"><div class="m-nm">권오찬</div><div class="m-role">매니저</div></div></div>
-        <div class="member" data-name="황도영" data-role="영업부서 · 매니저" data-photo="assets/team/황도영.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/황도영.jpg" alt="황도영" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황도영'"><div class="m-cap"><div class="m-nm">황도영</div><div class="m-role">매니저</div></div></div>
-        <div class="member" data-name="이혜빈" data-role="영업부서 · 매니저" data-photo="assets/team/이혜빈.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이혜빈.jpg" alt="이혜빈" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이혜빈'"><div class="m-cap"><div class="m-nm">이혜빈</div><div class="m-role">매니저</div></div></div>
-        <div class="member" data-name="김미정" data-role="영업부서 · 매니저" data-photo="assets/team/김미정.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/김미정.jpg" alt="김미정" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=김미정'"><div class="m-cap"><div class="m-nm">김미정</div><div class="m-role">매니저</div></div></div>      </div>
-    </div>
-
-    <div class="team-group">
-      <h3>경영 및 업무 지원</h3>
-      <div class="team-grid">
-        <div class="member" data-name="정용진" data-role="경영·업무지원 · 부장" data-photo="assets/team/정용진.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/정용진.jpg" alt="정용진" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=정용진'"><div class="m-cap"><div class="m-nm">정용진</div><div class="m-role">부장</div></div></div>
-        <div class="member" data-name="이지영" data-role="경영·업무지원 · 정산/회계 총무" data-photo="assets/team/이지영.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이지영.jpg" alt="이지영" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이지영'"><div class="m-cap"><div class="m-nm">이지영</div><div class="m-role">정산 / 회계 총무</div></div></div>
-        <div class="member" data-name="이정복" data-role="경영·업무지원 · 영업 지원 실장" data-photo="assets/team/이정복.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이정복.jpg" alt="이정복" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이정복'"><div class="m-cap"><div class="m-nm">이정복</div><div class="m-role">영업 지원 실장</div></div></div>
-      </div>
-    </div>
-
-    <div class="team-group" style="margin-bottom:0">
-      <h3>개발 부서</h3>
-      <div class="team-grid">
-        <div class="member" data-name="권용현" data-role="개발부서 · CTO · 풀스택" data-photo="assets/team/권용현.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/권용현.jpg" alt="권용현" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=권용현'"><div class="m-cap"><div class="m-nm">권용현</div><div class="m-role">CTO · 풀스택</div></div></div>
-        <div class="member" data-name="김득용" data-role="개발부서 · 백엔드·DB·운영체제" data-photo="assets/team/김득용.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/김득용.jpg" alt="김득용" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=김득용'"><div class="m-cap"><div class="m-nm">김득용</div><div class="m-role">백엔드 · DB · 운영체제</div></div></div>
-        <div class="member" data-name="이현수" data-role="개발부서 · DB관리·AI 개발" data-photo="assets/team/이현수.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이현수.jpg" alt="이현수" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이현수'"><div class="m-cap"><div class="m-nm">이현수</div><div class="m-role">DB 관리 · AI 개발</div></div></div>
-      </div>
-    </div>
-        </div><!-- /cards-inner -->
-      </div><!-- /cards-viewport -->
-    </div><!-- /team-cards -->
-  </div><!-- /team-cards-wrap -->
-  <div class="team-tail"></div><!-- 검정 박스 아래 흰 공간 -->
-</section>
+<div class="stats-refs-gap"></div><!-- 스탯↔레퍼런스 흰 버퍼 -->
 
 <!-- ===== 성과 & 레퍼런스 = 카드 컨베이어(녹화11) ===== -->
 <section class="refsec" id="refs">
@@ -941,6 +876,114 @@
     </div>
   </div>
 </section>
+
+<!-- ===== 십자가 시네마틱 (스크롤: 밖에서 내려옴 → 회색화면 커짐 → 회전 → 부서짐) ===== -->
+<section class="crossfx" id="crossFx">
+  <div class="cf-stick">
+    <div class="cf-title">실행연구소의 서비스</div>
+    <div class="cf-panel" id="cfPanel"><div class="cf-cross" id="cfCross"></div>
+      <!-- [X1] 부서진 뒤 회색 화면에 뜨는 서비스 (로고+이름만, hover 시 홈페이지 미리보기 창 팝업) -->
+      <div class="cf-svc" id="cfSvc">
+        <div class="cf-svc-head"><span class="eyebrow">Services</span></div>
+        <div class="cf-grid">
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/55E85C?text=인기글+상위노출" data-desc="블로그탭 인기글 영역을 선점합니다. 전 업종 레퍼런스로 증명.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>네이버 인기글 상위노출</h3></div>
+          </a>
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/55E85C?text=플레이스+상위노출" data-desc="지역·업종 키워드로 지도/플레이스 상단을 공략합니다.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>네이버 플레이스 상위노출</h3></div>
+          </a>
+          <a class="cf-s" href="https://papastudio.co.kr" target="_blank" rel="noopener" data-url="papastudio.co.kr" data-shot="https://s.wordpress.com/mshots/v1/https%3A%2F%2Fpapastudio.co.kr?w=640&h=380" data-desc="전환에 최적화된 랜딩·기업 사이트를 빠르게 제작합니다. (파파스튜디오)">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>홈페이지 · 랜딩 제작</h3></div>
+          </a>
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/6B7A72?text=준비+중" data-desc="추가 서비스 항목이 들어갈 자리입니다.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>서비스 (준비 중)</h3></div>
+          </a>
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/6B7A72?text=준비+중" data-desc="추가 서비스 항목이 들어갈 자리입니다.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>서비스 (준비 중)</h3></div>
+          </a>
+          <a class="cf-s" href="#" data-url="#" data-shot="https://placehold.co/640x360/EFF3F1/6B7A72?text=준비+중" data-desc="추가 서비스 항목이 들어갈 자리입니다.">
+            <div class="cf-s-top"><div class="ico"><span></span></div><h3>서비스 (준비 중)</h3></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- 홈페이지 미리보기 창(커서 따라 팝업) — 패널 밖(transform·overflow 영향 없게) -->
+<div id="cfPreview"><div class="bar"><i></i><i></i><i></i><span class="u"></span></div><img alt="" /><div class="cap"></div></div>
+
+<!-- ===== 서비스 섹션 자리 — 서비스는 위 십자가 회색화면에서 노출. 여기는 흰 화면으로 비워둠 ===== -->
+<section class="sec" id="services" style="min-height:100vh"></section>
+
+<!-- ===== 조직도 ===== -->
+<section class="sec" id="team" style="background:#fff">
+  <!-- 가로 스테이지: 인트로(왼) → 스크롤로 트랙 왼쪽 이동 → 플렉서스(오) -->
+  <div class="team-stage-wrap" id="teamStageWrap">
+    <div class="team-stage">
+      <div class="team-track" id="teamTrack">
+        <!-- 패널1: 인트로 -->
+        <div class="stage-panel intro-panel">
+          <canvas class="band-fill" id="bandFill" aria-hidden="true"></canvas>
+          <div class="team-intro-title" id="teamIntroTitle">
+            <h2><span class="bw" style="--i:0">Our</span> <span class="bw" style="--i:1">team</span></h2>
+            <p><span class="bw" style="--i:2">실행연구소를</span><br><span class="rot-word bw" style="--i:3"><span class="rot-reel" id="teamReel"><span>&nbsp;</span><span>설계하는</span><span>움직이는</span><span>완성하는</span></span></span> <span class="bw" style="--i:4">사람들입니다.</span></p>
+          </div>
+        </div>
+        <!-- 패널2: 플렉서스(3D 별자리) -->
+        <div class="stage-panel plexus-panel">
+          <canvas id="plexusCv" aria-hidden="true"></canvas>
+          <div class="plexus-lead" id="plexusLead">각자의 전문성이 모여<br>하나의 실행을 만듭니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Phase 2: 검정 카드창(페이지 고정, 안쪽만 스크롤) -->
+  <div class="team-cards-wrap" id="teamCardsWrap">
+    <div class="team-cards">
+      <div class="tstack" id="tStack"></div>
+      <div class="dept-tabs" id="deptTabs"></div>
+      <div id="teamData">
+        <div class="cards-inner" id="cardsInner">
+
+    <div class="team-group">
+      <h3>영업부서</h3>
+      <div class="team-grid">
+        <div class="member" data-name="한정완" data-role="영업부서 · 팀장" data-photo="assets/team/한정완.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/한정완.jpg" alt="한정완" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=한정완'"><div class="m-cap"><div class="m-nm">한정완</div><div class="m-role">팀장</div></div></div>
+        <div class="member" data-name="황현민" data-role="영업부서 · 매니저" data-photo="assets/team/황현민.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/황현민.jpg" alt="황현민" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황현민'"><div class="m-cap"><div class="m-nm">황현민</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="권오찬" data-role="영업부서 · 매니저" data-photo="assets/team/권오찬.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/권오찬.jpg" alt="권오찬" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=권오찬'"><div class="m-cap"><div class="m-nm">권오찬</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="황도영" data-role="영업부서 · 매니저" data-photo="assets/team/황도영.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/황도영.jpg" alt="황도영" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황도영'"><div class="m-cap"><div class="m-nm">황도영</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="이혜빈" data-role="영업부서 · 매니저" data-photo="assets/team/이혜빈.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이혜빈.jpg" alt="이혜빈" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이혜빈'"><div class="m-cap"><div class="m-nm">이혜빈</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="김미정" data-role="영업부서 · 매니저" data-photo="assets/team/김미정.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/김미정.jpg" alt="김미정" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=김미정'"><div class="m-cap"><div class="m-nm">김미정</div><div class="m-role">매니저</div></div></div>      </div>
+    </div>
+
+    <div class="team-divider"></div>
+
+    <div class="team-group">
+      <h3>경영 및 업무 지원</h3>
+      <div class="team-grid">
+        <div class="member" data-name="정용진" data-role="경영·업무지원 · 부장" data-photo="assets/team/정용진.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/정용진.jpg" alt="정용진" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=정용진'"><div class="m-cap"><div class="m-nm">정용진</div><div class="m-role">부장</div></div></div>
+        <div class="member" data-name="이지영" data-role="경영·업무지원 · 정산/회계 총무" data-photo="assets/team/이지영.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이지영.jpg" alt="이지영" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이지영'"><div class="m-cap"><div class="m-nm">이지영</div><div class="m-role">정산 / 회계 총무</div></div></div>
+        <div class="member" data-name="이정복" data-role="경영·업무지원 · 영업 지원 실장" data-photo="assets/team/이정복.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이정복.jpg" alt="이정복" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이정복'"><div class="m-cap"><div class="m-nm">이정복</div><div class="m-role">영업 지원 실장</div></div></div>
+      </div>
+    </div>
+
+    <div class="team-divider"></div>
+
+    <div class="team-group" style="margin-bottom:0">
+      <h3>개발 부서</h3>
+      <div class="team-grid">
+        <div class="member" data-name="권용현" data-role="개발부서 · CTO · 풀스택" data-photo="assets/team/권용현.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/권용현.jpg" alt="권용현" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=권용현'"><div class="m-cap"><div class="m-nm">권용현</div><div class="m-role">CTO · 풀스택</div></div></div>
+        <div class="member" data-name="김득용" data-role="개발부서 · 백엔드·DB·운영체제" data-photo="assets/team/김득용.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/김득용.jpg" alt="김득용" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=김득용'"><div class="m-cap"><div class="m-nm">김득용</div><div class="m-role">백엔드 · DB · 운영체제</div></div></div>
+        <div class="member" data-name="이현수" data-role="개발부서 · DB관리·AI 개발" data-photo="assets/team/이현수.jpg" data-bio="소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요."><img src="assets/team/이현수.jpg" alt="이현수" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이현수'"><div class="m-cap"><div class="m-nm">이현수</div><div class="m-role">DB 관리 · AI 개발</div></div></div>
+      </div>
+    </div>
+        </div><!-- /cards-inner -->
+      </div><!-- /teamData(숨김 데이터 소스) -->
+    </div><!-- /team-cards -->
+  </div><!-- /team-cards-wrap -->
+  <div class="team-tail"></div><!-- 검정 박스 아래 흰 공간 -->
+</section>
+
 
 <!-- ===== 회사소개(간단) ===== -->
 <section class="sec" id="about" style="background:var(--bg-soft);border-top:1px solid var(--gray-200)">
@@ -1079,12 +1122,55 @@
     window.addEventListener('beforeunload',function(){ sessionStorage.setItem(_sk, String(window.scrollY||lenis.scroll||0)); });
   }
   /* ===== [DEV 전용] 끝 ===== */
-  // 앵커 링크 부드럽게 이동(네비 높이 보정)
+  // 네비 클릭 = 콘텐츠 줌 크로스페이드(현재 축소+페이드아웃 → 다음 페이드인+확대). 그 외 앵커 = 기존 이동
+  var siteBody=document.getElementById('siteBody');
+  var backdrop=document.createElement('div'); backdrop.id='navBackdrop'; document.body.appendChild(backdrop);
+  var fxBusy=false;
+  var progBar=document.getElementById('scroll-progress');
+  function depthGo(el,p,pre,off){
+    if(fxBusy||!siteBody)return; fxBusy=true;
+    var vh=window.innerHeight;
+    var cur=(window.__lenis&&window.__lenis.scroll)||window.scrollY||0;
+    var sbTop=siteBody.getBoundingClientRect().top+cur;               // siteBody 문서상 시작 y
+    var elTop=el.getBoundingClientRect().top+cur;                     // 스케일 전 절대좌표
+    var range=Math.max(0,el.offsetHeight-vh);
+    var offPx=(off!=null&&!isNaN(off))?off*vh:0;                      // data-off = 뷰포트 비율만큼 더 아래로
+    var target=((p!=null&&!isNaN(p)) ? elTop+p*range : elTop-64)+offPx;
+    var hasPre=(pre!=null&&!isNaN(pre)&&p!=null&&!isNaN(p));          // 시네마틱 섹션: 스냅창 직전→아래로 지나며 안착
+    backdrop.style.opacity='1';                                       // 뒤 히어로 가림
+    if(progBar){ progBar.classList.add('navmove'); setTimeout(function(){progBar.classList.remove('navmove');},1600); }   // 게이지 부드럽게(.95s) 차오름/줄어듦 — 이징 끝날 때까지 유지
+    // ① 현재 화면: 뒤로 빠지며 투명(뷰포트 중심 기준 축소+페이드아웃)
+    siteBody.style.transformOrigin='50% '+((cur+vh/2)-sbTop)+'px';
+    siteBody.style.transition='transform .32s cubic-bezier(.4,0,.2,1),opacity .28s ease';
+    siteBody.style.transform='scale(.93)'; siteBody.style.opacity='0';
+    setTimeout(function(){
+      // ② 투명한 동안 이동(스케일 OFF → 좌표 정확)
+      siteBody.style.transition='none'; siteBody.style.transform='none';
+      if(hasPre){
+        lenis.scrollTo(elTop+pre*range+offPx,{immediate:true,force:true});   // 스냅창 직전으로 즉시(+off)
+        requestAnimationFrame(function(){ lenis.scrollTo(target,{duration:0.55,force:true}); });   // 아래로 지나가며 섹션이 머니 프레임으로 자동안착
+      } else {
+        lenis.scrollTo(target,{immediate:true,force:true});                  // 나머지는 즉시 점프
+      }
+      var ncur=(window.__lenis&&window.__lenis.scroll)||window.scrollY||0;
+      siteBody.style.transformOrigin='50% '+((ncur+vh/2)-sbTop)+'px';
+      siteBody.style.transform='scale(.985)'; siteBody.style.opacity='0';     // ③ 살짝 작게 시작(약한 줌인)
+      void siteBody.offsetWidth;
+      setTimeout(function(){                                                  // 한 타이밍 쉼(pre면 안착 기다리게 더 길게)
+        siteBody.style.transition='transform .5s cubic-bezier(.16,1,.3,1),opacity .44s ease';
+        siteBody.style.transform='scale(1)'; siteBody.style.opacity='1';      // ④ 확대+페이드인
+        if(el.id==='stats'&&window.__statsRecount) window.__statsRecount();   // 성과 도착 시 숫자 다시 카운팅
+        setTimeout(function(){ backdrop.style.opacity='0'; siteBody.style.transition=''; siteBody.style.transform=''; siteBody.style.transformOrigin=''; siteBody.style.opacity=''; fxBusy=false; },560);
+      }, hasPre?800:300);
+    },330);
+  }
   document.querySelectorAll('a[href^="#"]').forEach(function(a){
     a.addEventListener('click',function(e){
       var id=a.getAttribute('href');
       if(id&&id.length>1){ var el=document.querySelector(id);
-        if(el){ e.preventDefault(); lenis.scrollTo(el,{offset:-64}); } }
+        if(el){ e.preventDefault();
+          if(a.closest('header.nav')){ var pa=a.getAttribute('data-p'), pra=a.getAttribute('data-pre'), ofa=a.getAttribute('data-off'); depthGo(el, pa!=null?parseFloat(pa):null, pra!=null?parseFloat(pra):null, ofa!=null?parseFloat(ofa):null); }   // 네비만 뎁스 전환(+data-p/pre/off)
+          else lenis.scrollTo(el,{offset:-64}); } }
     });
   });
 })();
@@ -1271,21 +1357,25 @@
     });
   });
 
-  /* [T4-A] 인트로 — 초록 블록 아래→위 섹션 꽉 채움 → OUR TEAM 뜸(무너짐 없음, 차오르기만) */
+  /* [T4-A] 가로 스테이지 — 밴드필 → OUR TEAM(blur-in) → 회전단어(자석) → 트랙 왼쪽 슬라이드(플렉서스 등장) */
   feat(function(){
-    var wrap=document.getElementById('teamIntroWrap'), cv=document.getElementById('bandFill'), title=document.getElementById('teamIntroTitle');
+    var wrap=document.getElementById('teamStageWrap'), cv=document.getElementById('bandFill'),
+        title=document.getElementById('teamIntroTitle'), track=document.getElementById('teamTrack'),
+        reel=document.getElementById('teamReel');
     if(!wrap||!cv)return;
-    var reel=document.getElementById('teamReel');
-    // 세로 롤(녹화13): 4단계 공백(0)→설계(1)→움직(2)→완성(3), hold→roll→hold
+    // 세로 롤(녹화13): 공백(0)→설계(1)→움직(2)→완성(3), hold→roll→hold (스테이지 p 기준)
     function reelPos(pp){
-      if(pp<0.45) return 0;                         // 공백
-      if(pp<0.57) return (pp-0.45)/0.12;            // →설계하는
-      if(pp<0.65) return 1;
-      if(pp<0.77) return 1+(pp-0.65)/0.12;          // →움직이는
-      if(pp<0.85) return 2;
-      if(pp<0.97) return 2+(pp-0.85)/0.12;          // →완성하는
-      return 3;
+      if(pp<0.16) return 0;                         // 공백(타이틀 등장 후)
+      if(pp<0.19) return (pp-0.16)/0.03;            // →설계하는
+      if(pp<0.22) return 1;                         // 설계 hold
+      if(pp<0.25) return 1+(pp-0.22)/0.03;          // →움직이는
+      if(pp<0.28) return 2;                         // 움직 hold
+      if(pp<0.31) return 2+(pp-0.28)/0.03;          // →완성하는
+      return 3;                                     // 완성 hold
     }
+    var iSettling=false, iLastP=0;
+    var WP=[0.20,0.26,0.32];       // 회전단어 자석 안착점(설계·움직·완성)
+    var SLIDE0=0.34, SLIDE1=0.42;  // 가로 슬라이드 구간(트랙 왼쪽으로)
     var ctx=cv.getContext('2d'), dpr=Math.min(window.devicePixelRatio||1,2);
     var cols=0,rows=0,tile=0,thr=[],W=0,H=0;
     function hash(x){ var s=Math.sin(x*127.1)*43758.5453; return Math.abs(s-Math.floor(s)); }
@@ -1309,13 +1399,27 @@
     function draw(){
       var r=wrap.getBoundingClientRect(), vh=window.innerHeight, range=wrap.offsetHeight-vh;
       var p=range>0?cl(-r.top/range):0;
-      var fillP=cl(p/0.40);                       // 아래→위 채움
-      var titleOp=cl((p-0.40)/0.08);              // 다 찬 뒤 OUR TEAM 뜸(유지, 페이드아웃 없음)
-      if(title) title.style.opacity=String(cl(titleOp));
-      // 단어 세로 롤(스크롤 연동, 교체당 2단계): 설계하는→움직이는→완성하는 → 다 바뀌면 스크롤 계속(검정창)
+      var fillP=cl(p/0.09);                       // 아래→위 채움(초반)
+      var titleOp=cl((p-0.09)/0.05);              // 다 찬 뒤 OUR TEAM 뜸
+      var titleOn=p>0.10;   // 시작되면 스크롤 안 해도 시간기반 CSS로 다 나타남(스크롤 스크럽 X)
+      if(title){ title.style.opacity=titleOn?'1':'0';
+        if(titleOn) title.classList.add('shown'); else if(p<0.06) title.classList.remove('shown'); }   // 재장전(위로 되감으면 리셋)
+      // 회전단어 자석: 설계·움직·완성 각각에 착 안착(슬라이드 전까지)
+      var iDown=p>iLastP; iLastP=p;
+      if(!iSettling && window.__lenis && range>0 && p<SLIDE0 && Math.abs(window.__lenis.velocity||0)<60){
+        var DZ=0.012, tgt=-1;
+        if(p<WP[0]-DZ){ if(iDown && p>0.15) tgt=WP[0]; }   // 채움 후 → 설계
+        else for(var wk=0;wk<WP.length-1;wk++){ if(p>WP[wk]+DZ && p<WP[wk+1]-DZ){ tgt=iDown?WP[wk+1]:WP[wk]; break; } }
+        if(tgt>=0){ iSettling=true; window.__lenis.scrollTo(window.scrollY+r.top+tgt*range,{duration:0.7,lock:true,onComplete:function(){iSettling=false;}}); }
+      }
       if(reel){ reel.style.transform='translateY('+(-reelPos(p)*1.1)+'em)'; }
+      // 가로 슬라이드: 인트로 왼쪽으로 나가고 플렉서스가 오른쪽에서 들어옴
+      if(track){ var sp=cl((p-SLIDE0)/(SLIDE1-SLIDE0)); track.style.transform='translateX('+(-sp*100)+'vw)'; }
+      // 밴드필(패널 아래→위 초록 채움)
       ctx.clearRect(0,0,W,H);
-      ctx.fillStyle='#55E85C';   // 더 연한 초록(사이트 메인 --green, 기존 #3DBB45보다 밝음)
+      var bfg=ctx.createLinearGradient(0,0,0,H);   // A: 인트로 밴드필도 세로 그라데이션
+      bfg.addColorStop(0,'#7CFF76'); bfg.addColorStop(0.5,'#67F061'); bfg.addColorStop(1,'#4CDD55');
+      ctx.fillStyle=bfg;
       for(var c=0;c<cols;c++) for(var rb=0;rb<rows;rb++){
         if(fillP>=thr[c][rb]) ctx.fillRect(c*tile, H-(rb+1)*tile, tile, tile);   // 바닥부터(무너짐 없음)
       }
@@ -1333,6 +1437,7 @@
   feat(function(){
     var wrap=document.getElementById('teamCardsWrap'), inner=document.getElementById('cardsInner');
     if(!wrap||!inner)return;
+    if(document.getElementById('tStack'))return;   // 인물1 대체(카드 스택) 켜지면 옛 스크롤 창 로직 끔
     var vp=inner.parentNode;
     function cl(v){return v<0?0:v>1?1:v;}
     function draw(){
@@ -1346,7 +1451,10 @@
       else if(p<0.60) pc=1;
       else if(p<0.75) pc=1+(p-0.60)/0.15;
       else pc=2;
-      inner.style.transform='translateY('+(-pc*vpH)+'px)';
+      var groups=inner.querySelectorAll('.team-group');
+      var gi=Math.min(groups.length-1,Math.floor(pc)), gf=pc-gi;
+      var t0=groups[gi].offsetTop, t1=(gi+1<groups.length?groups[gi+1].offsetTop:t0);
+      inner.style.transform='translateY('+(-(t0+(t1-t0)*gf))+'px)';
     }
     var raf=false;
     function onScroll(){ if(raf)return; raf=true; requestAnimationFrame(function(){ raf=false; draw(); }); }
@@ -1356,55 +1464,199 @@
     setTimeout(draw,300); draw();
   });
 
-  /* [T4-D] 플렉서스 — 5노드 궤도, 떠다님 + 스크롤 카메라 여행(전체↔노드) */
+  /* [T4-E] 담당자 카드 부채꼴 + 부서 탭(슬라이드) + 휠 전환 (인물1 대체) */
   feat(function(){
-    var wrap=document.getElementById('teamPlexusWrap'), cv=document.getElementById('plexusCv');
-    var exitEl=document.getElementById('plexusExit'), centerEl=document.getElementById('plexusCenter');
+    var data=document.getElementById('teamData'), stack=document.getElementById('tStack'), tabs=document.getElementById('deptTabs');
+    if(!data||!stack||!tabs)return;
+    var groups=[].slice.call(data.querySelectorAll('.team-group')).map(function(g){
+      var h=g.querySelector('h3');
+      return { name:(h?h.textContent.trim():''),
+        members:[].slice.call(g.querySelectorAll('.member')).map(function(m){
+          return {nm:m.getAttribute('data-name')||'', role:m.getAttribute('data-role')||'', photo:m.getAttribute('data-photo')||'', bio:m.getAttribute('data-bio')||''};
+        }) };
+    }).filter(function(g){return g.members.length;});
+    if(!groups.length)return;
+    var dept=0, idx=0, cards=[];
+    function esc(s){return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+    // 탭 1회 생성 + 슬라이드 인디케이터(초록이 좌우로 움직임)
+    var ind=document.createElement('div'); ind.className='dept-tab-ind'; tabs.appendChild(ind);
+    var tabBtns=groups.map(function(g,i){
+      var b=document.createElement('button'); b.className='dept-tab'+(i===0?' is-on':''); b.textContent=g.name;
+      b.addEventListener('click',function(){ selectDept(i); });
+      tabs.appendChild(b); return b;
+    });
+    function moveInd(){ var on=tabBtns[dept]; if(on){ ind.style.left=on.offsetLeft+'px'; ind.style.width=on.offsetWidth+'px'; } }
+    function selectDept(i){ if(i===dept)return; dept=i; idx=0; tabBtns.forEach(function(b,k){b.classList.toggle('is-on',k===dept);}); moveInd(); buildCards(); }
+    function buildCards(){
+      stack.innerHTML=''; cards=[];
+      groups[dept].members.forEach(function(m){
+        var c=document.createElement('article'); c.className='tcard';
+        c.innerHTML='<div class="tc-photo"><img src="'+esc(m.photo)+'" alt="'+esc(m.nm)+'" loading="lazy" onerror="this.onerror=null;this.src=\'https://placehold.co/400x400/eeeeee/999999?text='+encodeURIComponent(m.nm)+'\'"></div>'+
+          '<div class="tc-body"><h3 class="tc-name">'+esc(m.nm)+'</h3><div class="tc-role">'+esc(m.role)+'</div><p class="tc-bio">'+esc(m.bio)+'</p></div>';
+        c.addEventListener('click',function(){ var k=cards.indexOf(c); if(k>=0&&k!==idx){ idx=k; layout(); } });
+        stack.appendChild(c); cards.push(c);
+      });
+      layout();
+    }
+    function layout(){                                   // 가로 한 줄(선택 카드 가운데, 살짝만 겹침)
+      var n=cards.length, cw=(cards[0]&&cards[0].offsetWidth)||240, step=cw*0.80;
+      for(var i=0;i<n;i++){
+        var d=i-idx, ad=Math.abs(d), sel=(d===0);
+        var x=d*step, lift=sel?-24:0, s=sel?1.05:1-Math.min(ad,3)*0.03, z=sel?200:100-ad, op=ad>3?0:(sel?1:.9);
+        var c=cards[i];
+        c.style.transform='translateX(-50%) translateX('+x+'px) translateY('+lift+'px) scale('+s+')';
+        c.style.opacity=op; c.style.zIndex=z; c.style.pointerEvents=(op?'auto':'none');
+        c.classList.toggle('front',sel);
+      }
+    }
+    // 카드 위에서 휠 = 카드 전환(페이지 스크롤 막음)
+    stack.setAttribute('data-lenis-prevent','');
+    var wLock=false;
+    stack.addEventListener('wheel',function(e){
+      if(cards.length<2)return;
+      e.preventDefault();
+      if(wLock)return; wLock=true;
+      idx=(e.deltaY>0? idx+1 : idx-1+cards.length)%cards.length;
+      layout();
+      setTimeout(function(){wLock=false;},340);
+    },{passive:false});
+    buildCards();
+    requestAnimationFrame(moveInd); setTimeout(moveInd,120);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(moveInd);
+    window.addEventListener('resize',function(){ moveInd(); layout(); });
+  });
+
+  /* [T4-D] 플렉서스 — 3D 별자리(오른쪽), 좌측 리드텍스트, 스크롤 카메라 여행(줌인 시 라벨) */
+  feat(function(){
+    var wrap=document.getElementById('teamStageWrap'), cv=document.getElementById('plexusCv'), lead=document.getElementById('plexusLead');
     if(!wrap||!cv)return;
-    var nodes=[].slice.call(wrap.querySelectorAll('.plexus-node'));
     var ctx=cv.getContext('2d'), dpr=Math.min(window.devicePixelRatio||1,2), W=0,H=0;
     function cl(v){return v<0?0:v>1?1:v;}
-    var pos=[[0.50,0.15],[0.12,0.50],[0.88,0.42],[0.28,0.85],[0.72,0.85]];  // 기획,AI,개발,디자인,마케팅(DOM순, 가운데 문구 안 겹치게 바깥으로)
-    var visit=[0,2,4,3,1];  // 여행 순서: 기획→개발→마케팅→디자인→AI
-    function resize(){ W=wrap.clientWidth; H=window.innerHeight; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); cv.style.width=W+'px'; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); }
+    function lp(a,b,t){return a+(b-a)*t;}
+    function hs(n){var s=Math.sin(n*127.1)*43758.5453;return s-Math.floor(s);}
+    var keys=[{k:'기획',e:'PLANNING'},{k:'개발',e:'DEVELOPMENT'},{k:'디자인',e:'DESIGN'},{k:'마케팅',e:'MARKETING'},{k:'AI',e:'AUTOMATION'}];
+    // 고른 지터 그리드 = 깔끔한 균일 삼각망(별자리)
+    var cols=7, rows=5, N=cols*rows, nodes=[];
+    for(var gy=0;gy<rows;gy++)for(var gx=0;gx<cols;gx++){
+      var i=gy*cols+gx, jx=(hs(i*3+1)-0.5)*0.30, jy=(hs(i*5+2)-0.5)*0.30;
+      nodes.push({x:((gx/(cols-1))-0.5)*2.5+jx, y:((gy/(rows-1))-0.5)*1.55+jy, z:(hs(i*7+3)-0.5)*0.5, key:-1, big:0.6+hs(i*11+4)*0.5});
+    }
+    var kIdx=[8,12,17,24,29];   // 잘 퍼진 키워드 5개
+    for(var m=0;m<5;m++){ var nd=nodes[kIdx[m]]; nd.key=m; nd.big=1.5; }
+    var edges=[];   // 인접 셀 연결 = 고른 삼각망
+    for(var ea=0;ea<N;ea++)for(var eb=ea+1;eb<N;eb++){ var ex=nodes[ea].x-nodes[eb].x,ey=nodes[ea].y-nodes[eb].y,ez=nodes[ea].z-nodes[eb].z; if(Math.sqrt(ex*ex+ey*ey+ez*ez)<0.58) edges.push([ea,eb]); }
+    var blurC=document.createElement('canvas'), bctx=blurC.getContext('2d');   // 프로스트: 블러본
+    var maskC=document.createElement('canvas'), mctx=maskC.getContext('2d');   // 프로스트: 페더 마스크
+    function resize(){ W=wrap.clientWidth; H=window.innerHeight; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); cv.style.width=W+'px'; cv.style.height=H+'px'; blurC.width=maskC.width=cv.width; blurC.height=maskC.height=cv.height; ctx.setTransform(dpr,0,0,dpr,0,0); }
     resize(); window.addEventListener('resize',resize);
-    function camAt(q){   // stops: 전체,노드,전체,노드,...
-      var stops=[[0.5,0.5,1]];
-      for(var k=0;k<visit.length;k++){ var p=pos[visit[k]]; stops.push([p[0],p[1],2.6]); stops.push([0.5,0.5,1]); }
+    // 3D 카메라 dolly: 고정 별자리 속을 시점이 이동(같은 노드, 시점만 바뀜)
+    var FAR=2.6, NEAR=0.8;   // FAR↓ = 전체뷰도 가깝게(일부만 보임)
+    function camAt(q){   // 전체(멀리) → 키워드5 각각으로 접근 → 전체
+      var stops=[{x:0,y:0,z:0,d:FAR,f:-1}];
+      for(var k=0;k<5;k++){ var n=nodes[kIdx[k]]; stops.push({x:n.x,y:n.y,z:n.z,d:NEAR,f:k}); stops.push({x:0,y:0,z:0,d:FAR,f:-1}); }
       var seg=stops.length-1, t=cl(q)*seg, idx=Math.min(seg-1,Math.floor(t)), lt=t-idx;
       var e=lt<0.5?2*lt*lt:1-Math.pow(-2*lt+2,2)/2;
       var a=stops[idx], b=stops[idx+1];
-      return [a[0]+(b[0]-a[0])*e, a[1]+(b[1]-a[1])*e, a[2]+(b[2]-a[2])*e];
+      return {tx:a.x+(b.x-a.x)*e, ty:a.y+(b.y-a.y)*e, tz:a.z+(b.z-a.z)*e, dist:a.d+(b.d-a.d)*e, focus:(e<0.5?a.f:b.f)};
     }
-    var g_q=0, g_intro=0;
+    var g_q=0, g_intro=0, settling=false, lastP=0;
+    var PLEX0=0.34, SLIDE1=0.42;   // 슬라이드 시작=플렉서스 로컬 0, 슬라이드 끝=자석 활성
+    var INTRO=0.05;   // 진입 길이(노드 페이드 인)
+    var QSTART=0.22;  // 카메라 dolly 시작(슬라이드+텍스트 도착 후 전체뷰 한 박자 홀드 → 그다음 기획으로 확대)
+    var KP=[0.1,0.3,0.5,0.7,0.9].map(function(q){return QSTART+q*(1-QSTART);});   // 키워드 안착점(로컬)
     function fx(){
       var r=wrap.getBoundingClientRect(), vh=window.innerHeight, range=wrap.offsetHeight-vh;
       var p=range>0?cl(-r.top/range):0;
-      g_intro=cl(p/0.10); g_q=cl((p-0.10)/0.90);
-      if(exitEl){ exitEl.style.transform='translate('+(-g_intro*135)+'%, -50%)'; exitEl.style.opacity=String(1-g_intro); }
+      var pp=cl((p-PLEX0)/(1-PLEX0));                     // 플렉서스 로컬 진행(슬라이드 시작 이후)
+      g_intro=cl(pp/INTRO); g_q=cl((pp-QSTART)/(1-QSTART));
+      if(lead){ lead.style.opacity=String(cl(g_intro/0.5)); }   // 패널 슬라이드로 들어옴 — 페이드만
+      // 키워드 자석: 각 안착점으로 착(양방향, 짧은 홀드), 5개 전부 (슬라이드 끝난 뒤)
+      var down=p>lastP; lastP=p;
+      if(!settling && window.__lenis && p>SLIDE1 && range>0 && Math.abs(window.__lenis.velocity||0)<60){
+        var DZ=0.022, tgt=-1;
+        if(pp<KP[0]-DZ){ if(down) tgt=KP[0]; }
+        else{ for(var k=0;k<4;k++){ if(pp>KP[k]+DZ && pp<KP[k+1]-DZ){ tgt=down?KP[k+1]:KP[k]; break; } } }
+        if(tgt>=0){ settling=true; var ty=window.scrollY+r.top+(PLEX0+tgt*(1-PLEX0))*range;
+          window.__lenis.scrollTo(ty,{duration:1.4,lock:true,easing:function(x){return 1-Math.pow(1-x,3);},onComplete:function(){settling=false;}}); }   // 부드럽게(급하지 않게)
+      }
     }
     window.addEventListener('scroll',fx,{passive:true});
     function raf(t){
-      var tt=t/1000, c=camAt(g_q), cx=c[0], cy=c[1], zoom=c[2];
-      var S=Math.min(W,H)*0.78;
-      function mapx(wx){return W/2+(wx-cx)*zoom*S;}
-      function mapy(wy){return H/2+(wy-cy)*zoom*S;}
-      var scr=[];
-      for(var i=0;i<pos.length;i++){
-        var fxo=Math.sin(tt*0.6+i*1.7)*0.010, fyo=Math.cos(tt*0.5+i*2.3)*0.010;   // 떠다님
-        var sx=mapx(pos[i][0]+fxo), sy=mapy(pos[i][1]+fyo);
-        scr.push([sx,sy]);
-        if(nodes[i]){ var sc=Math.pow(zoom,0.72)*g_intro; nodes[i].style.transform='translate('+sx+'px,'+sy+'px) translate(-50%,-50%) scale('+sc+')'; nodes[i].style.opacity=String(g_intro); }
+      var cam=camAt(g_q);
+      var zoomAmt=cl((FAR-cam.dist)/(FAR-NEAR));
+      var focal=2.3, baseR=Math.min(W,H)*0.80;
+      var scx=W*(0.60-0.05*zoomAmt), scy=H*(0.58-0.04*zoomAmt);
+      var slide=0;   // 가로 트랙이 패널을 데려오므로 노드 자체 슬라이드는 없음
+      var pr=[];
+      for(var i=0;i<N;i++){ var nd=nodes[i];
+        var rx=nd.x-cam.tx, ry=nd.y-cam.ty, rz=nd.z-cam.tz, depth=cam.dist-rz;
+        var vis=depth>0.14, s=focal/(vis?depth:0.14);
+        var sx=scx+slide+rx*s*baseR, sy=scy+ry*s*baseR;
+        var df=cl((sx/W)*1.5+(sy/H)*0.8-0.5);   // 대각선 페이드: 왼쪽위(글씨쪽)=사라짐, 오른쪽·아래=진함
+        pr.push({x:sx, y:sy, s:s, vis:vis, fade:lp(df,1,zoomAmt)});   // 줌인 시 페이드 해제
       }
       ctx.clearRect(0,0,W,H);
-      // 궤도 타원
-      ctx.strokeStyle='rgba(255,255,255,'+(0.32*g_intro)+')'; ctx.lineWidth=1.2;
-      ctx.beginPath(); ctx.ellipse(mapx(0.5),mapy(0.5),0.40*zoom*S,0.37*zoom*S,0,0,6.2832); ctx.stroke();
-      // 노드 연결선
-      ctx.strokeStyle='rgba(255,255,255,'+(0.26*g_intro)+')'; ctx.lineWidth=1;
-      for(var a=0;a<scr.length;a++)for(var b=a+1;b<scr.length;b++){ ctx.beginPath(); ctx.moveTo(scr[a][0],scr[a][1]); ctx.lineTo(scr[b][0],scr[b][1]); ctx.stroke(); }
-      // 가운데 문구(전체일 때만)
-      if(centerEl){ centerEl.style.opacity=String(cl((1.55-zoom)/0.55)*g_intro); centerEl.style.transform='translate(-50%,-50%) translate('+((0.5-cx)*zoom*S)+'px,'+((0.5-cy)*zoom*S)+'px)'; }
+      // 연결선(고정 삼각망)
+      for(var ei=0;ei<edges.length;ei++){ var A=pr[edges[ei][0]], B=pr[edges[ei][1]]; if(!A.vis||!B.vis)continue;
+        var op=cl(0.34+(A.s+B.s)*0.1)*0.55*g_intro*Math.min(A.fade,B.fade);
+        if(op<0.045)continue;   // 거의 안 보이는 선은 스킵(1.4px 최소폭이라 희미해도 보이던 것 제거)
+        ctx.strokeStyle='rgba(255,255,255,'+op+')'; ctx.lineWidth=Math.max(1.4,Math.min(A.s,B.s)*0.7);
+        ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+      }
+      // 노드(은은한 글로우)
+      ctx.shadowColor='rgba(255,255,255,0.7)';
+      for(var i2=0;i2<N;i2++){ var p2=pr[i2]; if(!p2.vis)continue;
+        var rad=Math.min(60,(1.8+nodes[i2].big*1.8)*p2.s);
+        ctx.shadowBlur=Math.min(16,rad*1.1);
+        ctx.fillStyle='rgba(255,255,255,'+(cl(0.4+p2.s*0.4)*g_intro*p2.fade)+')';
+        ctx.beginPath(); ctx.arc(p2.x,p2.y,rad,0,6.2832); ctx.fill();
+      }
+      ctx.shadowBlur=0;
+      // 라벨(줌인 키워드)
+      if(cam.focus>=0 && zoomAmt>0.55){ var fp=pr[kIdx[cam.focus]]; if(fp.vis){
+        var lo=cl((zoomAmt-0.55)/0.3)*g_intro, fm=cam.focus, lx=fp.x+90, ly=fp.y;
+        ctx.globalAlpha=lo; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#111111'; ctx.font='800 46px Pretendard,"Malgun Gothic",sans-serif';
+        ctx.fillText(keys[fm].k, lx, ly+6);
+        ctx.fillStyle='rgba(17,17,17,0.65)'; ctx.font='600 16px Pretendard,sans-serif';
+        ctx.fillText(keys[fm].e, lx+2, ly+30);
+        ctx.globalAlpha=1;
+      }}
+      // [프로스트] 각자의 전문성 텍스트 뒤 노드 블러 — 줄별 폭 + 경계 페더(부드럽게), 캔버스 직접(트랙 transform 아래서 backdrop-filter 깨짐)
+      if(lead && g_intro>0.02){
+        var cb=cv.getBoundingClientRect();
+        var rng=document.createRange(); rng.selectNodeContents(lead);
+        var lrs=rng.getClientRects();   // 줄마다 실제 글씨 폭 rect
+        var pad=10, feather=11;         // pad=여유, feather=경계 부드러움
+        // 줄들 union bbox (CSS px, 캔버스 로컬)
+        var minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9, Ls=[];
+        for(var li=0;li<lrs.length;li++){ var rc=lrs[li]; if(rc.width<2)continue;
+          var lx=rc.left-cb.left, ly=rc.top-cb.top; Ls.push({x:lx,y:ly,w:rc.width,h:rc.height});
+          minx=Math.min(minx,lx-pad-feather); miny=Math.min(miny,ly-pad*0.5-feather);
+          maxx=Math.max(maxx,lx+rc.width+pad+feather); maxy=Math.max(maxy,ly+rc.height+pad*0.5+feather); }
+        minx=Math.max(0,minx); miny=Math.max(0,miny); maxx=Math.min(W,maxx); maxy=Math.min(H,maxy);
+        var bw=maxx-minx, bh=maxy-miny;
+        if(Ls.length && bw>0 && bh>0){
+          var DX=Math.round(minx*dpr),DY=Math.round(miny*dpr),DW=Math.round(bw*dpr),DH=Math.round(bh*dpr);
+          // 1) bbox 블러본
+          bctx.setTransform(1,0,0,1,0,0); bctx.clearRect(0,0,blurC.width,blurC.height);   // 전체 클리어(잔상 방지)
+          bctx.filter='blur('+(10*g_intro)+'px)'; bctx.drawImage(cv, DX,DY,DW,DH, 0,0,DW,DH); bctx.filter='none';
+          // 2) 페더 마스크(줄별 소프트 사각)
+          mctx.setTransform(1,0,0,1,0,0); mctx.clearRect(0,0,maskC.width,maskC.height);   // 전체 클리어(잔상 방지)
+          mctx.filter='blur('+feather+'px)'; mctx.fillStyle='#fff';
+          for(var mi=0;mi<Ls.length;mi++){ var L=Ls[mi];
+            var rx=(L.x-pad-minx)*dpr+feather, ry=(L.y-pad*0.5-miny)*dpr+feather, rw=(L.w+2*pad)*dpr-2*feather, rh=(L.h+pad)*dpr-2*feather;
+            if(rw>0&&rh>0) mctx.fillRect(rx,ry,rw,rh); }
+          mctx.filter='none';
+          // 3) 블러본에 마스크 적용(페더 경계)
+          bctx.globalCompositeOperation='destination-in'; bctx.drawImage(maskC,0,0); bctx.globalCompositeOperation='source-over';
+          // 4) 원본에서 마스크만큼 지우고(크로스페이드) 페더 블러 얹기
+          ctx.setTransform(1,0,0,1,0,0);
+          ctx.globalCompositeOperation='destination-out'; ctx.drawImage(maskC, DX,DY);
+          ctx.globalCompositeOperation='source-over'; ctx.drawImage(blurC, DX,DY);
+          ctx.setTransform(dpr,0,0,dpr,0,0);
+        }
+      }
       requestAnimationFrame(raf);
     }
     fx(); requestAnimationFrame(raf);
@@ -1537,6 +1789,9 @@
 
   /* ===== 히어로 핀 스크롤 리빌 ===== */
   var nav=document.getElementById('nav');
+  var navHover=false;   // 네비바에 마우스 올려져 있으면 스크롤 내려도 안 숨김
+  nav.addEventListener('mouseenter',function(){ navHover=true; nav.classList.remove('hide'); });
+  nav.addEventListener('mouseleave',function(){ navHover=false; });
   var navLogo=document.querySelector('.nav-logo');
   var navLinks=document.querySelector('.nav-links');
   var hero=document.getElementById('hero');
@@ -1556,7 +1811,7 @@
     if(y<80){ nav.classList.remove('hide'); navAnchor=y; navDir=0; }   // 맨 위 근처는 항상 보임
     else if(y>lastNavY){                              // 내리는 중
       if(navDir!==1){ navDir=1; navAnchor=y; }        // 방향 바뀌면 기준점 리셋
-      if(y>navAnchor+40) nav.classList.add('hide');   // 누적 40px 내리면 숨김(천천히도 됨)
+      if(y>navAnchor+40 && !navHover) nav.classList.add('hide');   // 누적 40px 내리면 숨김(단, 마우스 올려져 있으면 유지)
     } else if(y<lastNavY){                            // 올리는 중
       if(navDir!==-1){ navDir=-1; navAnchor=y; }
       if(y<navAnchor-20) nav.classList.remove('hide');// 누적 20px 올리면 바로 보임
@@ -1579,7 +1834,7 @@
     var MAGNET=true; if(!MAGNET) return;
     var settling=false, lastY=window.scrollY;
     function snap(){
-      if(settling || !window.__lenis) return;
+      if(settling || !window.__lenis || Math.abs(window.__lenis.velocity||0)>=60) return;   // 빠르게 확 내리면 자석 스킵
       var maxS=document.documentElement.scrollHeight - window.innerHeight;
       var fh=footer.offsetHeight || 294;      // 푸터 높이 = 드러날 공간
       var B=maxS, A=maxS - fh;                // A=컨텍트어스(홀드) / B=푸터 전체
@@ -1714,6 +1969,7 @@
     }
     function countUp(el){var to=+el.getAttribute('data-count'),num=el.querySelector('.num'),t0=null,dur=688;   // 카운트업 1.6배 빠르게
       function step(ts){if(t0==null)t0=ts;var kk=cl((ts-t0)/dur);num.textContent=Math.round(lp(0,to,kk));if(kk<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+    window.__statsRecount=function(){ for(var s=0;s<stats.length;s++){ counted[s]=true; countUp(stats[s]); } };   // 네비로 성과 도착 시 숫자 0부터 다시 카운팅
     var FADE=0.04, HSTART=0.06, HEND=0.56;   // 마케팅 페이드 / 가로(03 중앙 홀드 포함) ~ WORK 중앙
     var A1=0.24, A2=0.38, B1=0.58, B2=0.70;  // u기준: 2a+2b 홀드[A1~A2] / 03 홀드[B1~B2](짧게)
     var SPLIT0=0.62, SPLIT1=0.70;            // WORK 벌어짐 + 로고 상승
@@ -1722,7 +1978,8 @@
     var lastP=0, settling=false, settled=false, clientHeld=false;   // 홀드→WORK 자동 안착 스크롤 / clientHeld=클라이언트 등장 후 1회 홀드
     function fx(){
       var vh=window.innerHeight, vw=window.innerWidth, r=sec.getBoundingClientRect(), range=sec.offsetHeight-vh;
-      var p=range>0?cl(-r.top/range):0;
+      var holdPx=0.3*vh, effRange=Math.max(1,range-holdPx);   // 끝 홀드(다음 섹션 늦게): 리빌은 effRange까지, 그 뒤 클라 홀드
+      var p=cl(-r.top/effRange);
       if(big){ big.style.opacity=cl(p/FADE); }
       var u=cl((p-HSTART)/(HEND-HSTART));
       var workCol=track.querySelector('.hcol-work'), lastCol=track.querySelector('.hcol-last');
@@ -1748,13 +2005,13 @@
       // 프레임: 마케팅의 이유(M) → 어떤 사업 2ab → 실행연구소는 03 → WORK
       function u2p(uu){ return HSTART+uu*(HEND-HSTART); }
       function settleP(pp){ settling=true;
-        var ty=window.scrollY + r.top + pp*range;
+        var ty=window.scrollY + r.top + pp*effRange;   // effRange 기준(홀드 구간과 일관)
         window.__lenis.scrollTo(ty,{duration:1.35,lock:true,onComplete:function(){settling=false;}}); }
       function settleTo(uu){ settleP(u2p(uu)); }
       var SH=HH*(HEND-HSTART)*0.5;   // 클라이언트 홀드 반폭 = 가로 홀드의 50%(p환산)
       var pC=0.985;                  // 클라이언트 안착점(또렷할 때)
       var down=p>lastP;
-      if(!settling && window.__lenis){
+      if(!settling && window.__lenis && Math.abs(window.__lenis.velocity||0)<60){   // 빠르게 확 내리면 안착 스킵
         if(p>0.006 && u<uM){ if(down) settleTo(uM); }        // 진입: 마케팅 나타나기 시작 → 완전히
         else if(u>mE && u<aS) settleTo(down?u2:uM);          // 마케팅 ↔ 2ab
         else if(u>aE && u<bS) settleTo(down?u3:u2);          // 2ab ↔ 03
@@ -1865,14 +2122,18 @@
         if(sh>0.85){ svc.classList.add('show'); } else { svc.classList.remove('show','live'); }
         if(sh>=0.999){ svc.classList.add('live'); } else { svc.classList.remove('live'); }
       }
-      // 십자가 부서지기 시작하면 → 스크롤 안 해도 자동으로 서비스 목록까지 재생(Lenis lock)
+      // 부서지기 시작하면 → 스크롤 안 해도 자동으로 서비스까지 재생(양방향)
       var down=p>lastP;
-      if(!settling && window.__lenis && down && !svcSnapped && p>0.70 && p<0.92){
-        svcSnapped=true; settling=true;
-        var ty=window.scrollY + r.top + 0.94*range;
-        window.__lenis.scrollTo(ty,{duration:1.6,lock:true,onComplete:function(){settling=false;}});   // 부서짐 재생되며 서비스까지 자동 진행
+      if(!settling && window.__lenis && Math.abs(window.__lenis.velocity||0)<60){   // 빠르게 확 내리면 안착 스킵
+        if(down && !svcSnapped && p>0.70 && p<0.94){          // 아래로: 서비스까지 자동(조금 느리게)
+          svcSnapped=true; settling=true;
+          window.__lenis.scrollTo(window.scrollY+r.top+0.96*range,{duration:2.1,lock:true,onComplete:function(){settling=false;}});
+        } else if(!down && p>0.72 && p<0.965){                // 위로: 부서짐 전으로 자동
+          settling=true;
+          window.__lenis.scrollTo(window.scrollY+r.top+0.66*range,{duration:1.8,lock:true,onComplete:function(){settling=false;}});
+        }
       }
-      if(p<0.66) svcSnapped=false;   // 위로 되돌아가면(회전 구간 전) 재장전
+      if(p<0.68) svcSnapped=false;   // 회전 구간 전 재장전
       lastP=p;
     }
     window.addEventListener('scroll',fx,{passive:true});window.addEventListener('resize',fx);fx();
