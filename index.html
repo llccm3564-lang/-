@@ -375,7 +375,7 @@
   .rot-reel{display:block;will-change:transform}
   .rot-reel span{display:block;height:1.1em;line-height:1.1}
   /* Phase 2: 검정 카드창(페이지 고정, 안쪽만 스크롤, 2줄) */
-  .team-cards-wrap{position:relative;margin-top:-182vh;z-index:2}   /* 겹침(-182vh) → 5스크롤 홀드(FS0.64)에서도 콘텐츠 제자리·김미정까지 보임 */
+  .team-cards-wrap{position:relative;margin-top:-150vh;z-index:2}   /* 겹침(-150vh) → 초록→흰과 함께 아래에서 위로 올라오는 리빌(초기 방식) */
   .team-tail{height:100vh;background:#fff}   /* About(mt:-100vh) 버퍼. 제자리페이드는 margin(레이아웃)이라 About 자동 반영 */
   /* 플렉서스(3D 별자리) — 오른쪽 패널 */
   #plexusCv{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
@@ -1300,10 +1300,14 @@
         io.unobserve(e.target);
       }});},{threshold:.35});
     each('#team .sec-head h2, #refs .sec-head h2, .contact-info h2',function(h){
-      var words=(h.textContent||'').split(/\s+/).filter(Boolean);
-      h.innerHTML=words.map(function(w,i){
-        return '<span class="mask-reveal"><span style="transition-delay:'+(i*95)+'ms">'+w+'</span></span>';
-      }).join(' ');
+      var lines=(h.innerHTML||'').split(/<br\s*\/?>/i);   // <br> 기준 줄 분리(줄바꿈 유지)
+      var k=0;
+      h.innerHTML=lines.map(function(line){
+        var words=line.replace(/<[^>]*>/g,'').split(/\s+/).filter(Boolean);
+        return words.map(function(w){
+          return '<span class="mask-reveal"><span style="transition-delay:'+((k++)*95)+'ms">'+w+'</span></span>';
+        }).join(' ');
+      }).join('<br>');
       io.observe(h);
     });
   });
@@ -1730,16 +1734,14 @@
       var f1=cl(q/0.45);                                    // ① 노드+텍스트 페이드아웃
       cv.style.opacity=String(1-f1);
       if(lead && q>0.0005) lead.style.opacity=String(1-f1);// 투어 중(q=0)엔 plexus가 제어하므로 건드리지 않음
-      // ② 초록→흰(스크롤 스크럽) & ③ 콘텐츠 "제자리" 페이드(translateY로 스크롤 상쇄=슬라이드 없음) → 완료 후 짧은 홀드
-      whiteout.style.opacity=String(cl((q-0.40)/0.30));    // 초록→흰: q0.40~0.70 완료 → q0.70~1.0(60vh≈5스크롤) 흰색 평탄
+      // ② 초록→흰(스크롤 스크럽) & ③ 콘텐츠는 붙잡지 않고 스크롤 따라 아래→위로 올라옴(초기 방식) + 페이드인
+      whiteout.style.opacity=String(cl((q-0.40)/0.30));    // 초록→흰: q0.40~0.70 완료
       if(inner){
-        var FS=0.64;                                        // 페이드 시작 = 초록→흰 80% 지점(q0.64에서 white≈80%)
-        var comp=q>FS?(q-FS)*TAIL:0;                         // 스크롤 상쇄 → 페이드+홀드 동안 제자리 고정(margin=레이아웃이라 sticky 안 깨짐)
-        inner.style.marginTop=comp>0?(comp+'px'):'';        // q=FS에서 0부터 시작(점프 없음)
-        var cf=cl((q-FS)/0.06);                             // 글씨 진해짐(q0.64~0.70) → 완료 후 q0.70~1.0(60vh≈5스크롤) 제자리 홀드
+        inner.style.marginTop='';                           // 붙잡기 제거 → 스크롤 따라 자연히 아래에서 위로 올라옴
+        var cf=cl((q-0.40)/0.30);                            // 초록→흰과 함께 페이드인(q0.40~0.70)
         inner.style.opacity=String(cf);
         inner.style.pointerEvents=(cf>0.6?'auto':'none');
-        if(cf>0.12) inner.classList.add('revealed'); else if(cf<0.02) inner.classList.remove('revealed');   // 등장 시 이름칸 오른쪽→제자리 스태거
+        if(cf>0.12) inner.classList.add('revealed'); else if(cf<0.02) inner.classList.remove('revealed');   // 이름칸 오른쪽→제자리 스태거
       }
       requestAnimationFrame(frame);
     }
