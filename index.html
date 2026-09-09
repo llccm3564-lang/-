@@ -45,6 +45,10 @@
     --shadow-md:0 6px 18px rgba(18,26,22,.07), 0 2px 6px rgba(18,26,22,.05);
     --shadow-green:0 10px 30px rgba(85,232,92,.18), 0 3px 10px rgba(85,232,92,.12);
     --radius:16px;
+  /* [뷰포트 높이 단위] 섹션 높이의 기준. 기본값은 1vh라 JS가 없어도 예전과 똑같이 동작한다.
+     모바일에서는 JS가 large viewport 기준 px으로 덮어써서 주소창이 뜨고 져도 문서가 안 흔들리게 한다.
+     (실측: vh를 그대로 두면 주소창 106px 변동에 레퍼런스 섹션 359px·문서 전체 1391px이 리플로우됨) */
+  --vhpx:1vh;
     --maxw:1160px;
     --ease:cubic-bezier(.22,.61,.36,1);
     --ease-apple:cubic-bezier(.16,1,.3,1);      /* 애플식: 빠르게 시작해 길게 감속 */
@@ -143,9 +147,9 @@
   /* 히어로 = 핀 스크롤(높이 200vh). 영상은 '처음부터 풀스크린 고정'.
      글자 안무: (A) 큰 글자 왼쪽 → 위로 올라가며 사라짐  →  (B) 작은 글자 중앙에서 천천히 내려옴. */
   /* 히어로 = 화면에 고정(fixed). 아래 흰 콘텐츠(#siteBody)가 위로 차오르며 영상을 덮음 */
-  .hero{position:fixed;top:0;left:0;width:100%;height:100vh;background:#161514;z-index:0;overflow:hidden}
+  .hero{position:fixed;top:0;left:0;width:100%;height:calc(100 * var(--vhpx));background:#161514;z-index:0;overflow:hidden}
   .hero-stick{position:absolute;inset:0;overflow:hidden;background:#1A1A1A}
-  #siteBody{position:relative;z-index:1;background:#fff;margin-top:180vh;
+  #siteBody{position:relative;z-index:1;background:#fff;margin-top:calc(180 * var(--vhpx));
     margin-bottom:294px;border-bottom-left-radius:30px;border-bottom-right-radius:30px}   /* 아래 여백=푸터 높이(드러날 공간), 하단 둥근 모서리 */
   .hero-vid{position:absolute;inset:0;overflow:hidden;background:#0f0d0a}
   .hv{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;display:block;
@@ -170,7 +174,7 @@
   /* 맨 위에서 초록 밴드 경계에 걸침(하단 58% 영상 위). 색=흰색(살짝 회색기), 모던 세리프 */
   .hero-word-big img{display:block;width:clamp(300px,44vw,700px);height:auto;filter:drop-shadow(0 6px 24px rgba(0,0,0,.45))}
   /* [히어로 카피] 로고 사라진 뒤 아래→위 라인별 시차 등장(녹화6) */
-  .hero-copy{position:absolute;top:22vh;left:3.5vw;z-index:3;max-width:min(940px,92vw);text-align:left;pointer-events:none}
+  .hero-copy{position:absolute;top:calc(22 * var(--vhpx));left:3.5vw;z-index:3;max-width:min(940px,92vw);text-align:left;pointer-events:none}
   .hero-copy .hc-line{opacity:0;transform:translateY(90px);
     transition:opacity 1.7s var(--ease),transform 1.7s var(--ease)}
   .hero-copy .hc-big1{font-family:var(--brand-font);color:#fff;font-weight:400;
@@ -188,8 +192,8 @@
   body.hero-go .hero-copy .hc-big2{transition-delay:.66s}
   body.hero-go .hero-copy .hc-small{transition-delay:.55s}
   body.hero-go .hero-copy .hc-small2{transition-delay:.66s}
-  @media(max-width:640px){.hero-copy{top:19vh}}
-  .hero-word-big{position:absolute;top:20vh;left:3.5vw;z-index:3;pointer-events:none;white-space:nowrap;
+  @media(max-width:640px){.hero-copy{top:calc(19 * var(--vhpx))}}
+  .hero-word-big{position:absolute;top:calc(20 * var(--vhpx));left:3.5vw;z-index:3;pointer-events:none;white-space:nowrap;
     font-family:var(--brand-font);font-weight:400;letter-spacing:-.01em;line-height:.9;font-size:clamp(50px,11.7vw,189px);
     color:#EEF0EE;will-change:transform;transition:transform .9s var(--ease) .6s}   /* 리버스=늦게 내려옴 */
   /* (B) 작은 글자 — 중앙, 처음엔 숨김 → 위에서 내려옴 */
@@ -197,7 +201,7 @@
     min-width:132px;padding:12px 22px;border-radius:12px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.55);
     transition:background .2s,color .2s,transform .18s var(--ease)}
   .btn-line:hover{transform:translateY(-2px)}
-  .hero-cta{position:absolute;left:50%;bottom:13vh;translate:-50% 0;z-index:4;display:flex;gap:12px;
+  .hero-cta{position:absolute;left:50%;bottom:calc(13 * var(--vhpx));translate:-50% 0;z-index:4;display:flex;gap:12px;
     opacity:0;pointer-events:none;transition:opacity .4s var(--ease)}   /* 리버스=바와 함께 빠르게 사라짐 */
   /* 스크롤 살짝 내리면(body.hero-go) 아래 상태로 '자동재생' — 더 안 내려도 완성됨 */
   body.hero-go .hero-word-big{transform:translateY(-80vh);transition:transform .9s var(--ease)}   /* 내릴때=바로 위로 */
@@ -210,13 +214,13 @@
   .hero-scroll{position:absolute;bottom:calc(30px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:4;color:rgba(255,255,255,.55);
     font-size:15px;font-weight:200;letter-spacing:.22em;transition:opacity .4s var(--ease) .7s}   /* 리버스=바 다 올라간 뒤(.7s) 등장 */
   @media(max-width:860px){
-    .hero-word-big{top:20vh;left:20px;font-size:clamp(46px,15vw,120px)}
+    .hero-word-big{top:calc(20 * var(--vhpx));left:20px;font-size:clamp(46px,15vw,120px)}
   }
 
   /* ============ [가로 스크롤 에디토리얼] 마케팅의 이유 ============ */
-  .hsec{position:relative;height:680vh;background:#fff}   /* 가로+Work+로고+통계 (끝에 클라 홀드 +30vh) */
-  .stats-refs-gap{height:150vh;background:#fff}   /* 스탯↔레퍼런스 흰 버퍼(레퍼런스 -100vh가 이걸 덮음 → 통계 다 보인 뒤 전환) */
-  .hsec .hstick{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center}
+  .hsec{position:relative;height:calc(680 * var(--vhpx));background:#fff}   /* 가로+Work+로고+통계 (끝에 클라 홀드 +30vh) */
+  .stats-refs-gap{height:calc(150 * var(--vhpx));background:#fff}   /* 스탯↔레퍼런스 흰 버퍼(레퍼런스 -100vh가 이걸 덮음 → 통계 다 보인 뒤 전환) */
+  .hsec .hstick{position:sticky;top:0;height:calc(100 * var(--vhpx));overflow:hidden;display:flex;align-items:center}
   .hsec .htrack{position:relative;display:flex;align-items:center;height:100%;padding:0 9vw;gap:8vw;will-change:transform}
   .hsec .hgroup{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:32vw;height:100%}
   .hsec .hline{position:absolute;left:0;right:-30vw;top:calc(50% + 10px);height:1.7px;background:#111111}   /* 03(비즈니스 파트너) 바로 앞에서 끊김, 굵기 85% */
@@ -228,7 +232,7 @@
   .hsec .hcol-last{position:relative;margin-left:24vw}   /* 03: 2b와 간격 넓게, 비즈니스 파트너로서가 선 사이에 끼게 */
   .hsec .hcol-last::after{content:"";position:absolute;left:100%;top:50%;margin-left:1.6vw;width:13vw;height:1.7px;background:#111111;transform:translateY(-0.85px)}   /* 파트너 뒤에서 다시 시작해 조금 이어짐, 굵기 85% */
   .hsec .hcol{flex:0 0 auto;position:relative}
-  .hsec .hrule{flex:0 0 auto;width:1px;height:60vh;background:rgba(0,0,0,.16)}
+  .hsec .hrule{flex:0 0 auto;width:1px;height:calc(60 * var(--vhpx));background:rgba(0,0,0,.16)}
   .hsec .hspacer{flex:0 0 auto;width:9vw}
   .hsec .heyebrow{display:block;font-family:var(--num);font-weight:700;font-size:13px;letter-spacing:2px;color:var(--green-d);white-space:nowrap}
   .hsec .hmeta{display:block;margin-top:14px;font-weight:600;font-size:clamp(15px,1.5vw,19px);line-height:1.5;color:var(--muted);white-space:nowrap}
@@ -243,8 +247,8 @@
   @media(prefers-reduced-motion:reduce){.hsec .htrack{transform:none!important}}
 
   /* ============ [스탯] Work 벌어짐 → 원형 로고 → 실적 통계 ============ */
-  .msec{position:relative;height:320vh;background:#fff}
-  .m-stick{position:sticky;top:0;height:100vh;overflow:hidden}
+  .msec{position:relative;height:calc(320 * var(--vhpx));background:#fff}
+  .m-stick{position:sticky;top:0;height:calc(100 * var(--vhpx));overflow:hidden}
   .m-wordwrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.38em}
   .m-word{font-weight:500;letter-spacing:-.03em;
     font-size:clamp(34px,7.34vw,121px);color:#111111;white-space:nowrap}
@@ -262,15 +266,15 @@
   /* [정리] 옛 통계 시네마틱 CSS(stats, stats-stick, st- 계열, stat-grid, scard, sc- 계열) 제거 — 현재 stats는 hsec/hcol/m-stat/num 사용 */
 
   /* ============ 십자가 시네마틱 ============ */
-  .crossfx{position:relative;height:420vh;background:#fff;margin-top:-146vh;z-index:2}   /* 겹침 -146vh(790vh 높이에 맞춰 확대 → phase 유지) / z-index:2로 refs 위 */
-  .cf-stick{position:sticky;top:0;height:100vh;overflow:hidden;background:#fff}
+  .crossfx{position:relative;height:calc(420 * var(--vhpx));background:#fff;margin-top:calc(-146 * var(--vhpx));z-index:2}   /* 겹침 -146vh(790vh 높이에 맞춰 확대 → phase 유지) / z-index:2로 refs 위 */
+  .cf-stick{position:sticky;top:0;height:calc(100 * var(--vhpx));overflow:hidden;background:#fff}
   .cf-panel{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + var(--popY,70vh)));
     width:718px;height:320px;background:#111111;border-radius:0;
     opacity:0;filter:blur(6px);
     transition:transform .9s cubic-bezier(.22,1.15,.36,1),opacity .55s var(--ease),filter .55s var(--ease);
     overflow:hidden;z-index:1;will-change:transform,opacity,filter,width,height}   /* overflow:hidden → 십자가는 박스 안에서만 보임. 등장: 화면 밖(아래 70vh)에서 쭉 올라와 튀어나옴(오버슈트). 이후 커짐·회전은 동일 */
   .cf-panel.popped{--popY:0px;opacity:1;filter:none}   /* 안착 직전 시간기반 원샷 팝(스크롤 없이 완성) */
-  .cf-title{position:absolute;left:50%;top:5vh;transform:translateX(-50%);z-index:0;opacity:0;
+  .cf-title{position:absolute;left:50%;top:calc(5 * var(--vhpx));transform:translateX(-50%);z-index:0;opacity:0;
     font-family:'Wanted Sans Variable','Wanted Sans','Pretendard',sans-serif;
     color:#111111;font-size:clamp(31px,4.08vw,53px);font-weight:630;letter-spacing:-.02em;
     white-space:nowrap;pointer-events:none;will-change:transform,opacity}   /* 박스 밖 인트로 타이틀(Wanted Sans, 박스와 같은색) → JS로 페이드+상승 등장 → 박스 커지며 잠식 */
@@ -364,9 +368,9 @@
   /* ============ 조직도 ============ */
   #team{position:relative;background:#fff}
   /* 팀 가로 스테이지: 인트로(왼쪽 패널) → 스크롤로 트랙 왼쪽 이동 → 플렉서스(오른쪽 패널) */
-  .team-stage-wrap{position:relative;height:720vh;z-index:1}   /* 520vh(투어) + 200vh(아웃트로 고정여백). 노드 드라이버는 range에서 200vh 빼서 투어 픽셀 동일 유지 */
+  .team-stage-wrap{position:relative;height:calc(720 * var(--vhpx));z-index:1}   /* 520vh(투어) + 200vh(아웃트로 고정여백). 노드 드라이버는 range에서 200vh 빼서 투어 픽셀 동일 유지 */
   .team-whiteout{position:absolute;inset:0;z-index:6;opacity:0;pointer-events:none;background:#ffffff}   /* 아웃트로: 초록 패널 위로 화이트 페이드인 → 담당자 섹션(화이트)과 이음새 없음 */
-  .team-stage{position:sticky;top:0;height:100vh;overflow:hidden;
+  .team-stage{position:sticky;top:0;height:calc(100 * var(--vhpx));overflow:hidden;
     background:linear-gradient(180deg,#7CFF76 0%,#67F061 50%,#4CDD55 100%)}   /* A: 연한 세로 그라데이션(패널과 통일, 경계 안 끊김) */
   /* B: 미세 그레인(필름 노이즈) — 초록 평평함 제거 */
   .team-stage::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;opacity:.10;mix-blend-mode:overlay;
@@ -385,8 +389,8 @@
   .rot-reel{display:block;will-change:transform}
   .rot-reel span{display:block;height:1.1em;line-height:1.1}
   /* Phase 2: 검정 카드창(페이지 고정, 안쪽만 스크롤, 2줄) */
-  .team-cards-wrap{position:relative;margin-top:-150vh;z-index:2}   /* 겹침(-150vh) → 초록→흰과 함께 아래에서 위로 올라오는 리빌(초기 방식) */
-  .team-tail{height:100vh;background:#fff}   /* About(mt:-100vh) 버퍼. 제자리페이드는 margin(레이아웃)이라 About 자동 반영 */
+  .team-cards-wrap{position:relative;margin-top:calc(-150 * var(--vhpx));z-index:2}   /* 겹침(-150vh) → 초록→흰과 함께 아래에서 위로 올라오는 리빌(초기 방식) */
+  .team-tail{height:calc(100 * var(--vhpx));background:#fff}   /* About(mt:-100vh) 버퍼. 제자리페이드는 margin(레이아웃)이라 About 자동 반영 */
   /* 플렉서스(3D 별자리) — 오른쪽 패널 */
   #plexusCv{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
   .plexus-lead{position:absolute;left:6vw;top:40%;transform:translateY(-50%);z-index:2;color:#111111;font-weight:900;font-size:clamp(36px,4.4vw,62px);letter-spacing:-.03em;line-height:1.1;opacity:0;will-change:opacity}   /* 왼쪽 위 / 굵기·자간·줄간격 임팩트↑ */
@@ -517,10 +521,10 @@
 
   /* ============ 성과 & 레퍼런스 ============ */
   /* ===== 성과·레퍼런스 = 카드 컨베이어(녹화11 핵심 모션) ===== */
-  #refs.refsec{position:relative;height:790vh;background:#111111;margin-top:-100vh;z-index:1}   /* 790vh: 카드 컨베이어 속도(길수록 느림) → ±0.70vh sweep 유지하며 흰섹션 리빌과 속도 매칭. crossFx 겹침으로 phase 보정 */
-  #about{position:relative;z-index:2;margin-top:-100vh;min-height:140vh;padding:0}   /* Stage2에서 about 커버. dwell 축소(200→140vh)로 contact 전환 더 부드럽게 */
-  #about .rv-stick{position:sticky;top:0;min-height:100vh;display:grid;place-items:center;padding:80px 0}
-  .refstick{position:sticky;top:0;height:100vh;overflow:hidden;background:transparent}   /* 다크는 #refs가 담당(부드럽게) → 언핀 튐 없음 */
+  #refs.refsec{position:relative;height:calc(790 * var(--vhpx));background:#111111;margin-top:calc(-100 * var(--vhpx));z-index:1}   /* 790vh: 카드 컨베이어 속도(길수록 느림) → ±0.70vh sweep 유지하며 흰섹션 리빌과 속도 매칭. crossFx 겹침으로 phase 보정 */
+  #about{position:relative;z-index:2;margin-top:calc(-100 * var(--vhpx));min-height:calc(140 * var(--vhpx));padding:0}   /* Stage2에서 about 커버. dwell 축소(200→140vh)로 contact 전환 더 부드럽게 */
+  #about .rv-stick{position:sticky;top:0;min-height:calc(100 * var(--vhpx));display:grid;place-items:center;padding:80px 0}
+  .refstick{position:sticky;top:0;height:calc(100 * var(--vhpx));overflow:hidden;background:transparent}   /* 다크는 #refs가 담당(부드럽게) → 언핀 튐 없음 */
   .refbg{position:absolute;left:4vw;top:50%;transform:translateY(-50%);z-index:0;
     font-family:'Wanted Sans Variable','Pretendard',sans-serif;font-weight:640;
     font-size:clamp(64px,13.5vw,240px);line-height:.84;letter-spacing:-.035em;
@@ -551,8 +555,8 @@
 
   /* ============ 문의 ============ */
   .contact{background:var(--bg-soft);position:relative;
-    border-bottom-left-radius:30px;border-bottom-right-radius:30px;min-height:190vh}   /* about식 sticky 홀드용 높이(박스 고정 dwell + 아래 여백) */
-  .contact-stick{position:sticky;top:0;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:90px 0 40px}   /* 박스 화면중앙 고정(dwell) → 풀리면 푸터 리빌(about 느낌) */
+    border-bottom-left-radius:30px;border-bottom-right-radius:30px;min-height:calc(190 * var(--vhpx))}   /* about식 sticky 홀드용 높이(박스 고정 dwell + 아래 여백) */
+  .contact-stick{position:sticky;top:0;min-height:calc(100 * var(--vhpx));display:flex;flex-direction:column;justify-content:center;padding:90px 0 40px}   /* 박스 화면중앙 고정(dwell) → 풀리면 푸터 리빌(about 느낌) */
   .contact-in{display:grid;grid-template-columns:.85fr 1.15fr;gap:64px;align-items:start;
     background:#fff;border:1.6px solid #111111;padding:54px 62px}   /* 검정 선 네모 안에 내용 */
   .contact-info .eyebrow{color:#111111}
@@ -745,14 +749,15 @@
       padding-top:72px;text-align:center}
     .hsec .hcol::before{content:"";position:absolute;left:50%;top:0;width:1.7px;height:72px;
       background:#111111;transform:translateX(-50%)}
-    .hsec .hcol-big{padding-top:52px;opacity:1!important}
-    .hsec .hcol-big::before{height:52px}
+    .hsec .hcol-big{padding-top:0;opacity:1!important}          /* 첫 멘트라 위에 이어질 선이 없다 */
+    .hsec .hcol-big::before{display:none}                       /* 히어로 바로 다음이라 세로선 제거(요청) */
     .hsec .hcol-work{padding-top:82px;padding-bottom:0}
     .hsec .hcol-work::before{height:82px}
     /* Work 아래로는 선을 잇지 않음(요청) */
 
     /* nowrap 해제 + 모바일 타이포 스케일 */
     .hsec .hbig,.hsec .hsub,.hsec .hwork,.hsec .heyebrow,.hsec .hmeta,.hsec .m-stat{white-space:normal}
+    .hsec .hbig .nb{white-space:nowrap}   /* '잘 알고 있습니다.'를 통째로 다음 줄로 — '잘'만 앞줄에 남지 않게 */
     .hsec .hbig{font-size:clamp(25px,7.2vw,38px);line-height:1.26;letter-spacing:-.032em}
     .hsec .hsub{font-size:clamp(18px,5vw,28px);line-height:1.46;letter-spacing:-.022em}
     .hsec .hwork{font-size:clamp(46px,13.6vw,86px);line-height:1;letter-spacing:-.035em}
@@ -779,12 +784,16 @@
      .team-stage-wrap 높이(720vh)·드라이버 range·아웃트로(200vh 꼬리)·teamWhiteout·
      .team-cards-wrap{margin-top:-150vh} 겹침은 전부 그대로 → 전환 로직 무손상. 순서도 동일(노드 → 인트로). */
   @media(max-width:860px){
-    .team-track{width:100vw;height:200%}                 /* 200% = 스테이지 2개분(100vh 고정 기준) */
-    .stage-panel{width:100vw;height:50%}
+    .team-track{width:100vw;height:100%}                 /* 노드 패널 제거로 1패널 → 스테이지 1개분 */
+    .stage-panel{width:100vw;height:100%}                /* 트랙이 1패널이라 패널이 스테이지를 꽉 채워야 한다(50%면 아래 절반에 이음새가 보임) */
     /* [A안] 모바일 노드 패널 밑배경을 초록으로 — 폰 주소창 토글로 패널이 커질 때 밴드필 캔버스(고정 크기)가 못 덮어
        그 밑의 흰색이 띠로 드러나던 문제 차단. 데스크톱은 흰 배경 + 블럭 차오름 연출 그대로 유지. */
-    .plexus-panel{left:0;top:0;background:linear-gradient(180deg,#7CFF76 0%,#67F061 50%,#4CDD55 100%)}
-    .intro-panel{left:0;top:50%;padding-left:20px;padding-right:20px}
+    /* [모바일] 노드 섹션(플렉서스 투어) 제거 — 요청.
+       패널 안에 캔버스 2개(bandFill·plexusCv)와 리드 문구가 다 들어 있어 패널만 숨기면 통째로 빠진다.
+       인트로(Our team / 실행연구소를 완성하는 사람들입니다)는 담당자 섹션 도입부라 남긴다.
+       트랙은 1패널이 되므로 세로 슬라이드도 없어진다(JS에서 transform none). */
+    .plexus-panel{display:none}
+    .intro-panel{left:0;top:0;padding-left:20px;padding-right:20px}
     /* 인트로 타이틀: 66px 하한 때문에 "실행연구소를"·"사람들입니다."가 글자 중간에서 잘리던 문제 */
     .team-intro-title h2{font-size:clamp(15px,4.2vw,22px);margin-left:2px}
     .team-intro-title p{font-size:clamp(30px,10.6vw,46px);line-height:1.18;word-break:keep-all}
@@ -796,7 +805,7 @@
        420vh였던 연출 구간을 190vh로 축소(핀 90vh).
        [A안] refs가 340vh로 줄었는데 겹침(-146vh)은 vh 고정이라 레퍼런스의 43%를 잠식 → 카드가 다 올라오기 전에
        서비스가 밀고 들어왔다. 데스크톱과 같은 잠식 비율(18%)이 되도록 -61vh로 축소(340vh×0.18≈61vh). */
-    .crossfx{height:170vh;margin-top:-61vh}
+    .crossfx{height:calc(170 * var(--vhpx));margin-top:calc(-61 * var(--vhpx))}
     .cf-cross,.cf-title{display:none}
     .cf-panel{width:100%!important;height:100%!important}   /* JS 인라인 width/height 미사용(모바일 분기) — 처음부터 풀사이즈, 팝 등장만 유지 */
     /* [흰 줄 제거] 섹션·스틱 배경이 #fff라 다크 패널이 서브픽셀만큼 못 덮는 경계에서 흰 선이 보였다.
@@ -842,14 +851,15 @@
        핵심 제약: 팀 스테이지는 height / 아웃트로 꼬리(JS TAILF) / .team-cards-wrap 겹침이 한 세트다.
        꼬리를 200vh→100vh로 줄였으므로 겹침도 -150vh→-75vh로 같은 비율(1/4 지점 진입)을 유지한다.
        #about은 .team-tail(100vh)과 margin-top:-100vh로 상쇄돼 있어 tail만 줄이면 이득이 0 → 대신 dwell(min-height)을 줄인다. */
-    .stats-refs-gap{height:105vh}          /* 150vh → 105vh (refs가 -100vh로 덮으므로 실제 흰 버퍼는 5vh) */
-    #refs.refsec{height:340vh}             /* 790vh → 340vh. 컨베이어 속도는 JS에서 SPAN·이동거리로 보정 */
-    .crossfx{height:170vh}
-    #services{height:40vh!important}       /* 인라인 style 덮어쓰기 — 다크→흰 그라데이션 스페이서 56vh → 40vh */
-    .team-stage-wrap{height:400vh}         /* 720vh → 400vh (투어 200vh + 뷰포트 100vh + 꼬리 100vh) */
-    .team-cards-wrap{margin-top:-75vh}     /* 꼬리 절반에 맞춰 겹침도 절반 */
-    #about{min-height:110vh}               /* 140vh → 110vh */
-    .contact{min-height:130vh}             /* 190vh → 130vh */
+    .stats-refs-gap{height:calc(105 * var(--vhpx))}          /* 150vh → 105vh (refs가 -100vh로 덮으므로 실제 흰 버퍼는 5vh) */
+    #refs.refsec{height:calc(340 * var(--vhpx))}             /* 790vh → 340vh. 컨베이어 속도는 JS에서 SPAN·이동거리로 보정 */
+    .crossfx{height:calc(170 * var(--vhpx))}
+    #services{height:calc(40 * var(--vhpx))!important}       /* 인라인 style 덮어쓰기 — 다크→흰 그라데이션 스페이서 56vh → 40vh */
+    .team-stage-wrap{height:calc(300 * var(--vhpx))}         /* 720vh → 520vh. 400vh였을 때 노드 투어가 0.9화면에 끝나 키워드 5개가 152px씩 지나갔다(데스크톱의 절반 속도).
+                                                              520vh + 투어비율 확대(아래 PLEX_END)로 키워드당 0.38화면 = 데스크톱과 동일 속도 */
+    .team-cards-wrap{margin-top:calc(-75 * var(--vhpx))}     /* 꼬리 절반에 맞춰 겹침도 절반 */
+    #about{min-height:calc(110 * var(--vhpx))}               /* 140vh → 110vh */
+    .contact{min-height:calc(130 * var(--vhpx))}             /* 190vh → 130vh */
 
     /* ===== [모바일] 레퍼런스 카드 ===== */
     .rcard{width:90vw;padding:15px 16px 16px}
@@ -971,7 +981,7 @@
       <div class="hgroup">
         <div class="hline"></div>
         <div class="hcol hcol-big hcol-up">
-          <h2 class="hbig">마케팅의 이유, <span class="hbig-em">실행연구소</span>는 잘 알고 있습니다.</h2>
+          <h2 class="hbig">마케팅의 이유, <span class="hbig-em">실행연구소</span>는 <span class="nb">잘 알고 있습니다.</span></h2>
         </div>
         <div class="hcol hcol-sub hcol-up hcol-2a">
           <p class="hsub">어떤 사업이라도 <span class="hbig-em">마케팅이 꼭 필요하다</span>는 것은<br />누구나 알고 있습니다.</p>
@@ -1370,25 +1380,63 @@
   window.__NARROW=_nq.matches;
   if(_nq.addEventListener) _nq.addEventListener('change',function(e){ window.__NARROW=e.matches; });
   else if(_nq.addListener) _nq.addListener(function(e){ window.__NARROW=e.matches; });
-  /* ===== [A] 뷰포트 높이 스냅샷(__VH) — 모바일 스크롤 튕김의 근본 원인 차단 =====
-     모바일 주소창이 뜨고 지면 window.innerHeight가 ~88px 오간다. 핀 섹션들은
-        range = 래퍼높이 - innerHeight(- innerHeight*TAILF),  p = -r.top / range
-     로 진행률을 만드는데, 래퍼 높이는 CSS vh(=large viewport, 주소창과 무관하게 고정)라서
-     JS 쪽만 흔들린다 → range가 9~15% 출렁 → 같은 스크롤 위치인데 p가 순간이동 = 튕김.
-     (내릴 땐 주소창이 한 번 숨고 유지돼 조용하지만, 올릴 땐 1px만 올려도 즉시 되살아나 매번 튄다.)
-     숨김 프로브로 CSS 100vh 실측값을 캐시해 JS도 CSS와 같은 기준을 쓰게 한다. */
+  /* ===== [A] 뷰포트 높이 기준(__VH) — 모바일 주소창 대응 =====
+     모바일 주소창이 뜨고 지면 window.innerHeight가 오간다(실측: 삼성 620↔726, 106px).
+     핀 섹션은  range = 래퍼높이 - vh,  p = (스크롤 - 섹션절대top - rv) / (range - rv)
+     로 진행률을 만드는데, 여기 쓰는 vh가 흔들리면 같은 위치인데 p가 튄다.
+
+     [1차 시도의 실패] CSS 100vh를 프로브로 재서 고정했더니 삼성 브라우저가
+     100vh를 large가 아니라 small viewport로 계산해 620이 나왔다. 실제 화면(726)보다
+     106px 작은 값으로 굳어서, 100vh 스테이지가 화면을 못 채우고 계산도 전부 어긋났다.
+     → large viewport(주소창 숨김 상태 높이)를 써야 맞다.
+
+     [지금 방식] 100lvh를 지원하면 그걸 재고(정확·고정), 미지원이면 관측된
+     innerHeight의 최댓값을 쓴다. 최댓값은 커지는 방향으로만 갱신해 값이 출렁이지 않게 한다. */
   var _vhProbe=document.createElement('div');
   _vhProbe.setAttribute('aria-hidden','true');
   _vhProbe.style.cssText='position:absolute;top:0;left:0;width:0;height:100vh;visibility:hidden;pointer-events:none;z-index:-1';
+  var _hasLvh=!!(window.CSS&&CSS.supports&&CSS.supports('height','100lvh'));
+  if(_hasLvh) _vhProbe.style.height='100lvh';
   (document.body||document.documentElement).appendChild(_vhProbe);
-  var _lastVW=window.innerWidth;
+  var _lastVW=window.innerWidth, _maxIH=window.innerHeight;
   function measureVH(force){
-    var w=window.innerWidth;
-    if(!force && window.__MOBILE && w===_lastVW && window.__VH) return;   // 주소창만 움직인 경우 CSS vh는 그대로 → 재측정 불필요
-    _lastVW=w; window.__VH=_vhProbe.offsetHeight||window.innerHeight;
+    var w=window.innerWidth, ih=window.innerHeight;
+    if(w!==_lastVW){ _maxIH=ih; _lastVW=w; force=true; }   // 회전·실제 리사이즈 → 관측 최댓값 리셋
+    if(ih>_maxIH) _maxIH=ih;
+    var probe=_vhProbe.offsetHeight||0;
+    // lvh를 지원하면 프로브가 곧 large viewport. 아니면 프로브(=small일 수 있음)와 관측 최댓값 중 큰 쪽.
+    var next=_hasLvh ? (probe||_maxIH) : Math.max(probe, _maxIH, ih);
+    if(force || !window.__VH || next>window.__VH){
+      window.__VH=next;
+      /* 섹션 높이를 px으로 고정 → 주소창이 움직여도 문서가 리플로우되지 않는다.
+         이게 스크롤 점프의 진짜 원인이었다(좌표가 아니라 레이아웃이 흔들렸음). */
+      document.documentElement.style.setProperty('--vhpx', (next/100)+'px');
+    }
   }
   measureVH(true);
   window.addEventListener('resize',function(){ measureVH(); });   // [C] 필터 설치 전에 등록 → 항상 네이티브로 동작(폴백 경로 포함)
+
+  /* ===== [B] 문서 절대좌표 기준 진행률 =====
+     getBoundingClientRect().top은 주소창이 전환될 때 스크롤과 무관하게 튄다.
+     실측 증거: ΔscrollY 0(손가락 안 댐)인데 ΔinnerH -28, Δr.top -53.
+     즉 스크롤을 1px도 안 했는데 섹션 좌표가 53px 이동 → 진행률이 그대로 순간이동.
+     그래서 섹션의 "문서상 절대 위치"를 한 번 재서 캐시하고, 진행률은 스크롤값 기준으로 만든다.
+     문서 좌표는 주소창과 무관하므로 흔들리지 않는다. */
+  window.__absTopReset=function(){};   // offsetTop 체인은 캐시가 필요 없다(호출부 호환용으로 남김)
+  window.__scrollY=function(){ return (window.__lenis&&window.__lenis.scroll)||window.pageYOffset||document.documentElement.scrollTop||0; };
+  /* offsetTop 체인으로 문서 절대좌표를 구한다.
+     getBoundingClientRect().top + scrollY 로 구하면 두 값이 서로 다른 타이밍의 뷰포트를 참조해
+     주소창 전환 중에 어긋난다(실측: 캐시값이 ±241px 흔들림).
+     offsetTop은 순수 레이아웃 값이라 스크롤·뷰포트 원점과 완전히 무관하다. 매 프레임 새로 계산해도
+     조상 몇 단계 읽기라 비용이 거의 없고, 캐시가 낡을 걱정이 사라진다. */
+  window.__absTop=function(el){
+    var y=0, n=el;
+    while(n){ y+=n.offsetTop||0; n=n.offsetParent; }
+    return y;
+  };
+  /* 섹션 위치를 바꾸는 사건에서만 캐시를 버린다(폰트·이미지 로드, 회전, 실제 리사이즈) */
+  window.addEventListener('load',function(){ window.__absTopReset(); });
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ window.__absTopReset(); });
   /* [자석 전용 호출구] 자석(lock:true)은 모바일에서 통째로 차단되는데, 예전엔 호출부가 차단 여부를 모른 채
      settling=true부터 세워놓고 해제는 onComplete에만 맡겼다. 차단되면 onComplete가 영원히 안 불려
      settling이 영구 true로 굳고(자석·재장전 플래그까지 같이 굳음) 이후 안착이 전부 죽었다.
@@ -1769,7 +1817,11 @@
     }
     var iSettling=false, iLastP=0;
     var WP=[0.20,0.26,0.32];       // 회전단어 자석 안착점(인트로 로컬 ip 기준)
-    var SLIDE0=0.55, SLIDE1=0.62, INTRO_START=0.62;  // 순서 스왑: 슬라이드(노드→인트로) 구간 + 인트로 텍스트 로컬 시작
+    /* 슬라이드(노드→인트로) 구간 + 인트로 텍스트 로컬 시작. 투어가 끝나는 지점(PLEX_END)에 이어 붙는다.
+       모바일은 투어를 0.70까지 늘렸으므로 여기도 같은 폭(0.07)만큼 뒤로 민다. */
+    /* 모바일은 노드 패널을 뺐으므로 슬라이드 구간이 없다 → 인트로가 p=0부터 바로 진행.
+       데스크톱은 기존 흐름(노드 투어 → 슬라이드 → 인트로) 그대로. */
+    var SLIDE0=window.__NARROW?0:0.55, SLIDE1=window.__NARROW?0.0001:0.62, INTRO_START=window.__NARROW?0:SLIDE1;
     var ctx=cv.getContext('2d'), dpr=Math.min(window.devicePixelRatio||1,2);
     var cols=0,rows=0,tile=0,thr=[],W=0,H=0;
     var bandOff=false;   // [모바일 성능] 밴드필 캔버스를 합성에서 뺀 상태인지
@@ -1793,11 +1845,14 @@
     }
     function draw(){
       var r=wrap.getBoundingClientRect(), vh=window.__VH||window.innerHeight, TAILF=window.__NARROW?1:2, range=wrap.offsetHeight-vh-vh*TAILF;   // -vh*TAILF = 아웃트로 고정여백 제외(데스크톱 200vh / 모바일 100vh) → 투어 타이밍 기존과 픽셀 동일
-      var rawp=range>0?(-r.top/range):0, p=cl(rawp);
+      var _sy=window.__scrollY(), _at=window.__absTop(wrap);   // 문서 절대좌표 기준(주소창 전환에 안 흔들림)
+      var rawp=range>0?((_sy-_at)/range):0, p=cl(rawp);
       // 가로 슬라이드(중간): 노드 패널(left:0) 왼쪽으로 나가고 인트로(left:100vw)가 들어옴
       // 좁은 화면(≤860px)은 트랙이 세로(height:200%)라 translateY(-sp*50%) = 스테이지 1개분 이동. 데스크톱 문자열은 그대로.
-      if(track){ var sp=cl((p-SLIDE0)/(SLIDE1-SLIDE0));
-        track.style.transform = window.__NARROW ? ('translateY('+(-sp*50)+'%)') : ('translateX('+(-sp*100)+'vw)'); }
+      if(track){
+        if(window.__NARROW){ track.style.transform='none'; }   // 1패널이라 이동 없음
+        else { var sp=cl((p-SLIDE0)/(SLIDE1-SLIDE0)); track.style.transform='translateX('+(-sp*100)+'vw)'; }
+      }
       var ip=cl((p-INTRO_START)/(1-INTRO_START));   // 인트로 텍스트 로컬 진행(슬라이드 끝난 뒤)
       var titleOn=ip>(window.__NARROW?0.015:0.06);   /* 모바일: 인트로 패널 들어오자마자 글자 시작 */
       if(title && rawp<=1.001){ title.style.opacity=titleOn?'1':'0';   // 아웃트로(rawp>1)에선 손대지 않음 → outro가 페이드아웃 담당
@@ -1847,7 +1902,8 @@
     function cl(v){return v<0?0:v>1?1:v;}
     function draw(){
       var r=wrap.getBoundingClientRect(), vh=window.__VH||window.innerHeight, range=wrap.offsetHeight-vh;
-      var p=range>0?cl(-r.top/range):0;
+      var _sy=window.__scrollY(), _at=window.__absTop(wrap);   // 문서 절대좌표 기준(주소창 전환에 안 흔들림)
+      var p=range>0?cl((_sy-_at)/range):0;
       var vpH=vp.clientHeight;
       // 3 페이지: 영업(hold) → roll → 경영(hold) → roll → 개발(hold). 페이지당 2스크롤 느낌
       var pc;
@@ -1951,6 +2007,16 @@
     function lp(a,b,t){return a+(b-a)*t;}
     function hs(n){var s=Math.sin(n*127.1)*43758.5453;return s-Math.floor(s);}
     var keys=[{k:'기획',e:'PLANNING'},{k:'개발',e:'DEVELOPMENT'},{k:'디자인',e:'DESIGN'},{k:'마케팅',e:'MARKETING'},{k:'AI',e:'AUTOMATION'}];
+    /* [노드 아이콘] 각 키워드 원 안에 들어가는 라인 아이콘. 24x24 뷰박스 기준 stroke 전용 경로.
+       흰 원 위에 짙은 초록(#0d2116)으로 그린다. Path2D로 한 번만 만들어 캐시(매 프레임 재생성 금지). */
+    var ICON_D={
+      기획:["M6 5.5h12a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 20V7A1.5 1.5 0 0 1 6 5.5z","M9.5 3.5h5a1 1 0 0 1 1 1v2h-7v-2a1 1 0 0 1 1-1z","M8.5 13.5l2.5 2.5 4.5-5"],
+      개발:["M9.5 7.5 4.5 12l5 4.5","M14.5 7.5 19.5 12l-5 4.5"],
+      디자인:["M12 2.8 19 16.2 12 21.2 5 16.2Z","M12 2.8V13.6","M12 16.4a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z"],
+      마케팅:["M3.5 20.5h17","M4 16l5-5 4 4 6.5-6.5","M14.5 8.5h5.5V14"],
+      AI:["M9.5 3.2l1.7 4.6 4.6 1.7-4.6 1.7-1.7 4.6-1.7-4.6L3.2 9.5l4.6-1.7Z","M17.2 13.4l.9 2.5 2.5.9-2.5.9-.9 2.5-.9-2.5-2.5-.9 2.5-.9Z"]
+    };
+    var ICON_P={}; try{ for(var ik in ICON_D) ICON_P[ik]=ICON_D[ik].map(function(d){return new Path2D(d);}); }catch(e){ ICON_P=null; }   // Path2D 미지원 브라우저면 아이콘만 생략
     var LOFF=[{x:-12,y:-40},{x:-16,y:18},{x:0,y:0},{x:-26,y:-22},{x:0,y:58}];   // 라벨 미세조정(기획 왼쪽 y-40 / 개발 왼쪽↓ / 디자인 그대로 / 마케팅 왼쪽↑ / AI 더더 아래)
     // 고른 지터 그리드 = 깔끔한 균일 삼각망(별자리)
     var cols=7, rows=5, N=cols*rows, nodes=[];
@@ -1967,10 +2033,20 @@
     function resize(){ W=wrap.clientWidth; H=window.innerHeight; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); cv.style.width=W+'px'; cv.style.height=H+'px'; blurC.width=maskC.width=cv.width; blurC.height=maskC.height=cv.height; ctx.setTransform(dpr,0,0,dpr,0,0); }
     resize(); window.addEventListener('resize',resize);
     // 3D 카메라 dolly: 고정 별자리 속을 시점이 이동(같은 노드, 시점만 바뀜)
-    var FAR=2.6, NEAR=0.8;   // FAR↓ = 전체뷰도 가깝게(일부만 보임)
+    var FAR=2.6, NEAR=0.62;   // FAR↓ = 전체뷰도 가깝게 / NEAR↓ = 키워드에 더 깊이 파고듦(0.80→0.62)
     function camAt(q){   // 전체(멀리) → 키워드5 각각으로 접근 → 전체
+      /* [정지 구간] 예전엔 wide→키워드→wide 로 스쳐 지나가기만 해서, 구간을 아무리 늘려도
+         키워드가 '멈춰 있는 순간'이 0이었다 → 길이를 늘려도 계속 빠르게 느껴짐.
+         키워드 스톱을 두 번 넣어 그 사이 구간에서는 카메라가 제자리에 머문다(읽을 시간 확보).
+         모바일만 적용 — 데스크톱은 기존 흐름 유지. */
+      var HOLD=!!window.__NARROW;
       var stops=[{x:0,y:0,z:0,d:FAR,f:-1}];
-      for(var k=0;k<5;k++){ var n=nodes[kIdx[k]]; stops.push({x:n.x,y:n.y,z:n.z,d:NEAR,f:k}); stops.push({x:0,y:0,z:0,d:FAR,f:-1}); }
+      for(var k=0;k<5;k++){ var n=nodes[kIdx[k]];
+        var st={x:n.x,y:n.y,z:n.z,d:NEAR,f:k};
+        stops.push(st);
+        if(HOLD) stops.push(st);            // 같은 좌표를 한 번 더 → 그 구간은 카메라 정지
+        stops.push({x:0,y:0,z:0,d:FAR,f:-1});
+      }
       var seg=stops.length-1, t=cl(q)*seg, idx=Math.min(seg-1,Math.floor(t)), lt=t-idx;
       var e=lt<0.5?2*lt*lt:1-Math.pow(-2*lt+2,2)/2;
       var a=stops[idx], b=stops[idx+1];
@@ -1978,13 +2054,16 @@
     }
     var g_q=0, g_intro=0, settling=false, lastP=0;
     var plexOff=false;   // [모바일 성능] 플렉서스 캔버스를 합성에서 뺀 상태인지
-    var PLEX0=0.10, PLEX_END=0.55;   // 노드 투어 p 0.10~0.55(0~0.10은 밴드필 차오름), 이후 슬라이드→인트로
+    /* 노드 투어 구간. 0~0.10은 밴드필 차오름, 이후 슬라이드→인트로.
+       모바일은 섹션이 짧아 키워드가 너무 빨리 지나가서 투어 비율을 0.55→0.70으로 넓힌다(섹션 높이도 520vh로 같이 키움). */
+    var PLEX0=0.10, PLEX_END=window.__NARROW?0.70:0.55;
     var INTRO=0.05;   // 진입 길이(노드 페이드 인)
     var QSTART=0.22;  // 카메라 dolly 시작(슬라이드+텍스트 도착 후 전체뷰 한 박자 홀드 → 그다음 기획으로 확대)
     var KP=[0.1,0.3,0.5,0.7,0.9].map(function(q){return QSTART+q*(1-QSTART);});   // 키워드 안착점(로컬)
     function fx(){
       var r=wrap.getBoundingClientRect(), vh=window.__VH||window.innerHeight, TAILF=window.__NARROW?1:2, range=wrap.offsetHeight-vh-vh*TAILF;   // -vh*TAILF = 아웃트로 고정여백 제외(데스크톱 200vh / 모바일 100vh) → 투어 타이밍 기존과 픽셀 동일
-      var p=range>0?cl(-r.top/range):0;
+      var _sy=window.__scrollY(), _at=window.__absTop(wrap);   // 문서 절대좌표 기준(주소창 전환에 안 흔들림)
+      var p=range>0?cl((_sy-_at)/range):0;
       /* [모바일 성능] 플렉서스 캔버스(390x844)도 opacity로 페이드아웃될 뿐 레이어는 문서 끝까지 남는다.
          모바일 트랙은 translateY(-50%)로 밀리므로 슬라이드가 끝나면(p>=SLIDE1 0.62) 노드 패널이 화면 위로 완전히 빠진다.
          그 뒤와 스테이지가 화면 밖일 때는 display:none으로 합성에서 뺀다. 되돌아오면 복구.
@@ -2034,18 +2113,41 @@
         ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
       }
       // 노드(은은한 글로우)
+      var focusRad=0;   // 이번 프레임에서 포커스된 키 노드 반지름(아래 라벨 간격이 이 값을 따라감)
       ctx.shadowColor='rgba(255,255,255,0.7)';
       for(var i2=0;i2<N;i2++){ var p2=pr[i2]; if(!p2.vis)continue;
-        var rad=Math.min(60,(1.8+nodes[i2].big*1.8)*p2.s);
+        /* 카메라가 붙은 키 노드만 부풀린다(전체를 키우면 별자리 넓은 컷이 망가짐).
+           zoomAmt 0.45~0.80 구간에서 서서히 커지고, 멀어지면 원래 크기로 돌아옴. */
+        var nd2=nodes[i2], isFocus=(nd2.key>=0 && cam.focus===nd2.key);
+        /* 부풀림 2.0 = 안착 시 지름 약 100px(원본 26px의 약 4배). 숫자만 바꾸면 크기 조절됨.
+           계산: 반지름 = (1.8+1.5*1.8) * (2.3/NEAR) * (1+2.0) = 4.5 * 3.71 * 3.0 ≈ 50px */
+        var kb=isFocus?cl((zoomAmt-0.45)/0.35)*2.0:0;
+        var rad=Math.min(70,(1.8+nd2.big*1.8)*p2.s*(1+kb));
         ctx.shadowBlur=Math.min(16,rad*1.1);
         ctx.fillStyle='rgba(255,255,255,'+(cl(0.4+p2.s*0.4)*g_intro*p2.fade)+')';
         ctx.beginPath(); ctx.arc(p2.x,p2.y,rad,0,6.2832); ctx.fill();
+        if(isFocus) focusRad=rad;   // 라벨 간격 계산에 사용
+        /* 아이콘: 원이 충분히 커진 뒤에만(반지름 22px~) 페이드로 등장. 작을 때 그리면 뭉개진다. */
+        if(isFocus && ICON_P && ICON_P[keys[nd2.key].k]){
+          var ia=cl((rad-22)/18)*g_intro*p2.fade;
+          if(ia>0.01){
+            ctx.save(); ctx.shadowBlur=0; ctx.globalAlpha=ia;
+            var isc=rad*2*0.46/24;   // 아이콘이 원 지름의 46% 차지
+            ctx.translate(p2.x-12*isc, p2.y-12*isc); ctx.scale(isc,isc);
+            ctx.strokeStyle='#0d2116'; ctx.lineWidth=1.9; ctx.lineCap='round'; ctx.lineJoin='round';
+            var ips=ICON_P[keys[nd2.key].k];
+            for(var iz=0;iz<ips.length;iz++) ctx.stroke(ips[iz]);
+            ctx.restore();
+          }
+        }
       }
       ctx.shadowBlur=0;
       // 라벨(줌인 키워드)
       if(cam.focus>=0 && zoomAmt>0.55){ var fp=pr[kIdx[cam.focus]]; if(fp.vis){
         var MOB=window.__NARROW;   /* 좁은 화면(≤860px): 라벨 축소 + 화면 안으로 클램프(오른쪽 잘림 방지). 861px 이상은 값·폰트 전부 그대로 */
-        var kFs=MOB?32:46, eFs=MOB?12:16, gapX=MOB?40:72, lsc=MOB?0.6:1;
+        var kFs=MOB?32:46, eFs=MOB?12:16, lsc=MOB?0.6:1;
+        /* 원이 커진 만큼 라벨도 밀어낸다. 예전엔 40/72 고정이라 확대된 원에 글자가 묻혔다. */
+        var gapX=Math.max(MOB?40:72, focusRad+(MOB?18:26));
         var lo=cl((zoomAmt-0.55)/0.3)*g_intro, fm=cam.focus, lx=fp.x+gapX+LOFF[fm].x*lsc, ly=fp.y-22+LOFF[fm].y*lsc;   /* 라벨 위로+왼쪽 + 키워드별 미세조정 */
         ctx.globalAlpha=lo; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
         var fK='800 '+kFs+'px Pretendard,"Malgun Gothic",sans-serif', fE='600 '+eFs+'px Pretendard,sans-serif';
@@ -2113,7 +2215,8 @@
       var vh=window.__VH||window.innerHeight, r=wrap.getBoundingClientRect();
       var TAIL=vh*(window.__NARROW?1:2);                    // 아웃트로 고정여백(데스크톱 200vh / 모바일 100vh) — 노드 드라이버 range 보정값과 동일. 모바일은 .team-cards-wrap margin도 -75vh로 같이 절반
       var tourRange=wrap.offsetHeight-vh-TAIL;
-      var q=tourRange>0?cl((-r.top - tourRange)/TAIL):0;    // 0=투어 끝, 1=여백 끝
+      var _sy=window.__scrollY(), _at=window.__absTop(wrap);   // 문서 절대좌표 기준(주소창 전환에 안 흔들림)
+      var q=tourRange>0?cl(((_sy-_at) - tourRange)/TAIL):0;    // 0=투어 끝, 1=여백 끝
       var f1=cl(q/0.45);                                    // ① 노드+텍스트 페이드아웃
       cv.style.opacity=String(1-f1);
       if(lead && q>0.0005) lead.style.opacity=String(1-f1);// 투어 중(q=0)엔 plexus가 제어하므로 건드리지 않음
@@ -2154,7 +2257,8 @@
     function fx(){
       var vh=window.__VH||window.innerHeight, vw=window.innerWidth, r=sec.getBoundingClientRect(), range=sec.offsetHeight-vh;
       var rv=NAR?vh*0.35:vh;   // 첫 1화면 = 담당자 리빌 구간(컨베이어 정지 → 다크 인트로 깨끗이 드러남). 모바일은 0.35화면으로 축소
-      var p=(range>rv)?cl((-r.top - rv)/(range - rv)):0;
+      var _sy=window.__scrollY(), _at=window.__absTop(sec);   // 문서 절대좌표 기준(주소창 전환에 안 흔들림)
+      var p=(range>rv)?cl(((_sy-_at) - rv)/(range - rv)):0;
       // ===== 이중 스크롤 =====
       var C=0.85;                          // Stage1(카드) 끝 지점 — 리빌(p≈0.64~1)과 겹치도록 뒤로. 마지막 카드들이 리빌과 같이 상승(오버랩)
       var cardP=cl(p/C);                   // Stage1 진행도(카드는 여기 안에서 다 올라감)
@@ -2451,7 +2555,8 @@
     function fx(){
       var vh=window.__VH||window.innerHeight, vw=window.innerWidth, r=sec.getBoundingClientRect(), range=sec.offsetHeight-vh;
       var holdPx=0.3*vh, effRange=Math.max(1,range-holdPx);   // 끝 홀드(다음 섹션 늦게): 리빌은 effRange까지, 그 뒤 클라 홀드
-      var p=cl(-r.top/effRange);
+      var _sy=window.__scrollY(), _at=window.__absTop(sec);   // 문서 절대좌표 기준(주소창 전환에 안 흔들림)
+      var p=cl((_sy-_at)/effRange);
       if(big){ big.style.opacity=cl(p/FADE); }
       var u=cl((p-HSTART)/(HEND-HSTART));
       var workCol=track.querySelector('.hcol-work'), lastCol=track.querySelector('.hcol-last');
@@ -2588,7 +2693,8 @@
     }
     function fx(){
       var vh=window.__VH||window.innerHeight,vw=window.innerWidth,range=sec.offsetHeight-vh,r=sec.getBoundingClientRect();
-      var p=range>0?cl(-r.top/range):0;
+      var _sy=window.__scrollY(), _at=window.__absTop(sec);   // 문서 절대좌표 기준(주소창 전환에 안 흔들림)
+      var p=range>0?cl((_sy-_at)/range):0;
       /* [모바일] 십자가 시네마틱(패널 확대·회전·부서짐) 전부 생략 → 다크 패널이 올라오고 서비스 목록이 바로 뜬다.
          패널 크기는 CSS에서 100%로 고정(인라인 width/height 안 씀). 자석 스냅도 여기서 빠져나가므로 실행 안 됨. */
       if(window.__NARROW){
