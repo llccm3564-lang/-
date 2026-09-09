@@ -1398,19 +1398,38 @@
   var _hasLvh=!!(window.CSS&&CSS.supports&&CSS.supports('height','100lvh'));
   if(_hasLvh) _vhProbe.style.height='100lvh';
   (document.body||document.documentElement).appendChild(_vhProbe);
-  var _lastVW=window.innerWidth, _maxIH=window.innerHeight;
+  var _maxIH=window.innerHeight;
+  /* [B] 폭이 바뀌었다고 __VH를 다시 잡지 않는다.
+     폰에서는 폭 변경 = 화면 회전이라 그 가정이 맞았지만, PC에서는 창 폭을 드래그할 때마다
+     걸려서 --vhpx가 바뀌고 문서 높이가 통째로 달라졌다(실측: 1280→1024에서 28,407 → 23,250px).
+     실제 회전은 orientationchange에서 measureVH(true)로 따로 처리한다. */
   function measureVH(force){
-    var w=window.innerWidth, ih=window.innerHeight;
-    if(w!==_lastVW){ _maxIH=ih; _lastVW=w; force=true; }   // 회전·실제 리사이즈 → 관측 최댓값 리셋
+    var ih=window.innerHeight;
     if(ih>_maxIH) _maxIH=ih;
     var probe=_vhProbe.offsetHeight||0;
     // lvh를 지원하면 프로브가 곧 large viewport. 아니면 프로브(=small일 수 있음)와 관측 최댓값 중 큰 쪽.
     var next=_hasLvh ? (probe||_maxIH) : Math.max(probe, _maxIH, ih);
+    if(force){ _maxIH=ih; next=_hasLvh ? (probe||ih) : Math.max(probe, ih); }   // 회전 등 진짜 리셋
     if(force || !window.__VH || next>window.__VH){
+      if(window.__VH===next) return;
+      /* [A] 문서 높이가 바뀌면 같은 스크롤 픽셀이 다른 섹션을 가리킨다.
+         바꾸기 직전의 진행률(y/H)을 기억했다가, 새 높이에 맞춰 되돌려 보던 자리를 유지한다. */
+      var oldH=document.documentElement.scrollHeight - window.innerHeight;
+      var oldY=(window.__lenis&&window.__lenis.scroll)||window.pageYOffset||0;
+      var ratio=oldH>0 ? (oldY/oldH) : 0;
       window.__VH=next;
-      /* 섹션 높이를 px으로 고정 → 주소창이 움직여도 문서가 리플로우되지 않는다.
-         이게 스크롤 점프의 진짜 원인이었다(좌표가 아니라 레이아웃이 흔들렸음). */
       document.documentElement.style.setProperty('--vhpx', (next/100)+'px');
+      if(ratio>0.001){
+        // 레이아웃이 새 값으로 반영된 뒤에 되돌린다
+        requestAnimationFrame(function(){
+          var newH=document.documentElement.scrollHeight - window.innerHeight;
+          if(newH<=0) return;
+          var ty=Math.round(ratio*newH);
+          if(window.__lenis) window.__lenis.scrollTo(ty,{immediate:true,force:true});
+          else window.scrollTo(0,ty);
+          if(window.__absTopReset) window.__absTopReset();
+        });
+      }
     }
   }
   measureVH(true);
