@@ -852,7 +852,7 @@
        꼬리를 200vh→100vh로 줄였으므로 겹침도 -150vh→-75vh로 같은 비율(1/4 지점 진입)을 유지한다.
        #about은 .team-tail(100vh)과 margin-top:-100vh로 상쇄돼 있어 tail만 줄이면 이득이 0 → 대신 dwell(min-height)을 줄인다. */
     .stats-refs-gap{height:calc(105 * var(--vhpx))}          /* 150vh → 105vh (refs가 -100vh로 덮으므로 실제 흰 버퍼는 5vh) */
-    #refs.refsec{height:calc(340 * var(--vhpx))}             /* 790vh → 340vh. 컨베이어 속도는 JS에서 SPAN·이동거리로 보정 */
+    #refs.refsec{height:calc(400 * var(--vhpx))}             /* 790vh → 340vh. 컨베이어 속도는 JS에서 SPAN·이동거리로 보정 */
     .crossfx{height:calc(170 * var(--vhpx))}
     #services{height:calc(40 * var(--vhpx))!important}       /* 인라인 style 덮어쓰기 — 다크→흰 그라데이션 스페이서 56vh → 40vh */
     .team-stage-wrap{height:calc(300 * var(--vhpx))}         /* 720vh → 520vh. 400vh였을 때 노드 투어가 0.9화면에 끝나 키워드 5개가 152px씩 지나갔다(데스크톱의 절반 속도).
@@ -1806,17 +1806,24 @@
         reel=document.getElementById('teamReel');
     if(!wrap||!cv)return;
     // 세로 롤(녹화13): 공백(0)→설계(1)→움직(2)→완성(3), hold→roll→hold (스테이지 p 기준)
+    /* 회전단어(설계·움직·완성) 타이밍.
+       R0=시작점, RS=한 구간(전환 또는 홀드) 길이. 전환3 + 홀드3 = 6구간을 쓴다.
+       모바일은 노드 패널을 빼면서 인트로가 섹션 전체(ip=p)를 쓰게 됐는데,
+       구간이 데스크톱과 같은 0.03이면 실제 스크롤 127px 안에 단어 3개가 지나가 거의 안 보였다.
+       → 모바일만 0.10으로 넓혀 약 420px에 걸쳐 돌게 한다. */
+    var R0=0.16, RS=window.__NARROW?0.10:0.03;
     function reelPos(pp){
-      if(pp<0.16) return 0;                         // 공백(타이틀 등장 후)
-      if(pp<0.19) return (pp-0.16)/0.03;            // →설계하는
-      if(pp<0.22) return 1;                         // 설계 hold
-      if(pp<0.25) return 1+(pp-0.22)/0.03;          // →움직이는
-      if(pp<0.28) return 2;                         // 움직 hold
-      if(pp<0.31) return 2+(pp-0.28)/0.03;          // →완성하는
-      return 3;                                     // 완성 hold
+      var a=R0, s=RS;
+      if(pp<a)        return 0;                    // 공백(타이틀 등장 후)
+      if(pp<a+s)      return (pp-a)/s;             // →설계하는
+      if(pp<a+2*s)    return 1;                    // 설계 hold
+      if(pp<a+3*s)    return 1+(pp-a-2*s)/s;       // →움직이는
+      if(pp<a+4*s)    return 2;                    // 움직 hold
+      if(pp<a+5*s)    return 2+(pp-a-4*s)/s;       // →완성하는
+      return 3;                                    // 완성 hold
     }
     var iSettling=false, iLastP=0;
-    var WP=[0.20,0.26,0.32];       // 회전단어 자석 안착점(인트로 로컬 ip 기준)
+    var WP=[R0+1.5*RS, R0+3.5*RS, R0+5.5*RS];   // 회전단어 자석 안착점(각 홀드 구간 한가운데) — 데스크톱은 기존 0.205/0.265/0.325와 동일
     /* 슬라이드(노드→인트로) 구간 + 인트로 텍스트 로컬 시작. 투어가 끝나는 지점(PLEX_END)에 이어 붙는다.
        모바일은 투어를 0.70까지 늘렸으므로 여기도 같은 폭(0.07)만큼 뒤로 민다. */
     /* 모바일은 노드 패널을 뺐으므로 슬라이드 구간이 없다 → 인트로가 p=0부터 바로 진행.
@@ -2258,7 +2265,12 @@
     /* 모바일은 #refs 높이를 790vh→340vh로 줄여서(스크롤 피로) 같은 GAP/SPAN이면 카드가 4배 빨라진다.
        → SPAN을 늘려 이동 구간을 길게(겹침 조금 증가), 마지막 카드 종료 지점(7*GAP+SPAN≈1.28)은 데스크톱과 동일하게 유지 */
     var NAR=window.__NARROW;
-    var GAP=NAR?0.131:0.14, SPAN=NAR?0.36:0.30;             // 카드 간격 / 이동 구간(/06 가운데 안착 → 대기 → 다음섹션과 같은 속도로 상승)
+    /* 동시에 화면에 뜨는 카드 수 ≈ SPAN/GAP.
+       모바일은 0.36/0.131 = 2.75장이라 최대 3장이 겹쳐 보였다(실측 최소 간격 41px).
+       데스크톱은 지그재그로 좌우를 어긋나게 놔서 겹쳐 보이지 않지만, 모바일은 카드가 90vw라
+       좌우로 벌릴 폭이 없어 정중앙에 세로로 포개진다.
+       → 모바일만 1.2장으로: 5*GAP + SPAN = 1(6번째 카드가 구간 안에서 끝남), SPAN/GAP = 1.2 */
+    var GAP=NAR?0.161:0.14, SPAN=NAR?0.1935:0.30;
     var CAPT=0.58;   // 마지막 카드 정지 지점(0.5=가운데, >0.5=조금 더 위)
     var centerP=(cards.length-1)*GAP + CAPT*SPAN;   // 마지막 카드가 정지점 도달하는 p
     function fx(){
@@ -2272,7 +2284,7 @@
       var s2=cl((p-C)/(1-C));              // Stage2 진행도(REAL RESULTS·회색 섹션이 스크롤로 올라감)
       for(var i=0;i<N;i++){
         var t=cl((cardP - i*GAP)/SPAN);    // 카드는 Stage1(cardP) 안에서 다 상승
-        var TRV=NAR?0.58:0.70;
+        var TRV=NAR?0.46:0.70;   // SPAN이 0.36→0.19로 줄어 같은 거리면 2배 빨라진다 → 이동거리도 함께 축소
         var y=lp(vh*TRV, -vh*TRV, t);            // 수직 상승만(아래 → 위). ±0.70vh=끝점 화면 밖(스냅 안 보임). 모바일은 ±0.58vh로 이동거리도 축소(체감 속도↓)
         var op=(t>0.0005 && t<0.9995)?1:0;       // 페이드 없음(양끝 오프스크린)
         var cw=cards[i].offsetWidth;
