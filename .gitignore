@@ -20,3 +20,12 @@ node_modules/
 Thumbs.db
 *.log
 _contact.html
+
+# 팀 사진 원본(webp 변환본만 사이트가 씀 · 약 11MB 절약)
+assets/team/*.jpg
+assets/team/*.png
+!assets/team/_ph.svg
+
+# 어드민 개발 스크린샷 · 편집기 로컬 상태
+_admin_*.png
+_editor_state.json

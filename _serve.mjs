@@ -2,6 +2,7 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import os from 'node:os';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 const PORT = 8877;
@@ -27,4 +28,10 @@ http.createServer(async (req, res) => {
     res.writeHead(404, { 'Content-Type':'text/plain; charset=utf-8' });
     res.end('404');
   }
-}).listen(PORT, '127.0.0.1', () => console.log('serving on http://127.0.0.1:'+PORT));
+}).listen(PORT, '0.0.0.0', () => {
+  console.log('serving on:');
+  console.log('  http://localhost:'+PORT+'   (이 컴퓨터)');
+  const ifs = os.networkInterfaces();
+  for (const name of Object.keys(ifs)) for (const ni of ifs[name]||[])
+    if (ni.family === 'IPv4' && !ni.internal) console.log('  http://'+ni.address+':'+PORT+'   (같은 와이파이에서 접속 — 폰/다른 PC)');
+});
