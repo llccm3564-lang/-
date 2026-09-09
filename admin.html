@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>실행연구소 — 관리자</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  /* ============ 디자인 토큰 (원본 사이트와 통일: 다크 + 에메랄드) ============ */
+  :root{
+    --bg:#111111;              /* 페이지 다크 배경 */
+    --bg-2:#161514;            /* 카드/패널 배경 */
+    --bg-3:#1c1b1a;            /* 인풋/서브카드 */
+    --line:rgba(255,255,255,.10);
+    --line-2:rgba(255,255,255,.16);
+    --ink:#F4F5F3;             /* 밝은 본문 */
+    --muted:#9aa39d;           /* 회색 텍스트 */
+    --faint:#6f7873;
+    --green:#7CFF76;           /* 강조 (밝은 에메랄드) */
+    --green-2:#4CDD55;         /* hover darker */
+    --green-3:#12b886;         /* 딥 그린 (텍스트/포인트) */
+    --green-dd:#27A421;        /* active */
+    --green-dim:rgba(124,255,118,.10);
+    --green-ring:rgba(124,255,118,.35);
+    --danger:#ff6b6b;
+    --danger-dim:rgba(255,107,107,.12);
+    --radius:16px;
+    --radius-sm:11px;
+    --shadow-md:0 6px 22px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.30);
+    --shadow-green:0 10px 30px rgba(124,255,118,.14), 0 3px 10px rgba(76,221,85,.10);
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --ease-apple:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
+    letter-spacing:-.01em;min-height:100vh;
+  }
+  img{max-width:100%;display:block}
+  button{font-family:inherit}
+  input,textarea,select{font-family:inherit}
+  a{color:inherit;text-decoration:none}
+
+  /* ============ 버튼 (전 상태 구현: hover/focus/active/disabled) ============ */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-weight:700;font-size:14px;border:0;cursor:pointer;padding:11px 18px;border-radius:11px;
+    transition:transform .16s var(--ease),background-color .16s var(--ease),
+      box-shadow .16s var(--ease),color .16s var(--ease),border-color .16s var(--ease);
+    will-change:transform}
+  .btn-primary{background:var(--green);color:#0d2116;box-shadow:var(--shadow-green)}
+  .btn-primary:hover{background:var(--green-2);transform:translateY(-2px) scale(1.015)}
+  .btn-primary:active{background:var(--green-dd);transform:translateY(0) scale(.97)}
+  .btn-primary:focus-visible{outline:none;box-shadow:0 0 0 4px var(--green-ring)}
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+  .btn-ghost{background:var(--bg-3);color:var(--ink);border:1px solid var(--line-2)}
+  .btn-ghost:hover{border-color:var(--green);color:var(--green);transform:translateY(-2px)}
+  .btn-ghost:active{transform:translateY(0) scale(.98)}
+  .btn-ghost:focus-visible{outline:none;box-shadow:0 0 0 4px var(--green-ring)}
+  .btn-ghost:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .btn-danger{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(255,107,107,.28)}
+  .btn-danger:hover{background:rgba(255,107,107,.20);transform:translateY(-1px)}
+  .btn-danger:active{transform:translateY(0) scale(.97)}
+  .btn-danger:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(255,107,107,.3)}
+  .btn-sm{padding:8px 13px;font-size:13px;border-radius:9px}
+
+  /* ============ 비밀번호 게이트 ============ */
+  #gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;
+    background:radial-gradient(120% 90% at 50% 0%,#17201b 0%,#111111 55%)}
+  #gate.hide{display:none}
+  .gate-card{width:100%;max-width:380px;background:var(--bg-2);border:1px solid var(--line);
+    border-radius:var(--radius);padding:38px 32px;box-shadow:var(--shadow-md);text-align:center}
+  .gate-logo{font-size:22px;font-weight:800;letter-spacing:-.02em}
+  .gate-logo b{color:var(--green)}
+  .gate-sub{color:var(--muted);font-size:13.5px;margin-top:6px;margin-bottom:26px}
+  .gate-card input{width:100%;background:var(--bg-3);border:1px solid var(--line-2);color:var(--ink);
+    padding:13px 15px;border-radius:11px;font-size:15px;transition:border-color .15s,box-shadow .15s}
+  .gate-card input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px var(--green-ring)}
+  .gate-card .btn{width:100%;margin-top:14px;padding:13px}
+  .gate-err{color:var(--danger);font-size:13px;margin-top:12px;min-height:18px;opacity:0;transition:opacity .2s}
+  .gate-err.show{opacity:1}
+  .gate-hint{color:var(--faint);font-size:11.5px;margin-top:18px;line-height:1.5}
+
+  /* ============ 앱 레이아웃 ============ */
+  #app{display:none;min-height:100vh}
+  #app.show{display:grid;grid-template-columns:250px 1fr}
+
+  /* 사이드바 */
+  .side{position:sticky;top:0;height:100vh;background:var(--bg-2);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;padding:24px 16px}
+  .side-brand{display:flex;align-items:center;gap:9px;padding:6px 10px 22px;font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .side-brand .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+  .side-brand small{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+  .nav-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;
+    border:0;color:var(--muted);cursor:pointer;padding:12px 14px;border-radius:11px;font-size:14.5px;font-weight:600;
+    transition:background-color .15s var(--ease),color .15s var(--ease),transform .15s var(--ease)}
+  .nav-item .ic{width:22px;height:22px;flex:0 0 auto;display:grid;place-items:center;opacity:.9}
+  .nav-item .ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .nav-item:hover{background:var(--bg-3);color:var(--ink)}
+  .nav-item:active{transform:scale(.98)}
+  .nav-item:focus-visible{outline:none;box-shadow:0 0 0 3px var(--green-ring)}
+  .nav-item.on{background:var(--green-dim);color:var(--green)}
+  .side-foot{margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}
+  .side-foot .who{font-size:12px;color:var(--faint);padding:0 8px 12px}
+
+  /* 메인 */
+  .main{min-width:0;display:flex;flex-direction:column}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:18px 30px;background:rgba(17,17,17,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line)}
+  .topbar-l h1{font-size:20px;font-weight:800;letter-spacing:-.02em}
+  .topbar-l p{font-size:13px;color:var(--muted);margin-top:2px}
+  .topbar-r{display:flex;align-items:center;gap:12px}
+  .dirty-badge{display:none;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#ffcf5a;
+    background:rgba(255,207,90,.12);border:1px solid rgba(255,207,90,.28);padding:6px 12px;border-radius:999px}
+  .dirty-badge.show{display:inline-flex}
+  .dirty-badge .d{width:7px;height:7px;border-radius:50%;background:#ffcf5a}
+
+  .content{padding:30px;max-width:1180px;width:100%}
+  .panel{display:none;animation:fade .35s var(--ease-apple) both}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel-head{margin-bottom:22px;display:flex;align-items:center;gap:10px;
+    font-size:13px;color:var(--muted);padding:12px 15px;background:var(--bg-2);
+    border:1px solid var(--line);border-radius:11px}
+  .panel-head::before{content:"";width:3px;align-self:stretch;background:var(--green);border-radius:3px;flex:0 0 auto}
+  .panel-head p{color:var(--muted);font-size:13px;line-height:1.5}
+
+  /* 카드/그룹 */
+  .card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px;margin-bottom:18px;box-shadow:var(--shadow-md)}
+  .card-title{font-size:14px;font-weight:800;letter-spacing:-.01em;color:var(--green);margin-bottom:4px;text-transform:uppercase}
+  .card-note{font-size:12.5px;color:var(--faint);margin-bottom:16px}
+
+  /* 폼 필드 */
+  .field{margin-bottom:16px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:7px;letter-spacing:.01em}
+  .field input[type=text],.field input[type=url],.field input[type=number],.field textarea{
+    width:100%;background:var(--bg-3);border:1px solid var(--line-2);color:var(--ink);
+    padding:11px 13px;border-radius:10px;font-size:14px;transition:border-color .15s,box-shadow .15s}
+  .field textarea{resize:vertical;min-height:78px;line-height:1.55}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-ring)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+  /* 팀원 카드 */
+  .member-row{display:grid;grid-template-columns:96px 1fr;gap:18px;padding:18px;background:var(--bg-3);
+    border:1px solid var(--line);border-radius:var(--radius-sm);margin-bottom:14px}
+  .member-photo{position:relative;width:96px;height:120px;border-radius:10px;overflow:hidden;background:#26302b;
+    border:1px solid var(--line-2);cursor:pointer;transition:border-color .16s var(--ease),box-shadow .16s var(--ease)}
+  .member-photo img{width:100%;height:100%;object-fit:cover}
+  .member-photo .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--faint);font-size:11px;text-align:center;padding:6px}
+  .member-photo::after{content:"변경";position:absolute;inset:0;display:grid;place-items:center;
+    background:rgba(10,14,12,.55);color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .16s var(--ease)}
+  .member-photo:hover::after{opacity:1}
+  /* 드래그오버 하이라이트 (공통) */
+  .drop-over{border-color:var(--green)!important;box-shadow:0 0 0 3px var(--green-ring)!important}
+  .drop-over::after{opacity:1!important;background:var(--green-dim)!important;color:var(--green)!important;content:"여기에 놓기"!important}
+  .photo-btn{margin-top:9px}
+  .photo-btn label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;width:100%;justify-content:center}
+  .member-fields .grid2{margin-bottom:12px}
+  .dept-tag{display:inline-block;font-size:11px;font-weight:700;color:var(--green-3);background:var(--green-dim);
+    padding:3px 9px;border-radius:999px;margin-bottom:10px}
+
+  /* 레퍼런스 그리드 */
+  .ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+  .ref-item{background:var(--bg-3);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;
+    transition:transform .18s var(--ease),border-color .18s var(--ease)}
+  .ref-item:hover{transform:translateY(-3px);border-color:var(--line-2)}
+  .ref-thumb{aspect-ratio:16/10;overflow:hidden;position:relative;background:#242c27;cursor:pointer;
+    display:grid;place-items:center;transition:box-shadow .16s var(--ease)}
+  .ref-thumb img{width:100%;height:100%;object-fit:cover}
+  .ref-thumb .ph{color:var(--faint);font-size:11.5px}
+  .ref-thumb::after{content:"이미지 교체";position:absolute;inset:0;display:grid;place-items:center;
+    background:rgba(10,14,12,.55);color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .16s var(--ease)}
+  .ref-thumb:hover::after{opacity:1}
+  .ref-meta{padding:11px 13px}
+  .ref-meta input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--ink);
+    font-size:13px;padding:5px 0;transition:border-color .15s}
+  .ref-meta input:focus{outline:none;border-bottom-color:var(--green)}
+  .ref-actions{display:flex;gap:8px;padding:0 13px 13px}
+  .ref-add{border:1.5px dashed var(--line-2);border-radius:var(--radius-sm);display:grid;place-items:center;
+    min-height:180px;cursor:pointer;color:var(--muted);transition:border-color .18s,color .18s,background-color .18s}
+  .ref-add:hover{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+  .ref-add label{cursor:pointer;text-align:center;font-size:13.5px;font-weight:600;padding:20px}
+  .ref-add .plus{font-size:30px;display:block;margin-bottom:4px;line-height:1}
+
+  /* 서비스 목록 */
+  .svc-item{background:var(--bg-3);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px;margin-bottom:14px}
+  .svc-item.is-soon{opacity:.72}
+  .svc-top{display:grid;grid-template-columns:130px 1fr;gap:16px}
+  .svc-thumb{width:130px;height:98px;border-radius:9px;overflow:hidden;background:#242c27;border:1px solid var(--line-2);
+    position:relative;cursor:pointer;display:grid;place-items:center;transition:border-color .16s var(--ease),box-shadow .16s var(--ease)}
+  .svc-thumb img{width:100%;height:100%;object-fit:cover}
+  .svc-thumb .ph{color:var(--faint);font-size:11px;text-align:center;padding:6px;line-height:1.4}
+  .svc-thumb::after{content:"변경";position:absolute;inset:0;display:grid;place-items:center;
+    background:rgba(10,14,12,.55);color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .16s var(--ease)}
+  .svc-thumb:hover::after{opacity:1}
+  .svc-flags{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+  .check{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;user-select:none}
+  .check input{width:17px;height:17px;accent-color:var(--green);cursor:pointer}
+  .svc-actions{margin-left:auto}
+
+  .empty{text-align:center;color:var(--faint);padding:40px 20px;font-size:13.5px}
+  .empty .em-ic{font-size:30px;display:block;margin-bottom:10px;opacity:.5}
+
+  /* ---- 담당자: 부서 헤더 / 카드 상단 컨트롤 / 추가 버튼 ---- */
+  .dept-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+  .member-row{position:relative}
+  .member-ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .member-ctrl .sel-wrap{display:flex;align-items:center;gap:7px}
+  .member-ctrl label.mini{font-size:11.5px;font-weight:700;color:var(--faint)}
+  select.dept-sel{background:var(--bg-2);border:1px solid var(--line-2);color:var(--ink);
+    padding:8px 30px 8px 11px;border-radius:9px;font-size:13px;cursor:pointer;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa39d' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 10px center;
+    transition:border-color .15s,box-shadow .15s}
+  select.dept-sel:hover{border-color:var(--green)}
+  select.dept-sel:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-ring)}
+  .member-del{margin-left:auto;width:30px;height:30px;flex:0 0 auto;border-radius:8px;border:1px solid var(--line-2);
+    background:var(--bg-2);color:var(--muted);cursor:pointer;font-size:16px;line-height:1;display:grid;place-items:center;
+    transition:background-color .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease),transform .15s var(--ease)}
+  .member-del:hover{background:var(--danger-dim);color:var(--danger);border-color:rgba(255,107,107,.3)}
+  .member-del:active{transform:scale(.92)}
+  .member-del:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,107,107,.3)}
+  .member-add{width:100%;margin-top:4px;border:1.5px dashed var(--line-2);background:transparent;color:var(--muted);
+    cursor:pointer;padding:13px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:700;
+    transition:border-color .16s var(--ease),color .16s var(--ease),background-color .16s var(--ease)}
+  .member-add:hover{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+  .member-add:active{transform:scale(.995)}
+  .member-add:focus-visible{outline:none;box-shadow:0 0 0 3px var(--green-ring)}
+
+  /* ---- 대시보드 ---- */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+  .stat-card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;
+    box-shadow:var(--shadow-md);position:relative;overflow:hidden;
+    transition:transform .18s var(--ease),border-color .18s var(--ease)}
+  .stat-card:hover{transform:translateY(-3px);border-color:var(--line-2)}
+  .stat-card .k{font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .stat-card .k .kd{width:8px;height:8px;border-radius:50%;background:var(--green);flex:0 0 auto}
+  .stat-card .v{font-size:38px;font-weight:800;letter-spacing:-.03em;margin-top:10px;line-height:1}
+  .stat-card .u{font-size:13px;color:var(--faint);margin-top:6px}
+  .stat-card.accent{background:linear-gradient(160deg,rgba(124,255,118,.12),var(--bg-2) 60%)}
+  .stat-card.warn .kd{background:#ffcf5a}
+  .stat-card.done .kd{background:var(--green-3)}
+  .dash-sec-title{font-size:13px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.02em;margin:26px 0 14px}
+  .dash-sec-title:first-child{margin-top:0}
+
+  /* ---- 상담/문의 관리 ---- */
+  .inq-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .filter-chip{background:var(--bg-2);border:1px solid var(--line-2);color:var(--muted);cursor:pointer;
+    padding:8px 15px;border-radius:999px;font-size:13px;font-weight:600;
+    transition:background-color .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease)}
+  .filter-chip:hover{border-color:var(--green);color:var(--ink)}
+  .filter-chip.on{background:var(--green-dim);color:var(--green);border-color:transparent}
+  .filter-chip:active{transform:scale(.97)}
+  .inq-table{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md)}
+  .inq-row{display:grid;grid-template-columns:1.1fr 1.2fr 1.4fr 2fr .9fr auto;gap:14px;align-items:center;
+    padding:15px 20px;border-bottom:1px solid var(--line);transition:background-color .14s var(--ease)}
+  .inq-row:last-child{border-bottom:0}
+  .inq-row:hover{background:var(--bg-3)}
+  .inq-row.head{background:var(--bg-3);font-size:11.5px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.04em}
+  .inq-row .nm{font-weight:700;font-size:14px}
+  .inq-row .sub{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inq-row .msg{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inq-row .date{font-size:12.5px;color:var(--faint)}
+  .inq-actions{display:flex;gap:7px;justify-content:flex-end}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;white-space:nowrap}
+  .badge .bd{width:7px;height:7px;border-radius:50%;background:currentColor}
+  .badge.pending{color:#ffcf5a;background:rgba(255,207,90,.12)}
+  .badge.done{color:var(--green);background:var(--green-dim)}
+  .icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--line-2);background:var(--bg-3);color:var(--muted);
+    cursor:pointer;display:grid;place-items:center;font-size:13px;
+    transition:background-color .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease),transform .15s var(--ease)}
+  .icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .icon-btn:hover{border-color:var(--green);color:var(--green)}
+  .icon-btn:active{transform:scale(.92)}
+  .icon-btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--green-ring)}
+  .icon-btn.danger:hover{border-color:rgba(255,107,107,.3);color:var(--danger);background:var(--danger-dim)}
+
+  /* ---- 상세 모달 ---- */
+  .modal{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;padding:24px}
+  .modal.open{display:flex}
+  .modal-back{position:absolute;inset:0;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+  .modal-card{position:relative;z-index:1;background:var(--bg-2);border:1px solid var(--line-2);border-radius:var(--radius);
+    max-width:480px;width:100%;max-height:86vh;overflow-y:auto;padding:28px;box-shadow:var(--shadow-md);
+    animation:pop .3s var(--ease-apple) both}
+  @keyframes pop{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:none}}
+  .modal-card h3{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+  .modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;border:1px solid var(--line-2);
+    background:var(--bg-3);color:var(--muted);cursor:pointer;font-size:15px;transition:background-color .15s,color .15s}
+  .modal-close:hover{background:var(--danger-dim);color:var(--danger)}
+  .kv{display:grid;grid-template-columns:88px 1fr;gap:8px 14px;margin-top:18px;font-size:14px}
+  .kv dt{color:var(--faint);font-weight:600}
+  .kv dd{color:var(--ink);line-height:1.6;word-break:break-word}
+  .kv dd.msg-box{background:var(--bg-3);border:1px solid var(--line);border-radius:9px;padding:11px 13px;white-space:pre-wrap;grid-column:1 / -1}
+  .kv dt.full{grid-column:1 / -1;margin-top:6px}
+
+  /* ---- 히스토리 ---- */
+  .hist-item{display:flex;align-items:center;gap:16px;background:var(--bg-2);border:1px solid var(--line);
+    border-radius:var(--radius-sm);padding:15px 18px;margin-bottom:11px;
+    transition:border-color .15s var(--ease),transform .15s var(--ease)}
+  .hist-item:hover{border-color:var(--line-2)}
+  .hist-badge{font-size:11.5px;font-weight:700;color:var(--green-3);background:var(--green-dim);padding:4px 11px;border-radius:999px;flex:0 0 auto}
+  .hist-badge.auto{color:var(--muted);background:var(--bg-3)}
+  .hist-meta{min-width:0}
+  .hist-meta .ht{font-size:14px;font-weight:600}
+  .hist-meta .hd{font-size:12.5px;color:var(--faint);margin-top:2px}
+  .hist-item .btn{margin-left:auto;flex:0 0 auto}
+
+  .save-bar{position:sticky;bottom:0;z-index:15;display:flex;justify-content:flex-end;gap:12px;align-items:center;
+    padding:14px 30px;margin:18px -30px -30px;background:rgba(17,17,17,.86);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+  .save-bar .info{margin-right:auto;font-size:12.5px;color:var(--faint)}
+
+  /* 토스트 */
+  #toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,10px);background:var(--bg-2);
+    border:1px solid var(--line-2);color:var(--ink);padding:13px 20px;border-radius:12px;font-size:14px;font-weight:600;
+    box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:200;
+    display:flex;align-items:center;gap:9px}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #toast .tk{width:8px;height:8px;border-radius:50%;background:var(--green)}
+  #toast.err .tk{background:var(--danger)}
+
+  .file-hidden{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+
+  /* 반응형 (모바일 1열) */
+  .mobile-tabs{display:none}
+  @media(max-width:860px){
+    #app.show{grid-template-columns:1fr}
+    .side{display:none}
+    .mobile-tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 16px;background:var(--bg-2);
+      border-bottom:1px solid var(--line);position:sticky;top:0;z-index:25}
+    .mobile-tabs .nav-item{width:auto;white-space:nowrap;flex:0 0 auto;padding:9px 13px;font-size:13.5px}
+    .mobile-tabs .nav-item .ic{display:none}
+    .topbar{padding:16px 18px}
+    .content{padding:18px 16px}
+    .grid2{grid-template-columns:1fr}
+    .member-row{grid-template-columns:1fr}
+    .member-photo{width:100%;max-width:170px;height:200px}
+    .svc-top{grid-template-columns:1fr}
+    .svc-thumb{width:100%;max-width:220px;height:150px}
+    .stat-grid{grid-template-columns:1fr 1fr}
+    /* 문의 테이블 → 모바일 카드형 */
+    .inq-row.head{display:none}
+    .inq-row{grid-template-columns:1fr;gap:6px;padding:15px 16px}
+    .inq-row .sub::before{content:attr(data-l) ": ";color:var(--faint)}
+    .inq-actions{justify-content:flex-start;margin-top:8px}
+    .hist-item{flex-wrap:wrap}
+    .hist-item .btn{margin-left:0;width:100%;margin-top:6px}
+    .kv{grid-template-columns:74px 1fr}
+  }
+  @media(max-width:460px){ .stat-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     비밀번호 게이트
+     ⚠️ 클라이언트측 임시 인증. 실제 보안 아님.
+     TODO: Supabase Auth (supabase.auth.signInWithPassword)로 교체 예정.
+     ============================================================ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-logo">실행연구소 <b>Admin</b></div>
+    <div class="gate-sub">관리자 비밀번호를 입력하세요</div>
+    <input id="gatePw" type="password" placeholder="비밀번호" autocomplete="current-password" />
+    <button class="btn btn-primary" id="gateBtn">입장하기</button>
+    <div class="gate-err" id="gateErr">비밀번호가 올바르지 않습니다.</div>
+    <div class="gate-hint">※ 현재는 데모용 클라이언트 인증입니다.<br>추후 Supabase Auth로 교체됩니다.</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     관리자 앱
+     ============================================================ -->
+<div id="app">
+  <!-- 사이드바 -->
+  <aside class="side">
+    <div class="side-brand">
+      <span class="dot"></span>
+      <span>실행연구소<small>관리자 페이지</small></span>
+    </div>
+    <button class="nav-item on" data-tab="dash">
+      <span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>
+      대시보드
+    </button>
+    <button class="nav-item" data-tab="team">
+      <span class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 6a3 3 0 0 1 0 6"/><path d="M18 20a5 5 0 0 0-3.5-4.8"/></svg></span>
+      담당자
+    </button>
+    <button class="nav-item" data-tab="copy">
+      <span class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg></span>
+      멘트 변경
+    </button>
+    <button class="nav-item" data-tab="refs">
+      <span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="M4 17l5-4 4 3 3-2 4 3"/></svg></span>
+      레퍼런스
+    </button>
+    <button class="nav-item" data-tab="svc">
+      <span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg></span>
+      서비스 목록
+    </button>
+    <button class="nav-item" data-tab="inq">
+      <span class="ic"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
+      상담/문의
+    </button>
+    <button class="nav-item" data-tab="hist">
+      <span class="ic"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 8v4l3 2"/></svg></span>
+      히스토리
+    </button>
+    <div class="side-foot">
+      <div class="who">데이터: 브라우저 로컬 저장</div>
+      <button class="btn btn-ghost btn-sm" id="logoutBtn" style="width:100%">로그아웃</button>
+    </div>
+  </aside>
+
+  <!-- 모바일 탭 -->
+  <nav class="mobile-tabs" id="mobileTabs">
+    <button class="nav-item on" data-tab="dash">대시보드</button>
+    <button class="nav-item" data-tab="team">담당자</button>
+    <button class="nav-item" data-tab="copy">멘트</button>
+    <button class="nav-item" data-tab="refs">레퍼런스</button>
+    <button class="nav-item" data-tab="svc">서비스</button>
+    <button class="nav-item" data-tab="inq">상담/문의</button>
+    <button class="nav-item" data-tab="hist">히스토리</button>
+  </nav>
+
+  <!-- 메인 -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-l">
+        <h1 id="tbTitle">담당자 사진 변경</h1>
+        <p id="tbDesc">팀원 사진·이름·직책·소개를 관리합니다</p>
+      </div>
+      <div class="topbar-r">
+        <span class="dirty-badge" id="dirtyBadge"><span class="d"></span>저장 안 된 변경사항</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- 탭0: 대시보드 -->
+      <section class="panel on" id="panel-dash">
+        <div class="panel-head">
+          <p>사이트 콘텐츠·문의 현황을 한눈에 봅니다. 수치는 저장된 데이터에서 실시간 계산됩니다.</p>
+        </div>
+        <div id="dashBody"></div>
+      </section>
+
+      <!-- 탭1: 담당자 -->
+      <section class="panel" id="panel-team">
+        <div class="panel-head">
+          <p>사진 영역을 클릭하거나 파일을 끌어다 놓으면 미리보기가 즉시 갱신됩니다. 부서 이동·팀원 추가/삭제 후 <b style="color:var(--ink)">변경사항 저장</b>을 눌러야 로컬에 반영됩니다.</p>
+        </div>
+        <div id="teamList"></div>
+        <div class="save-bar">
+          <span class="info">사진은 data URL로 브라우저에 저장됩니다.</span>
+          <button class="btn btn-primary" data-save="team">변경사항 저장</button>
+        </div>
+      </section>
+
+      <!-- 탭2: 멘트 -->
+      <section class="panel" id="panel-copy">
+        <div class="panel-head">
+          <p>사이트 주요 문구를 편집합니다. 줄바꿈이 필요한 문구는 그대로 엔터를 입력하세요.</p>
+        </div>
+        <div id="copyList"></div>
+        <div class="save-bar">
+          <span class="info">항목별 문구를 수정한 뒤 저장하세요.</span>
+          <button class="btn btn-primary" data-save="copy">변경사항 저장</button>
+        </div>
+      </section>
+
+      <!-- 탭3: 레퍼런스 -->
+      <section class="panel" id="panel-refs">
+        <div class="panel-head">
+          <p>성과·레퍼런스 이미지를 추가하거나 삭제합니다. 카드에 파일을 끌어다 놓아도 됩니다. 캡션도 함께 편집됩니다.</p>
+        </div>
+        <div class="ref-grid" id="refGrid"></div>
+        <div class="save-bar">
+          <span class="info">추가/삭제/캡션 변경 후 저장하세요.</span>
+          <button class="btn btn-primary" data-save="refs">변경사항 저장</button>
+        </div>
+      </section>
+
+      <!-- 탭4: 서비스 -->
+      <section class="panel" id="panel-svc">
+        <div class="panel-head">
+          <p>서비스 카드를 추가·삭제·편집합니다. (제목 · 설명 · 태그 · 링크 · 이미지 · 링크여부 · 준비중)</p>
+        </div>
+        <div id="svcList"></div>
+        <button class="btn btn-ghost" id="svcAddBtn" style="margin-top:6px">+ 서비스 추가</button>
+        <div class="save-bar">
+          <span class="info">태그는 쉼표(,)로 구분합니다.</span>
+          <button class="btn btn-primary" data-save="svc">변경사항 저장</button>
+        </div>
+      </section>
+
+      <!-- 탭5: 상담/문의 관리 -->
+      <section class="panel" id="panel-inq">
+        <div class="panel-head">
+          <p>홈페이지 문의폼으로 접수된 상담 신청을 관리합니다. 상태 변경·삭제는 즉시 저장됩니다. (현재는 샘플 데이터)</p>
+        </div>
+        <div class="inq-toolbar">
+          <button class="filter-chip on" data-inq-filter="all">전체</button>
+          <button class="filter-chip" data-inq-filter="pending">대기중</button>
+          <button class="filter-chip" data-inq-filter="done">완료</button>
+          <span style="margin-left:auto;font-size:12.5px;color:var(--faint)" id="inqCount"></span>
+        </div>
+        <div id="inqBody"></div>
+      </section>
+
+      <!-- 탭6: 변경 히스토리 -->
+      <section class="panel" id="panel-hist">
+        <div class="panel-head">
+          <p>콘텐츠(담당자·멘트·레퍼런스·서비스)를 저장할 때마다 스냅샷이 기록됩니다. 최근 20개까지 보관하며, 되돌리기 전 현재 상태도 자동 백업됩니다.</p>
+        </div>
+        <div id="histBody"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- 문의 상세 모달 -->
+<div class="modal" id="inqModal" aria-hidden="true">
+  <div class="modal-back" data-modal-close></div>
+  <div class="modal-card">
+    <button class="modal-close" data-modal-close aria-label="닫기">✕</button>
+    <div id="inqModalBody"></div>
+  </div>
+</div>
+
+<div id="toast"><span class="tk"></span><span id="toastMsg"></span></div>
+
+<script>
+/* ================================================================
+   실행연구소 관리자 — 순수 JS, 프레임워크 없음
+   현재: UI + localStorage. 백엔드 연동은 데이터 계층(아래)만 교체하면 됨.
+   ================================================================ */
+
+/* ---------------- 설정 ---------------- */
+var ADMIN_PW = 'silhaeng2026';           // TODO: Supabase Auth로 교체 (하드코딩 제거)
+var SS_AUTH  = 'silhaeng_admin_auth';    // 세션 인증 플래그 (sessionStorage)
+var LS_KEYS  = {
+  team: 'silhaeng_admin_team',
+  copy: 'silhaeng_admin_copy',
+  refs: 'silhaeng_admin_refs',
+  svc:  'silhaeng_admin_services',
+  inq:  'silhaeng_inquiries',        // 문의 신청 (index.html 폼/Supabase가 채울 예정)
+  hist: 'silhaeng_admin_history'     // 변경 히스토리 스냅샷
+};
+
+// 부서 고정 3개 (부서 자체 추가/삭제는 없음)
+var DEPARTMENTS = ['영업부서','경영·업무지원','개발부서'];
+// 구버전 부서명 → 신버전 매핑(저장본 마이그레이션)
+var DEPT_ALIAS = { '경영 및 업무 지원':'경영·업무지원', '개발 부서':'개발부서' };
+
+/* ================================================================
+   [데이터 계층] — Supabase 붙일 때 이 블록의 내부 구현만 바꾸면 됨.
+   ----------------------------------------------------------------
+   TODO: Supabase
+     테이블: team_members, site_copy, references, services, consultations(문의)
+     Storage 버킷: images
+     ※ 문의(consultations)는 index.html #contactForm 제출로 채워지거나 여기서 조회
+   현재 구현: localStorage(동기). Supabase 전환 시 async/await로 바꾸고
+   호출부(각 render / save 함수)에서 await 하도록 수정.
+   ================================================================ */
+
+// 데이터 로드: key(LS_KEYS 중 하나), fallback(기본값)
+function loadData(key, fallback){
+  // TODO: Supabase — const { data } = await supabase.from(<table>).select('*'); return data;
+  try {
+    var raw = localStorage.getItem(key);
+    if (raw == null) return fallback;
+    return JSON.parse(raw);
+  } catch(e){
+    console.warn('loadData 실패', key, e);
+    return fallback;
+  }
+}
+
+// 데이터 저장: key, value(직렬화 가능한 객체/배열)
+function saveData(key, value){
+  // TODO: Supabase — await supabase.from(<table>).upsert(value);
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch(e){
+    console.error('saveData 실패(용량 초과 가능)', key, e);
+    return false;
+  }
+}
+
+// 이미지 업로드: File → data URL (미리보기 + 저장 겸용)
+// TODO: Supabase — Storage 버킷 'images'에 업로드 후 public URL 반환:
+//   const { data } = await supabase.storage.from('images').upload(path, file);
+//   return supabase.storage.from('images').getPublicUrl(data.path).data.publicUrl;
+function uploadImage(file){
+  return new Promise(function(resolve, reject){
+    if (!file){ reject(new Error('파일 없음')); return; }
+    if (!/^image\//.test(file.type)){ reject(new Error('이미지 파일만 가능합니다.')); return; }
+    var reader = new FileReader();
+    reader.onload  = function(){ resolve(reader.result); };  // data URL
+    reader.onerror = function(){ reject(reader.error); };
+    reader.readAsDataURL(file);
+  });
+}
+/* ============ [데이터 계층 끝] ============ */
+
+
+/* ---------------- 원본 index.html에서 추출한 기본값(프리필) ---------------- */
+var DEFAULT_TEAM = [
+  { id:'m1',  dept:'영업부서',        name:'한정완', role:'팀장',            photo:'assets/team/한정완.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m2',  dept:'영업부서',        name:'황현민', role:'매니저',          photo:'assets/team/황현민.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m3',  dept:'영업부서',        name:'권오찬', role:'매니저',          photo:'assets/team/권오찬.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m4',  dept:'영업부서',        name:'황도영', role:'매니저',          photo:'assets/team/황도영.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m5',  dept:'영업부서',        name:'이혜빈', role:'매니저',          photo:'assets/team/이혜빈.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m6',  dept:'영업부서',        name:'김미정', role:'매니저',          photo:'assets/team/김미정.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m7',  dept:'경영·업무지원', name:'정용진', role:'부장',            photo:'assets/team/정용진.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m8',  dept:'경영·업무지원', name:'이지영', role:'정산 / 회계 총무', photo:'assets/team/이지영.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m9',  dept:'경영·업무지원', name:'이정복', role:'영업 지원 실장',   photo:'assets/team/이정복.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m10', dept:'개발부서',        name:'권용현', role:'CTO · 풀스택',     photo:'assets/team/권용현.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m11', dept:'개발부서',        name:'김득용', role:'백엔드 · DB · 운영체제', photo:'assets/team/김득용.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' },
+  { id:'m12', dept:'개발부서',        name:'이현수', role:'DB 관리 · AI 개발', photo:'assets/team/이현수.jpg', bio:'소개글이 들어갈 자리입니다. 실제 소개는 나중에 채워주세요.' }
+];
+
+// 멘트: 그룹 → 필드(라벨/키/타입/현재값)
+var DEFAULT_COPY_GROUPS = [
+  { group:'히어로 (첫 화면)', fields:[
+    { key:'hero_big1',   label:'큰 문구 1행',   type:'input', value:'성공적인 비즈니스의 시작,' },
+    { key:'hero_big2',   label:'큰 문구 2행(강조)', type:'input', value:'실행연구소' },
+    { key:'hero_small1', label:'서브 1행',      type:'input', value:'바이럴, 상위 노출, SNS, 숏폼, SEO 까지' },
+    { key:'hero_small2', label:'서브 2행',      type:'input', value:'비즈니스에 꼭 필요한 마케팅 상품들을 한번에' },
+    { key:'hero_small3', label:'서브 3행',      type:'input', value:'실행연구소 마케팅 통합 솔루션을 만나보세요' }
+  ]},
+  { group:'가로 에디토리얼 (마케팅의 이유)', fields:[
+    { key:'edit_big',  label:'헤드라인',   type:'textarea', value:'마케팅의 이유, 실행연구소는 잘 알고 있습니다.' },
+    { key:'edit_sub1', label:'문구 1',     type:'textarea', value:'어떤 사업이라도 마케팅이 꼭 필요하다는 것은 누구나 알고 있습니다.' },
+    { key:'edit_sub2', label:'문구 2',     type:'textarea', value:'하지만 마케팅을 누구나 할 수 없다는 것도 알고 있습니다.' },
+    { key:'edit_sub3', label:'문구 3',     type:'textarea', value:'실행연구소는 당신의 비즈니스 파트너로서 함께 성장합니다.' }
+  ]},
+  { group:'성과 통계', fields:[
+    { key:'stat1_num', label:'통계1 숫자', type:'input', value:'134' },
+    { key:'stat1_lbl', label:'통계1 라벨', type:'input', value:'상품' },
+    { key:'stat2_num', label:'통계2 숫자', type:'input', value:'437' },
+    { key:'stat2_lbl', label:'통계2 라벨', type:'input', value:'대행사' },
+    { key:'stat3_num', label:'통계3 숫자', type:'input', value:'86' },
+    { key:'stat3_lbl', label:'통계3 라벨', type:'input', value:'클라이언트' }
+  ]},
+  { group:'서비스 섹션 헤더', fields:[
+    { key:'svc_title', label:'제목',   type:'input',    value:'아이디어를 실행으로, 실행을 결과로' },
+    { key:'svc_desc',  label:'설명',   type:'textarea', value:'비즈니스에 필요한 다양한 서비스를 실행연구소가 직접 만들어갑니다.' }
+  ]},
+  { group:'담당자(팀) 섹션', fields:[
+    { key:'team_plexus', label:'인트로 문구', type:'textarea', value:'각자의 전문성이 모여 하나의 실행을 만듭니다.' },
+    { key:'team_who',    label:'Who we work with', type:'textarea', value:'우리는 업종과 분야를 가리지 않고 다양한 기업과 브랜드와 함께합니다. 좋은 아이디어와 가능성을 발견하고, 새로운 변화를 실제 결과로 만들어내기 위해 함께 고민하고 실행합니다.' },
+    { key:'team_how',    label:'How we work',      type:'textarea', value:'프로젝트의 규모와 기간에 맞춰 유연하게 협업하며, 필요한 전문성을 가진 팀을 구성합니다. 긴밀한 소통을 바탕으로 예산과 목표에 맞는 가장 효율적인 실행 방법을 찾아갑니다.' }
+  ]},
+  { group:'회사소개 (About)', fields:[
+    { key:'about_title', label:'제목', type:'textarea', value:'실행연구소는 ‘실행’을 연구합니다' },
+    { key:'about_desc',  label:'본문', type:'textarea', value:'화려한 제안서보다 실제 결과가 중요하다고 믿습니다. 실행연구소(파파컴퍼니)는 네이버 인기글·플레이스 상위노출과 홈페이지 제작을 통해, 업종과 지역을 가리지 않고 ‘실행되는 마케팅’을 만듭니다.' }
+  ]},
+  { group:'문의 (Contact)', fields:[
+    { key:'contact_title', label:'제목', type:'input',    value:'궁금한 점이 있으신가요?' },
+    { key:'contact_desc',  label:'설명', type:'textarea', value:'상품·서비스, 견적, 협업 무엇이든 남겨주세요. 담당자가 빠르게 연락드립니다.' }
+  ]}
+];
+
+// 레퍼런스: 원본 #rcards 중 이미지형 카드 (채팅형 2·5는 제외)
+var DEFAULT_REFS = [
+  { id:'r1', image:'https://placehold.co/720x430/EFF3F1/8B968F?text=RESULT+01', caption:'인천 철거 · 인기글 상위노출' },
+  { id:'r3', image:'https://placehold.co/720x430/EFF3F1/8B968F?text=BLOG+RANK+%231', caption:'강동구 세무사 · 비즈니스 인기글' },
+  { id:'r4', image:'https://placehold.co/720x430/EFF3F1/8B968F?text=PLACE+TOP', caption:'네이버 플레이스 상위노출' },
+  { id:'r6', image:'https://placehold.co/720x430/EFF3F1/8B968F?text=WEBSITE', caption:'홈페이지 · 랜딩 제작 사례' }
+];
+
+// 서비스: 원본 #cfSvc .cf-s 카드
+var DEFAULT_SVC = [
+  { id:'s1', title:'네이버 인기글 상위노출', desc:'블로그탭 인기글 영역을 선점해 검색 유입을 만듭니다. 전 업종 레퍼런스로 증명합니다.', tags:['네이버','블로그','SEO'], url:'https://인기글.실행연구소.com', image:'', hasLink:true, soon:false },
+  { id:'s2', title:'플레이스 상위노출', desc:'지역·업종 키워드로 지도·플레이스 상단을 공략해 방문·문의를 늘립니다.', tags:['네이버','지도','로컬'], url:'https://인사이트맵.실행연구소.com', image:'', hasLink:true, soon:false },
+  { id:'s3', title:'클립 상위노출', desc:'네이버 클립(숏폼) 상위 노출로 새로운 유입을 만듭니다.', tags:['네이버','클립','숏폼'], url:'', image:'', hasLink:false, soon:false },
+  { id:'s4', title:'홈페이지 랜딩제작', desc:'전환에 최적화된 랜딩·기업 사이트를 빠르게 제작합니다. (파파스튜디오)', tags:['웹','랜딩','제작'], url:'https://스튜디오.실행연구소.com', image:'', hasLink:true, soon:false },
+  { id:'s5', title:'당근', desc:'당근 지역 광고·상위 노출로 동네 고객에게 노출합니다.', tags:['당근','동네','로컬'], url:'https://당근.실행연구소.com', image:'', hasLink:true, soon:false },
+  { id:'s6', title:'샤오홍슈 체험단', desc:'샤오홍슈 체험단으로 중국 시장 바이럴을 만듭니다.', tags:['샤오홍슈','중국','체험단'], url:'', image:'', hasLink:false, soon:false },
+  { id:'s7', title:'서비스 준비 중', desc:'새로운 실행 서비스를 준비하고 있습니다.', tags:['준비 중'], url:'', image:'', hasLink:false, soon:true },
+  { id:'s8', title:'서비스 준비 중', desc:'새로운 실행 서비스를 준비하고 있습니다.', tags:['준비 중'], url:'', image:'', hasLink:false, soon:true }
+];
+
+// 상담/문의 시드 (백엔드 없으므로 UI 시연용 샘플)
+// TODO: Supabase — index.html #contactForm 제출이 'silhaeng_inquiries'에 저장하거나
+//   supabase.from('consultations').select() 결과를 여기로 읽어오도록 교체.
+function todayISO(offsetDays){
+  var d = new Date(); if (offsetDays) d.setDate(d.getDate()+offsetDays);
+  return d.toISOString();
+}
+var DEFAULT_INQUIRIES = [
+  { id:'q1', name:'김철수', phone:'01012345678', email:'kim@example.com', interest:'인기글 상위노출',
+    message:'인천 지역 철거업체 운영 중입니다. 인기글 상위노출 상담받고 싶어요. 예산은 월 50만원 정도 생각 중입니다.',
+    created_at: todayISO(0), status:'pending' },
+  { id:'q2', name:'이영희', phone:'01098765432', email:'lee@example.com', interest:'플레이스 상위노출',
+    message:'강동구에서 세무사 사무실 운영합니다. 플레이스 상위노출 가능한지, 기간이 얼마나 걸리는지 궁금합니다.',
+    created_at: todayISO(-1), status:'done' },
+  { id:'q3', name:'박민수', phone:'01055557777', email:'park@example.com', interest:'홈페이지 · 랜딩 제작',
+    message:'신규 브랜드 런칭 앞두고 랜딩페이지 제작 문의드립니다. 결제 연동까지 포함 가능할까요?',
+    created_at: todayISO(-3), status:'pending' }
+];
+
+/* ---------------- 상태 ---------------- */
+var state = {
+  team: null,
+  copy: null,   // { key:value }
+  refs: null,
+  svc:  null,
+  inquiries: null,
+  history: null,
+  inqFilter: 'all',
+  dirty: { team:false, copy:false, refs:false, svc:false }
+};
+
+/* ---------------- 유틸 ---------------- */
+function $(sel, root){ return (root||document).querySelector(sel); }
+function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function uid(p){ return (p||'id') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+var toastTimer;
+function toast(msg, isErr){
+  var t = $('#toast');
+  $('#toastMsg').textContent = msg;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+}
+
+function setDirty(tab, v){
+  state.dirty[tab] = v;
+  updateDirtyBadge();
+}
+function updateDirtyBadge(){
+  var any = Object.keys(state.dirty).some(function(k){ return state.dirty[k]; });
+  $('#dirtyBadge').classList.toggle('show', any);
+}
+
+/* ---------------- 초기 데이터 로드 ---------------- */
+function initState(){
+  state.team = loadData(LS_KEYS.team, JSON.parse(JSON.stringify(DEFAULT_TEAM)));
+  // 부서명 마이그레이션 + 미지정 방어
+  state.team.forEach(function(m){
+    if (DEPT_ALIAS[m.dept]) m.dept = DEPT_ALIAS[m.dept];
+    if (DEPARTMENTS.indexOf(m.dept) === -1) m.dept = DEPARTMENTS[0];
+  });
+  state.refs = loadData(LS_KEYS.refs, JSON.parse(JSON.stringify(DEFAULT_REFS)));
+  state.svc  = loadData(LS_KEYS.svc,  JSON.parse(JSON.stringify(DEFAULT_SVC)));
+  state.inquiries = loadData(LS_KEYS.inq,  JSON.parse(JSON.stringify(DEFAULT_INQUIRIES)));
+  state.history   = loadData(LS_KEYS.hist, []);
+  // copy: 기본 그룹 값을 평탄화한 뒤 저장본으로 덮어씀
+  var base = {};
+  DEFAULT_COPY_GROUPS.forEach(function(g){ g.fields.forEach(function(f){ base[f.key] = f.value; }); });
+  var saved = loadData(LS_KEYS.copy, null);
+  if (saved) { for (var k in saved){ if(saved.hasOwnProperty(k)) base[k] = saved[k]; } }
+  state.copy = base;
+}
+
+/* ================================================================
+   탭1 — 담당자
+   ================================================================ */
+function renderTeam(){
+  var wrap = $('#teamList');
+  var byDept = {};
+  DEPARTMENTS.forEach(function(d){ byDept[d] = []; });
+  state.team.forEach(function(m){ (byDept[m.dept] || byDept[DEPARTMENTS[0]]).push(m); });
+  var html = '';
+  DEPARTMENTS.forEach(function(dept){
+    var list = byDept[dept];
+    html += '<div class="card">' +
+      '<div class="dept-card-head"><div class="card-title" style="margin-bottom:0">' + esc(dept) + '</div>' +
+      '<span class="card-note" style="margin-bottom:0">' + list.length + '명</span></div>' +
+      '<div class="card-note">부서 드롭다운으로 이동, ×로 삭제할 수 있습니다.</div>';
+    list.forEach(function(m){ html += memberRowHtml(m); });
+    html += '<button class="member-add" data-member-add="' + esc(dept) + '">＋ ' + esc(dept) + ' 팀원 추가</button>';
+    html += '</div>';
+  });
+  wrap.innerHTML = html;
+}
+function deptOptions(sel){
+  return DEPARTMENTS.map(function(d){
+    return '<option value="' + esc(d) + '"' + (d===sel?' selected':'') + '>' + esc(d) + '</option>';
+  }).join('');
+}
+function memberRowHtml(m){
+  var imgHtml = m.photo
+    ? '<img src="' + esc(m.photo) + '" alt="' + esc(m.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
+      + '<div class="ph" style="display:none">이미지 없음<br>(업로드하세요)</div>'
+    : '<div class="ph">이미지 없음<br>(업로드하세요)</div>';
+  return '' +
+  '<div class="member-row" data-id="' + esc(m.id) + '">' +
+    '<div>' +
+      '<div class="member-photo" data-drop="team" data-drop-id="' + esc(m.id) + '">' + imgHtml + '</div>' +
+      '<div class="photo-btn">' +
+        '<label class="btn btn-ghost btn-sm">사진 변경' +
+          '<input type="file" accept="image/*" class="file-hidden" data-photo-input="' + esc(m.id) + '">' +
+        '</label>' +
+      '</div>' +
+    '</div>' +
+    '<div class="member-fields">' +
+      '<div class="member-ctrl">' +
+        '<span class="sel-wrap"><label class="mini">부서</label>' +
+          '<select class="dept-sel" data-mdept="' + esc(m.id) + '">' + deptOptions(m.dept) + '</select></span>' +
+        '<button class="member-del" data-member-del="' + esc(m.id) + '" title="팀원 삭제" aria-label="팀원 삭제">×</button>' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label>이름</label><input type="text" data-f="name" value="' + esc(m.name) + '"></div>' +
+        '<div class="field"><label>직책</label><input type="text" data-f="role" value="' + esc(m.role) + '"></div>' +
+      '</div>' +
+      '<div class="field"><label>소개</label><textarea data-f="bio">' + esc(m.bio) + '</textarea></div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ================================================================
+   탭2 — 멘트
+   ================================================================ */
+function renderCopy(){
+  var wrap = $('#copyList');
+  var html = '';
+  DEFAULT_COPY_GROUPS.forEach(function(g){
+    html += '<div class="card"><div class="card-title">' + esc(g.group) + '</div>';
+    // 숫자쌍(통계)은 2열로 예쁘게
+    var isStat = g.group === '성과 통계';
+    if (isStat) html += '<div class="grid2">';
+    g.fields.forEach(function(f){
+      var v = state.copy[f.key] != null ? state.copy[f.key] : f.value;
+      html += '<div class="field"><label>' + esc(f.label) + '</label>';
+      if (f.type === 'textarea') html += '<textarea data-copy="' + f.key + '">' + esc(v) + '</textarea>';
+      else html += '<input type="text" data-copy="' + f.key + '" value="' + esc(v) + '">';
+      html += '</div>';
+    });
+    if (isStat) html += '</div>';
+    html += '</div>';
+  });
+  wrap.innerHTML = html;
+}
+
+/* ================================================================
+   탭3 — 레퍼런스
+   ================================================================ */
+function renderRefs(){
+  var grid = $('#refGrid');
+  var html = '';
+  state.refs.forEach(function(r){
+    var thumb = r.image
+      ? '<img src="' + esc(r.image) + '" alt="">'
+      : '<span class="ph">이미지 없음</span>';
+    html += '' +
+    '<div class="ref-item" data-id="' + esc(r.id) + '">' +
+      '<div class="ref-thumb" data-drop="ref" data-drop-id="' + esc(r.id) + '">' + thumb + '</div>' +
+      '<div class="ref-meta"><input type="text" data-ref-caption placeholder="캡션(설명)" value="' + esc(r.caption||'') + '"></div>' +
+      '<div class="ref-actions">' +
+        '<label class="btn btn-ghost btn-sm" style="flex:1">교체<input type="file" accept="image/*" class="file-hidden" data-ref-input="' + esc(r.id) + '"></label>' +
+        '<button class="btn btn-danger btn-sm" data-ref-del="' + esc(r.id) + '">삭제</button>' +
+      '</div>' +
+    '</div>';
+  });
+  // 추가 타일(드롭 가능)
+  html += '' +
+    '<div class="ref-add" data-drop="ref-add">' +
+      '<label>' +
+        '<span class="plus">+</span>사진 추가<br><small style="font-weight:500;opacity:.8">클릭 또는 드래그</small>' +
+        '<input type="file" accept="image/*" class="file-hidden" id="refAddInput">' +
+      '</label>' +
+    '</div>';
+  grid.innerHTML = html;
+}
+
+/* ================================================================
+   탭4 — 서비스
+   ================================================================ */
+function renderSvc(){
+  var wrap = $('#svcList');
+  if (!state.svc.length){ wrap.innerHTML = '<div class="empty">서비스가 없습니다. 아래 버튼으로 추가하세요.</div>'; return; }
+  var html = '';
+  state.svc.forEach(function(s, i){
+    html += svcItemHtml(s, i);
+  });
+  wrap.innerHTML = html;
+}
+function svcItemHtml(s, i){
+  var imgHtml = s.image ? '<img src="' + esc(s.image) + '" alt="">' : '<span class="ph">이미지 없음<br>클릭/드래그</span>';
+  return '' +
+  '<div class="svc-item' + (s.soon?' is-soon':'') + '" data-id="' + esc(s.id) + '">' +
+    '<div class="svc-top">' +
+      '<div>' +
+        '<div class="svc-thumb" data-drop="svc" data-drop-id="' + esc(s.id) + '">' + imgHtml + '</div>' +
+        '<label class="btn btn-ghost btn-sm" style="margin-top:9px;width:100%;justify-content:center">이미지' +
+          '<input type="file" accept="image/*" class="file-hidden" data-svc-input="' + esc(s.id) + '"></label>' +
+      '</div>' +
+      '<div>' +
+        '<div class="grid2">' +
+          '<div class="field"><label>제목</label><input type="text" data-sf="title" value="' + esc(s.title) + '"></div>' +
+          '<div class="field"><label>태그 (쉼표로 구분)</label><input type="text" data-sf="tags" value="' + esc((s.tags||[]).join(', ')) + '"></div>' +
+        '</div>' +
+        '<div class="field"><label>설명</label><textarea data-sf="desc">' + esc(s.desc) + '</textarea></div>' +
+        '<div class="field"><label>링크 URL</label><input type="url" data-sf="url" placeholder="https://..." value="' + esc(s.url||'') + '"></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="svc-flags">' +
+      '<label class="check"><input type="checkbox" data-sf="hasLink"' + (s.hasLink?' checked':'') + '>링크 있음(클릭 이동)</label>' +
+      '<label class="check"><input type="checkbox" data-sf="soon"' + (s.soon?' checked':'') + '>준비 중(soon)</label>' +
+      '<div class="svc-actions"><button class="btn btn-danger btn-sm" data-svc-del="' + esc(s.id) + '">삭제</button></div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ================================================================
+   탭0 — 대시보드 (실시간 계산)
+   ================================================================ */
+function isToday(iso){
+  var d = new Date(iso), n = new Date();
+  return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+}
+function renderDash(){
+  var inq = state.inquiries || [];
+  var pending = inq.filter(function(q){ return q.status==='pending'; }).length;
+  var done    = inq.filter(function(q){ return q.status==='done'; }).length;
+  var today   = inq.filter(function(q){ return isToday(q.created_at); }).length;
+  var svcLive = state.svc.filter(function(s){ return !s.soon; }).length;
+
+  function card(cls, key, val, unit){
+    return '<div class="stat-card ' + cls + '"><div class="k"><span class="kd"></span>' + esc(key) + '</div>' +
+      '<div class="v">' + val + '</div><div class="u">' + esc(unit) + '</div></div>';
+  }
+  var html = '';
+  html += '<div class="dash-sec-title">상담 · 문의</div><div class="stat-grid">';
+  html += card('accent', '총 문의', inq.length, '건 누적');
+  html += card('', '오늘 문의', today, '건');
+  html += card('warn', '대기중', pending, '건 처리 필요');
+  html += card('done', '완료', done, '건');
+  html += '</div>';
+  html += '<div class="dash-sec-title">사이트 콘텐츠</div><div class="stat-grid">';
+  html += card('', '팀원', state.team.length, '명');
+  html += card('', '서비스', state.svc.length, '개 (노출 ' + svcLive + ' · 준비중 ' + (state.svc.length-svcLive) + ')');
+  html += card('', '레퍼런스', state.refs.length, '개 이미지');
+  html += card('', '변경 기록', (state.history||[]).length, '개 스냅샷');
+  html += '</div>';
+  $('#dashBody').innerHTML = html;
+}
+
+/* ================================================================
+   탭5 — 상담/문의 관리
+   ================================================================ */
+function fmtDate(iso){
+  var d = new Date(iso);
+  var p = function(n){ return (n<10?'0':'')+n; };
+  return d.getFullYear() + '.' + p(d.getMonth()+1) + '.' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function renderInq(){
+  var body = $('#inqBody');
+  var list = (state.inquiries||[]).slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
+  var f = state.inqFilter;
+  if (f !== 'all') list = list.filter(function(q){ return q.status===f; });
+  $('#inqCount').textContent = '표시 ' + list.length + '건 / 전체 ' + (state.inquiries||[]).length + '건';
+
+  if (!list.length){
+    body.innerHTML = '<div class="empty"><span class="em-ic">📭</span>' +
+      (f==='all' ? '접수된 문의가 없습니다.' : '해당 상태의 문의가 없습니다.') + '</div>';
+    return;
+  }
+  var html = '<div class="inq-table">';
+  html += '<div class="inq-row head"><div>이름</div><div>연락처</div><div>이메일</div><div>문의내용</div><div>상태</div><div style="text-align:right">관리</div></div>';
+  list.forEach(function(q){
+    var badge = q.status==='done'
+      ? '<span class="badge done"><span class="bd"></span>완료</span>'
+      : '<span class="badge pending"><span class="bd"></span>대기중</span>';
+    html += '<div class="inq-row" data-id="' + esc(q.id) + '">' +
+      '<div class="nm">' + esc(q.name) + '<div class="date" style="font-weight:400;margin-top:2px">' + fmtDate(q.created_at) + '</div></div>' +
+      '<div class="sub" data-l="연락처">' + esc(q.phone||'-') + '</div>' +
+      '<div class="sub" data-l="이메일">' + esc(q.email||'-') + '</div>' +
+      '<div class="msg" data-l="내용">' + esc(q.message||'-') + '</div>' +
+      '<div>' + badge + '</div>' +
+      '<div class="inq-actions">' +
+        '<button class="icon-btn" data-inq-view="' + esc(q.id) + '" title="상세 보기"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>' +
+        '<button class="icon-btn" data-inq-toggle="' + esc(q.id) + '" title="상태 변경"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>' +
+        '<button class="icon-btn danger" data-inq-del="' + esc(q.id) + '" title="삭제"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></button>' +
+      '</div>' +
+    '</div>';
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+function openInqModal(id){
+  var q = (state.inquiries||[]).filter(function(x){ return x.id===id; })[0];
+  if (!q) return;
+  var badge = q.status==='done'
+    ? '<span class="badge done"><span class="bd"></span>완료</span>'
+    : '<span class="badge pending"><span class="bd"></span>대기중</span>';
+  $('#inqModalBody').innerHTML =
+    '<h3>' + esc(q.name) + ' 님의 문의</h3><div style="margin-top:6px">' + badge + '</div>' +
+    '<dl class="kv">' +
+      '<dt>연락처</dt><dd>' + esc(q.phone||'-') + '</dd>' +
+      '<dt>이메일</dt><dd>' + esc(q.email||'-') + '</dd>' +
+      '<dt>관심상품</dt><dd>' + esc(q.interest||'-') + '</dd>' +
+      '<dt>접수일</dt><dd>' + fmtDate(q.created_at) + '</dd>' +
+      '<dt class="full">문의 내용</dt><dd class="msg-box">' + esc(q.message||'-') + '</dd>' +
+    '</dl>' +
+    '<div style="display:flex;gap:10px;margin-top:22px">' +
+      '<button class="btn btn-primary" data-inq-toggle="' + esc(q.id) + '" style="flex:1">' +
+        (q.status==='done'?'대기중으로 되돌리기':'완료 처리') + '</button>' +
+      '<button class="btn btn-danger" data-inq-del="' + esc(q.id) + '">삭제</button>' +
+    '</div>';
+  $('#inqModal').classList.add('open');
+}
+function closeInqModal(){ $('#inqModal').classList.remove('open'); }
+function saveInquiries(){ saveData(LS_KEYS.inq, state.inquiries); }
+// 상태 토글(대기중 ↔ 완료) — 즉시 저장
+function toggleInquiry(id){
+  var q = (state.inquiries||[]).filter(function(x){ return x.id===id; })[0];
+  if (!q) return;
+  q.status = (q.status==='done') ? 'pending' : 'done';
+  saveInquiries(); renderInq(); renderDash();
+  toast(q.status==='done' ? '완료 처리했습니다.' : '대기중으로 변경했습니다.');
+}
+function deleteInquiry(id){
+  var q = (state.inquiries||[]).filter(function(x){ return x.id===id; })[0];
+  if (q && !confirm('‘' + (q.name||'이 문의') + '’ 문의를 삭제할까요?')) return;
+  state.inquiries = (state.inquiries||[]).filter(function(x){ return x.id !== id; });
+  saveInquiries(); renderInq(); renderDash();
+  toast('문의를 삭제했습니다.');
+}
+
+/* ================================================================
+   탭6 — 변경 히스토리 / 되돌리기
+   ================================================================ */
+var SECTION_LABEL = { team:'담당자', copy:'멘트', refs:'레퍼런스', svc:'서비스', restore:'되돌리기 백업' };
+// 현재 콘텐츠 4종의 스냅샷 저장(section=트리거한 섹션)
+function pushSnapshot(section){
+  var snap = {
+    id: uid('h'), ts: new Date().toISOString(), section: section,
+    data: {
+      team: JSON.parse(JSON.stringify(state.team)),
+      copy: JSON.parse(JSON.stringify(state.copy)),
+      refs: JSON.parse(JSON.stringify(state.refs)),
+      svc:  JSON.parse(JSON.stringify(state.svc))
+    }
+  };
+  state.history.unshift(snap);
+  if (state.history.length > 20) state.history = state.history.slice(0, 20);
+  saveData(LS_KEYS.hist, state.history);
+}
+function renderHist(){
+  var body = $('#histBody');
+  var list = state.history || [];
+  if (!list.length){
+    body.innerHTML = '<div class="empty"><span class="em-ic">🕘</span>아직 저장 기록이 없습니다.<br>담당자·멘트·레퍼런스·서비스를 저장하면 여기에 스냅샷이 쌓입니다.</div>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(h){
+    var lbl = SECTION_LABEL[h.section] || h.section;
+    var isAuto = h.section === 'restore';
+    html += '<div class="hist-item" data-id="' + esc(h.id) + '">' +
+      '<span class="hist-badge' + (isAuto?' auto':'') + '">' + esc(lbl) + '</span>' +
+      '<div class="hist-meta"><div class="ht">' + fmtDate(h.ts) + ' 저장</div>' +
+        '<div class="hd">팀원 ' + h.data.team.length + '명 · 서비스 ' + h.data.svc.length + '개 · 레퍼런스 ' + h.data.refs.length + '개</div></div>' +
+      '<button class="btn btn-ghost btn-sm" data-hist-restore="' + esc(h.id) + '">이 버전으로 되돌리기</button>' +
+    '</div>';
+  });
+  body.innerHTML = html;
+}
+function restoreSnapshot(id){
+  var h = (state.history||[]).filter(function(x){ return x.id===id; })[0];
+  if (!h) return;
+  // 되돌리기 전 현재 상태도 백업(되돌리기도 되돌릴 수 있게)
+  pushSnapshot('restore');
+  state.team = JSON.parse(JSON.stringify(h.data.team));
+  state.copy = JSON.parse(JSON.stringify(h.data.copy));
+  state.refs = JSON.parse(JSON.stringify(h.data.refs));
+  state.svc  = JSON.parse(JSON.stringify(h.data.svc));
+  // 부서명 방어
+  state.team.forEach(function(m){ if (DEPARTMENTS.indexOf(m.dept)===-1) m.dept = DEPARTMENTS[0]; });
+  saveData(LS_KEYS.team, state.team);
+  saveData(LS_KEYS.copy, state.copy);
+  saveData(LS_KEYS.refs, state.refs);
+  saveData(LS_KEYS.svc,  state.svc);
+  renderTeam(); renderCopy(); renderRefs(); renderSvc(); renderHist(); renderDash();
+  setDirty('team', false); setDirty('copy', false); setDirty('refs', false); setDirty('svc', false);
+  toast('선택한 버전으로 되돌렸습니다.');
+}
+
+/* ================================================================
+   수집(collect) — DOM 입력값을 state에 반영
+   ================================================================ */
+function collectTeam(){
+  $all('#teamList .member-row').forEach(function(row){
+    var id = row.getAttribute('data-id');
+    var m = state.team.filter(function(x){ return x.id===id; })[0];
+    if (!m) return;
+    m.name = $('[data-f="name"]', row).value;
+    m.role = $('[data-f="role"]', row).value;
+    m.bio  = $('[data-f="bio"]', row).value;
+    // photo는 업로드 시 즉시 state에 반영됨
+  });
+}
+function collectCopy(){
+  $all('#copyList [data-copy]').forEach(function(el){
+    state.copy[el.getAttribute('data-copy')] = el.value;
+  });
+}
+function collectRefs(){
+  $all('#refGrid .ref-item').forEach(function(item){
+    var id = item.getAttribute('data-id');
+    var r = state.refs.filter(function(x){ return x.id===id; })[0];
+    if (r) r.caption = $('[data-ref-caption]', item).value;
+  });
+}
+function collectSvc(){
+  $all('#svcList .svc-item').forEach(function(item){
+    var id = item.getAttribute('data-id');
+    var s = state.svc.filter(function(x){ return x.id===id; })[0];
+    if (!s) return;
+    s.title   = $('[data-sf="title"]', item).value;
+    s.desc    = $('[data-sf="desc"]', item).value;
+    s.url     = $('[data-sf="url"]', item).value;
+    s.tags    = $('[data-sf="tags"]', item).value.split(',').map(function(t){return t.trim();}).filter(Boolean);
+    s.hasLink = $('[data-sf="hasLink"]', item).checked;
+    s.soon    = $('[data-sf="soon"]', item).checked;
+  });
+}
+
+/* ================================================================
+   저장
+   ================================================================ */
+function doSave(tab){
+  var ok = false;
+  if (tab==='team'){ collectTeam(); ok = saveData(LS_KEYS.team, state.team); }
+  else if (tab==='copy'){ collectCopy(); ok = saveData(LS_KEYS.copy, state.copy); }
+  else if (tab==='refs'){ collectRefs(); ok = saveData(LS_KEYS.refs, state.refs); }
+  else if (tab==='svc'){ collectSvc(); ok = saveData(LS_KEYS.svc, state.svc); }
+  if (ok){
+    setDirty(tab, false);
+    pushSnapshot(tab);          // 저장 시마다 스냅샷 기록
+    toast('저장되었습니다.');
+  }
+  else { toast('저장 실패 — 저장 용량을 초과했을 수 있습니다.', true); }
+}
+
+/* ================================================================
+   이벤트 바인딩
+   ================================================================ */
+function bindEvents(){
+  // 탭 전환(사이드바 + 모바일)
+  $all('[data-tab]').forEach(function(btn){
+    btn.addEventListener('click', function(){ switchTab(btn.getAttribute('data-tab')); });
+  });
+
+  // 저장 버튼
+  $all('[data-save]').forEach(function(btn){
+    btn.addEventListener('click', function(){ doSave(btn.getAttribute('data-save')); });
+  });
+
+  // 입력 변경 → dirty 표시(위임)
+  $('#panel-team').addEventListener('input', function(){ setDirty('team', true); });
+  $('#panel-copy').addEventListener('input', function(){ setDirty('copy', true); });
+  $('#panel-refs').addEventListener('input', function(e){ if (e.target.matches('[data-ref-caption]')) setDirty('refs', true); });
+  $('#panel-svc').addEventListener('input', function(){ setDirty('svc', true); });
+  $('#panel-svc').addEventListener('change', function(e){ if (e.target.type==='checkbox') setDirty('svc', true); });
+
+  // ---- 팀: 사진 업로드 / 부서 이동(위임) ----
+  $('#teamList').addEventListener('change', function(e){
+    if (e.target.matches('[data-photo-input]')){
+      applyImageTo('team', e.target.getAttribute('data-photo-input'), e.target.files[0]);
+    } else if (e.target.matches('[data-mdept]')){
+      collectTeam();
+      var mid = e.target.getAttribute('data-mdept');
+      var m = state.team.filter(function(x){return x.id===mid;})[0];
+      if (m){ m.dept = e.target.value; renderTeam(); setDirty('team', true); toast('부서 이동됨 — 저장을 눌러 반영하세요.'); }
+    }
+  });
+  // ---- 팀: 추가 / 삭제(위임) ----
+  $('#teamList').addEventListener('click', function(e){
+    var add = e.target.closest('[data-member-add]');
+    if (add){
+      collectTeam();
+      var dept = add.getAttribute('data-member-add');
+      var nm = { id: uid('m'), dept:dept, name:'새 팀원', role:'', photo:'', bio:'' };
+      state.team.push(nm);
+      renderTeam(); setDirty('team', true);
+      var row = $('.member-row[data-id="'+nm.id+'"]');
+      if (row){ row.scrollIntoView({behavior:'smooth', block:'center'}); var inp = $('[data-f="name"]', row); if(inp) inp.focus(); }
+      return;
+    }
+    var del = e.target.closest('[data-member-del]');
+    if (del){
+      var id = del.getAttribute('data-member-del');
+      var mm = state.team.filter(function(x){return x.id===id;})[0];
+      if (mm && !confirm('‘' + (mm.name||'이 팀원') + '’ 님을 삭제할까요?')) return;
+      collectTeam();
+      state.team = state.team.filter(function(x){ return x.id !== id; });
+      renderTeam(); setDirty('team', true); toast('삭제됨 — 저장을 눌러 반영하세요.');
+    }
+  });
+
+  // ---- 레퍼런스: 추가 / 교체 / 삭제 ----
+  $('#refGrid').addEventListener('change', function(e){
+    if (e.target.id === 'refAddInput'){
+      applyImageTo('ref-add', null, e.target.files[0]);
+    } else if (e.target.matches('[data-ref-input]')){
+      applyImageTo('ref', e.target.getAttribute('data-ref-input'), e.target.files[0]);
+    }
+  });
+  $('#refGrid').addEventListener('click', function(e){
+    var del = e.target.closest('[data-ref-del]');
+    if (del){
+      var id = del.getAttribute('data-ref-del');
+      collectRefs();
+      state.refs = state.refs.filter(function(x){ return x.id !== id; });
+      renderRefs(); setDirty('refs', true); toast('삭제됨 — 저장을 눌러 반영하세요.');
+    }
+  });
+
+  // ---- 서비스: 이미지 업로드 / 삭제 / 추가 ----
+  $('#svcList').addEventListener('change', function(e){
+    if (e.target.matches('[data-svc-input]')){
+      applyImageTo('svc', e.target.getAttribute('data-svc-input'), e.target.files[0]);
+    }
+  });
+  $('#svcList').addEventListener('click', function(e){
+    var del = e.target.closest('[data-svc-del]');
+    if (del){
+      var id = del.getAttribute('data-svc-del');
+      collectSvc();
+      state.svc = state.svc.filter(function(x){ return x.id !== id; });
+      renderSvc(); setDirty('svc', true); toast('삭제됨 — 저장을 눌러 반영하세요.');
+    }
+  });
+  $('#svcAddBtn').addEventListener('click', function(){
+    collectSvc();
+    state.svc.push({ id: uid('s'), title:'새 서비스', desc:'', tags:[], url:'', image:'', hasLink:false, soon:false });
+    renderSvc(); setDirty('svc', true);
+    // 새 항목으로 스크롤
+    var items = $all('#svcList .svc-item');
+    if (items.length) items[items.length-1].scrollIntoView({behavior:'smooth', block:'center'});
+  });
+
+  // ---- 상담/문의: 필터 / 상세 / 상태변경 / 삭제 ----
+  $('#panel-inq').addEventListener('click', function(e){
+    var chip = e.target.closest('[data-inq-filter]');
+    if (chip){
+      state.inqFilter = chip.getAttribute('data-inq-filter');
+      $all('[data-inq-filter]').forEach(function(c){ c.classList.toggle('on', c===chip); });
+      renderInq(); return;
+    }
+    var view = e.target.closest('[data-inq-view]');
+    if (view){ openInqModal(view.getAttribute('data-inq-view')); return; }
+    var tog = e.target.closest('[data-inq-toggle]');
+    if (tog){ toggleInquiry(tog.getAttribute('data-inq-toggle')); return; }
+    var del = e.target.closest('[data-inq-del]');
+    if (del){ deleteInquiry(del.getAttribute('data-inq-del')); return; }
+  });
+
+  // 모달 내부 버튼(상태변경/삭제) + 닫기
+  $('#inqModal').addEventListener('click', function(e){
+    if (e.target.closest('[data-modal-close]')){ closeInqModal(); return; }
+    var tog = e.target.closest('[data-inq-toggle]');
+    if (tog){ toggleInquiry(tog.getAttribute('data-inq-toggle')); closeInqModal(); return; }
+    var del = e.target.closest('[data-inq-del]');
+    if (del){ deleteInquiry(del.getAttribute('data-inq-del')); closeInqModal(); return; }
+  });
+  document.addEventListener('keydown', function(e){ if (e.key==='Escape') closeInqModal(); });
+
+  // ---- 히스토리: 되돌리기 ----
+  $('#histBody').addEventListener('click', function(e){
+    var r = e.target.closest('[data-hist-restore]');
+    if (r){
+      if (!confirm('이 시점으로 콘텐츠 전체(담당자·멘트·레퍼런스·서비스)를 되돌릴까요?\n되돌리기 전 현재 상태는 자동 백업됩니다.')) return;
+      restoreSnapshot(r.getAttribute('data-hist-restore'));
+    }
+  });
+
+  // 로그아웃
+  $('#logoutBtn').addEventListener('click', function(){
+    try { sessionStorage.removeItem(SS_AUTH); } catch(e){}
+    location.reload();
+  });
+
+  // 새로고침/이탈 경고(미저장 변경)
+  window.addEventListener('beforeunload', function(e){
+    var any = Object.keys(state.dirty).some(function(k){ return state.dirty[k]; });
+    if (any){ e.preventDefault(); e.returnValue = ''; }
+  });
+}
+
+// 이미지 업로드 헬퍼(에러 토스트 포함)
+function handleImageUpload(file, onDone){
+  if (!file) return;
+  uploadImage(file).then(onDone).catch(function(err){
+    toast(err.message || '이미지 업로드 실패', true);
+  });
+}
+
+// 대상(type,id)에 이미지 파일 적용 — 파일선택·드롭 공용
+function applyImageTo(type, id, file){
+  if (!file) return;
+  handleImageUpload(file, function(url){
+    if (type === 'team'){
+      var m = state.team.filter(function(x){return x.id===id;})[0];
+      if (m){ collectTeam(); m.photo = url; renderTeam(); setDirty('team', true); toast('사진 미리보기 적용 — 저장을 눌러 반영하세요.'); }
+    } else if (type === 'svc'){
+      collectSvc();
+      var s = state.svc.filter(function(x){return x.id===id;})[0];
+      if (s){ s.image = url; renderSvc(); setDirty('svc', true); toast('이미지 적용 — 저장을 눌러 반영하세요.'); }
+    } else if (type === 'ref'){
+      collectRefs();
+      var r = state.refs.filter(function(x){return x.id===id;})[0];
+      if (r){ r.image = url; renderRefs(); setDirty('refs', true); toast('이미지 교체됨 — 저장을 눌러 반영하세요.'); }
+    } else if (type === 'ref-add'){
+      collectRefs();
+      state.refs.push({ id: uid('r'), image:url, caption:'' });
+      renderRefs(); setDirty('refs', true); toast('사진 추가됨 — 저장을 눌러 반영하세요.');
+    }
+  });
+}
+
+// 드래그&드롭 + 썸네일 클릭 업로드
+function setupDnD(){
+  ['#panel-team','#panel-refs','#panel-svc'].forEach(function(sel){
+    var panel = $(sel);
+    if (!panel) return;
+
+    panel.addEventListener('dragover', function(e){
+      var zone = e.target.closest ? e.target.closest('[data-drop]') : null;
+      $all('.drop-over', panel).forEach(function(z){ if (z!==zone) z.classList.remove('drop-over'); });
+      if (zone){ e.preventDefault(); e.dataTransfer.dropEffect='copy'; zone.classList.add('drop-over'); }
+    });
+    panel.addEventListener('dragleave', function(e){
+      if (!panel.contains(e.relatedTarget)) $all('.drop-over', panel).forEach(function(z){ z.classList.remove('drop-over'); });
+    });
+    panel.addEventListener('drop', function(e){
+      var zone = e.target.closest ? e.target.closest('[data-drop]') : null;
+      $all('.drop-over', panel).forEach(function(z){ z.classList.remove('drop-over'); });
+      if (!zone) return;
+      e.preventDefault();
+      var file = e.dataTransfer.files && e.dataTransfer.files[0];
+      applyImageTo(zone.getAttribute('data-drop'), zone.getAttribute('data-drop-id'), file);
+    });
+
+    // 썸네일 클릭 → 숨은 파일 입력 열기
+    panel.addEventListener('click', function(e){
+      var mp = e.target.closest('.member-photo'); if (mp){ var i1 = $('[data-photo-input="'+mp.getAttribute('data-drop-id')+'"]'); if(i1) i1.click(); return; }
+      var st = e.target.closest('.svc-thumb');    if (st){ var i2 = $('[data-svc-input="'+st.getAttribute('data-drop-id')+'"]'); if(i2) i2.click(); return; }
+      var rt = e.target.closest('.ref-thumb');     if (rt){ var i3 = $('[data-ref-input="'+rt.getAttribute('data-drop-id')+'"]'); if(i3) i3.click(); return; }
+    });
+  });
+  // 문서 밖으로 파일이 떨어지면 브라우저가 열리는 것 방지(패널 외)
+  ['dragover','drop'].forEach(function(ev){
+    document.addEventListener(ev, function(e){ if (!e.target.closest || !e.target.closest('[data-drop]')) { if(ev==='drop') e.preventDefault(); } }, false);
+  });
+}
+
+/* ---------------- 탭 전환 ---------------- */
+var TAB_META = {
+  dash: { title:'대시보드', desc:'콘텐츠·문의 현황 요약' },
+  team: { title:'담당자 관리', desc:'팀원 사진·정보·부서 이동·추가/삭제' },
+  copy: { title:'멘트(카피) 변경', desc:'사이트 주요 문구를 편집합니다' },
+  refs: { title:'레퍼런스 사진', desc:'성과·레퍼런스 이미지를 추가·삭제합니다' },
+  svc:  { title:'서비스 목록', desc:'서비스 카드를 추가·삭제·편집합니다' },
+  inq:  { title:'상담/문의 관리', desc:'접수된 상담 신청을 확인·처리합니다' },
+  hist: { title:'변경 히스토리', desc:'저장 스냅샷 확인 및 되돌리기' }
+};
+function switchTab(tab){
+  if (!TAB_META[tab]) tab = 'dash';
+  $all('[data-tab]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-tab')===tab); });
+  $all('.panel').forEach(function(p){ p.classList.remove('on'); });
+  $('#panel-' + tab).classList.add('on');
+  $('#tbTitle').textContent = TAB_META[tab].title;
+  $('#tbDesc').textContent  = TAB_META[tab].desc;
+  // 진입 시 실시간 재계산 탭
+  if (tab==='dash') renderDash();
+  else if (tab==='inq') renderInq();
+  else if (tab==='hist') renderHist();
+  try { sessionStorage.setItem('silhaeng_admin_tab', tab); } catch(e){}
+}
+
+/* ---------------- 부팅 ---------------- */
+function boot(){
+  initState();
+  renderTeam();
+  renderCopy();
+  renderRefs();
+  renderSvc();
+  renderInq();
+  renderHist();
+  renderDash();
+  bindEvents();
+  setupDnD();
+  $('#app').classList.add('show');
+  $('#gate').classList.add('hide');
+  // 마지막 탭 복원(기본: 대시보드)
+  var last = 'dash';
+  try { last = sessionStorage.getItem('silhaeng_admin_tab') || 'dash'; } catch(e){}
+  if (!TAB_META[last]) last = 'dash';
+  switchTab(last);
+}
+
+/* ---------------- 게이트(비밀번호) ---------------- */
+function tryLogin(){
+  var pw = $('#gatePw').value;
+  if (pw === ADMIN_PW){
+    try { sessionStorage.setItem(SS_AUTH, '1'); } catch(e){}
+    boot();
+  } else {
+    $('#gateErr').classList.add('show');
+    $('#gatePw').value = '';
+    $('#gatePw').focus();
+  }
+}
+(function initGate(){
+  var authed = false;
+  try { authed = sessionStorage.getItem(SS_AUTH) === '1'; } catch(e){}
+  if (authed){ boot(); return; }
+  $('#gateBtn').addEventListener('click', tryLogin);
+  $('#gatePw').addEventListener('keydown', function(e){ if (e.key==='Enter') tryLogin(); });
+  $('#gatePw').addEventListener('input', function(){ $('#gateErr').classList.remove('show'); });
+  $('#gatePw').focus();
+})();
+</script>
+</body>
+</html>
