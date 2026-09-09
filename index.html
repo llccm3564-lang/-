@@ -3109,8 +3109,24 @@
       var d=c.querySelector('.cf-desc'); if(d) d.textContent=s.descr||'';
       var tg=c.querySelector('.cf-tags');
       if(tg) tg.innerHTML=(s.tags||[]).map(function(t){return '<span>'+esc(t)+'</span>';}).join('');
-      var a=c.querySelector('a[href]')||c.closest('a[href]');
-      if(a&&s.url) a.setAttribute('href',s.url);
+      /* 카드 자체가 <a class="cf-s"> 이므로 자기 자신 또는 조상에서 찾는다.
+         링크를 바꿀 땐 href 뿐 아니라 호버 미리보기가 쓰는 data-url·data-shot 도 같이 맞춰야
+         카드 링크와 미리보기가 서로 다른 곳을 가리키지 않는다. */
+      var a=(c.tagName==='A')?c:(c.closest('a[href]')||c.querySelector('a[href]'));
+      if(a && s.url){
+        a.setAttribute('href', s.url);
+        var bare=String(s.url).replace(/^https?:\/\//,'').replace(/\/$/,'');
+        a.setAttribute('data-url', bare);
+        a.setAttribute('data-shot', 'https://s.wordpress.com/mshots/v1/'+encodeURIComponent(s.url)+'?w=680');
+        a.classList.add('has-link');
+      }
+      /* 서비스 카드 이미지는 <img>가 아니라 .cf-shot::before 의 배경(--g 변수)이다.
+         어드민에서 이미지 주소를 넣으면 그 사진을, 비우면 원래 그라데이션(.cf-g1~g6)을 쓴다. */
+      var shot=c.querySelector('.cf-shot');
+      if(shot){
+        if(s.image) shot.style.setProperty('--g', 'url("'+String(s.image).replace(/"/g,'%22')+'") center/cover no-repeat');
+        else shot.style.removeProperty('--g');
+      }
       c.classList.toggle('soon',!!s.soon);
     });
     if(typeof window.__svcHeight==='function') window.__svcHeight();   // 카드 수 바뀌면 섹션 높이 재계산
@@ -3128,14 +3144,54 @@
     });
   }
 
+
+  /* ---- 멘트(copy): 키-값을 화면 요소에 꽂는다 ----
+     어드민 '멘트' 탭이 copy 테이블에 쓰는데 사이트가 이 테이블을 아예 안 읽고 있었다.
+     · 값이 비어 있으면 건드리지 않는다(하드코딩이 폴백).
+     · 통계 숫자는 카운트업 애니메이션이 data-count를 쓰므로 그 속성도 같이 바꾼다. */
+  function applyCopy(rows){
+    if(!rows||!rows.length) return;
+    var v={}; rows.forEach(function(r){ if(r && r.key) v[r.key]=r.value; });
+    var MAP={
+      hero_big1:'.hero-copy .hc-big1', hero_big2:'.hero-copy .hc-big2',
+      hero_small1:'.hero-copy .hc-small', hero_small2:'.hero-copy .hc-small2',
+      edit_big:'.hsec .hbig',
+      edit_sub1:'.hsec .hcol-2a .hsub',
+      svc_title:'.cf-svc-head h2', svc_desc:'.cf-svc-head p',
+      team_plexus:'.plexus-lead',
+      team_who:'#teamCardsInner .tm-row:nth-child(1) .tm-lbl',
+      team_how:'#teamCardsInner .tm-row:nth-child(2) .tm-lbl',
+      about_title:'#about h2', about_desc:'#about p',
+      contact_title:'#contact h2'
+    };
+    for(var k in MAP){
+      if(v[k]==null || v[k]==='') continue;
+      var el=document.querySelector(MAP[k]);
+      if(el) el.textContent=v[k];
+    }
+    // 통계 3개: 숫자(data-count + 표시값)와 라벨
+    var stats=[].slice.call(document.querySelectorAll('.m-stats .m-stat'));
+    [1,2,3].forEach(function(n,idx){
+      var st=stats[idx]; if(!st) return;
+      var num=v['stat'+n+'_num'], lbl=v['stat'+n+'_lbl'];
+      if(num!=null && num!==''){
+        var digits=String(num).replace(/[^0-9]/g,'');
+        if(digits) st.setAttribute('data-count',digits);       // 카운트업이 읽는 값
+        var b=st.querySelector('b.num'); if(b) b.textContent=digits||num;
+      }
+      if(lbl!=null && lbl!==''){ var em=st.querySelector('em'); if(em) em.textContent=lbl; }
+    });
+  }
   Promise.all([
     sel('team_members','?select=*&order=sort').catch(function(){return null;}),
     sel('services','?select=*&order=sort').catch(function(){return null;}),
-    sel('refs','?select=*&order=sort').catch(function(){return null;})
+    sel('refs','?select=*&order=sort').catch(function(){return null;}),
+    sel('copy','?select=*').catch(function(){return null;})
   ]).then(function(res){
     try{ if(res[0]) applyTeam(res[0]); }catch(e){ console.warn('담당자 반영 실패',e); }
     try{ if(res[1]) applySvc(res[1]); }catch(e){ console.warn('서비스 반영 실패',e); }
     try{ if(res[2]) applyRefs(res[2]); }catch(e){ console.warn('레퍼런스 반영 실패',e); }
+    try{ if(res[3]) applyCopy(res[3]); }catch(e){ console.warn('멘트 반영 실패',e); }
   }).catch(function(e){ console.warn('Supabase 읽기 실패 — 하드코딩 내용 유지', e); });
 })();
 </script>
