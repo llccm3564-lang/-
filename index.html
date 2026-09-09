@@ -946,7 +946,7 @@
       <button class="menu-btn" id="menuBtn" aria-label="메뉴"><span></span><span></span><span></span></button>
       <nav class="nav-links" id="navLinks">
         <a href="#stats" data-p="1.005" data-pre="1.005" data-off="-0.1">성과</a>
-        <a href="#crossFx" data-p="0.90" data-pre="0.6">서비스</a>
+        <a href="#crossFx" data-p="0.90" data-pre="0.6" data-p-narrow="0.10" data-pre-narrow="0.04">서비스</a>
         <a href="#teamCardsWrap" data-p="0.07" data-align="#teamCardsInner .tm-lbl">담당자</a>
         <a href="#contact" data-p="0.1">문의</a>
       </nav>
@@ -991,7 +991,7 @@
     </div>
     <div class="hero-cta" id="heroCta">
       <a href="#contact" class="btn-line" style="background:#fff;color:#161514;border-color:#fff">무료 상담</a>
-      <a href="#crossFx" data-p="0.90" data-pre="0.6" class="btn-line">서비스 보기</a>
+      <a href="#crossFx" data-p="0.90" data-pre="0.6" data-p-narrow="0.10" data-pre-narrow="0.04" class="btn-line">서비스 보기</a>
     </div>
     <div class="hero-scroll" id="heroScroll">SCROLL DOWN</div>
   </div>
@@ -1615,7 +1615,12 @@
       var id=a.getAttribute('href');
       if(id&&id.length>1){ var el=document.querySelector(id);
         if(el){ e.preventDefault();
-          if(a.closest('header.nav')||a.hasAttribute('data-p')){ var pa=a.getAttribute('data-p'), pra=a.getAttribute('data-pre'), ofa=a.getAttribute('data-off'), asel=a.getAttribute('data-align'), atop=a.getAttribute('data-align-top'); depthGo(el, pa!=null?parseFloat(pa):null, pra!=null?parseFloat(pra):null, ofa!=null?parseFloat(ofa):null, asel, atop!=null?parseFloat(atop):null); }   // 네비 + data-p 가진 링크(히어로 '서비스 보기') 뎁스 전환
+          if(a.closest('header.nav')||a.hasAttribute('data-p')){ /* 좁은 화면에서 도착 지점이 다른 링크는 data-p-narrow/data-pre-narrow 로 따로 지정한다.
+               (서비스는 모바일에서 목록이 내부 스크럽으로 움직여, 같은 p라도 도착 화면이 전혀 다르다) */
+            var NAR=window.__NARROW;
+            var pa=(NAR&&a.getAttribute('data-p-narrow')!=null)?a.getAttribute('data-p-narrow'):a.getAttribute('data-p');
+            var pra=(NAR&&a.getAttribute('data-pre-narrow')!=null)?a.getAttribute('data-pre-narrow'):a.getAttribute('data-pre');
+            var ofa=a.getAttribute('data-off'), asel=a.getAttribute('data-align'), atop=a.getAttribute('data-align-top'); depthGo(el, pa!=null?parseFloat(pa):null, pra!=null?parseFloat(pra):null, ofa!=null?parseFloat(ofa):null, asel, atop!=null?parseFloat(atop):null); }   // 네비 + data-p 가진 링크(히어로 '서비스 보기') 뎁스 전환
           else lenis.scrollTo(el,{offset:-64}); } }
     });
   });
