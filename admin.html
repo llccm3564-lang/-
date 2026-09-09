@@ -584,14 +584,11 @@ function loadData(key, fallback){
 
 // 데이터 저장: key, value(직렬화 가능한 객체/배열)
 function saveData(key, value){
-  // TODO: Supabase — await supabase.from(<table>).upsert(value);
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch(e){
-    console.error('saveData 실패(용량 초과 가능)', key, e);
-    return false;
-  }
+  var ok = true;
+  try { localStorage.setItem(key, JSON.stringify(value)); }   // 화면용 사본(즉시 반영)
+  catch(e){ ok = false; console.error('saveData 실패(용량 초과 가능)', key, e); }
+  try { sbPush(key, value); } catch(e){ console.error('sbPush 실패', e); }   // 원본 DB(비동기)
+  return ok;
 }
 
 // 이미지 업로드: File → data URL (미리보기 + 저장 겸용)
@@ -743,6 +740,113 @@ function setDirty(tab, v){
 function updateDirtyBadge(){
   var any = Object.keys(state.dirty).some(function(k){ return state.dirty[k]; });
   $('#dirtyBadge').classList.toggle('show', any);
+}
+
+/* ================================================================
+   [Supabase 연동] — SDK 없이 REST(fetch)만 사용.
+   ----------------------------------------------------------------
+   구조: Supabase가 원본, localStorage는 화면용 사본.
+     · 로그인 직후 DB에서 전부 읽어 localStorage에 채운 뒤 기존 렌더가 그대로 동작(동기 유지)
+     · 저장 시 localStorage(즉시) + DB(비동기) 양쪽에 쓴다
+     · DB가 죽어도 화면은 사본으로 계속 뜨고, 저장 실패는 토스트로 알린다
+   anon(공개) 키라 브라우저 노출은 정상. 쓰기 권한은 RLS 정책으로 통제한다.
+   ================================================================ */
+var SB_URL = 'https://mvrvmucsppinavwdstqe.supabase.co';
+var SB_KEY = 'sb_publishable_rF-qRS4oFo7i-n4d9dAkbg_0BXOaos0';
+var SB_TABLE = { team:'team_members', svc:'services', refs:'refs', copy:'copy', inq:'inquiries', hist:'history' };
+var sbOnline = false;   // 마지막 통신 성공 여부(대시보드 표시용)
+
+function sbHeaders(extra){
+  var h = { 'apikey': SB_KEY, 'Content-Type': 'application/json' };
+  if (extra) for (var k in extra) h[k] = extra[k];
+  return h;
+}
+function sbSelect(table, query){
+  return fetch(SB_URL + '/rest/v1/' + table + (query || '?select=*'), { headers: sbHeaders() })
+    .then(function(r){ if(!r.ok) throw new Error(table + ' ' + r.status); return r.json(); })
+    .then(function(j){ sbOnline = true; return j; });
+}
+/* 통째로 갈아끼우기: 순서(sort)가 자주 바뀌고 행 수도 변해서, 부분 갱신보다 안전하다.
+   행이 수십 개 수준이라 비용도 무시할 만하다. */
+function sbReplaceAll(table, rows){
+  return fetch(SB_URL + '/rest/v1/' + table + '?sort=gte.0', { method:'DELETE', headers: sbHeaders() })
+    .then(function(){
+      if (!rows.length) return { ok:true };
+      return fetch(SB_URL + '/rest/v1/' + table, {
+        method:'POST', headers: sbHeaders({ 'Prefer':'return=minimal' }), body: JSON.stringify(rows)
+      });
+    })
+    .then(function(r){ if(r && r.ok === false) throw new Error(table + ' 쓰기 ' + r.status); sbOnline = true; return true; });
+}
+
+/* state ↔ DB 행 변환. DB는 snake_case·예약어 회피(desc→descr), 화면은 기존 키를 그대로 쓴다. */
+var SB_MAP = {
+  team: {
+    toRow: function(m,i){ return { sort:i, dept:m.dept||'', name:m.name||'', role:m.role||'', bio:m.bio||'',
+                                   photo:m.photo||'', qr:m.qr||'', kakao:m.kakao||'', qrmode:m.qrmode||'' }; },
+    toObj: function(r,i){ return { id:r.id||('m'+i), dept:r.dept||'', name:r.name||'', role:r.role||'', bio:r.bio||'',
+                                   photo:r.photo||'', qr:r.qr||'', kakao:r.kakao||'', qrmode:r.qrmode||'' }; }
+  },
+  svc: {
+    toRow: function(s,i){ return { sort:i, title:s.title||'', descr:s.desc||'', tags:s.tags||[], url:s.url||'',
+                                   image:s.image||'', has_link:!!s.hasLink, soon:!!s.soon }; },
+    toObj: function(r,i){ return { id:r.id||('s'+i), title:r.title||'', desc:r.descr||'', tags:r.tags||[],
+                                   url:r.url||'', image:r.image||'', hasLink:!!r.has_link, soon:!!r.soon }; }
+  },
+  refs: {
+    toRow: function(r,i){ return { sort:i, caption:r.caption||'', image:r.image||'', url:r.url||'' }; },
+    toObj: function(r,i){ return { id:r.id||('r'+i), caption:r.caption||'', image:r.image||'', url:r.url||'' }; }
+  }
+};
+
+/* 로그인 직후 1회: DB → localStorage 사본 채우기. 실패해도 사본으로 진행한다. */
+function sbBootstrap(){
+  return Promise.all([
+    sbSelect(SB_TABLE.team, '?select=*&order=sort'),
+    sbSelect(SB_TABLE.svc,  '?select=*&order=sort'),
+    sbSelect(SB_TABLE.refs, '?select=*&order=sort'),
+    sbSelect(SB_TABLE.copy, '?select=*'),
+    sbSelect(SB_TABLE.inq,  '?select=*&order=created_at.desc')
+  ]).then(function(res){
+    var team=res[0], svc=res[1], refs=res[2], copy=res[3], inq=res[4];
+    if (team && team.length) localStorage.setItem(LS_KEYS.team, JSON.stringify(team.map(SB_MAP.team.toObj)));
+    if (svc  && svc.length)  localStorage.setItem(LS_KEYS.svc,  JSON.stringify(svc.map(SB_MAP.svc.toObj)));
+    if (refs && refs.length) localStorage.setItem(LS_KEYS.refs, JSON.stringify(refs.map(SB_MAP.refs.toObj)));
+    if (copy && copy.length){
+      var c={}; copy.forEach(function(r){ c[r.key]=r.value; });
+      localStorage.setItem(LS_KEYS.copy, JSON.stringify(c));
+    }
+    if (inq) localStorage.setItem(LS_KEYS.inq, JSON.stringify(inq.map(function(q){
+      return { id:q.id, name:q.name, phone:q.phone, email:q.email, message:q.message,
+               status:q.status, memo:q.memo, created:q.created_at };
+    })));
+    return true;
+  }).catch(function(e){
+    console.warn('Supabase 초기 로드 실패 — 로컬 사본으로 진행', e);
+    sbOnline = false; return false;
+  });
+}
+
+/* saveData가 로컬에 쓴 뒤 호출: 같은 내용을 DB에도 반영 */
+function sbPush(key, value){
+  var t=null, rows=null;
+  if (key === LS_KEYS.team){ t=SB_TABLE.team; rows=(value||[]).map(SB_MAP.team.toRow); }
+  else if (key === LS_KEYS.svc){ t=SB_TABLE.svc; rows=(value||[]).map(SB_MAP.svc.toRow); }
+  else if (key === LS_KEYS.refs){ t=SB_TABLE.refs; rows=(value||[]).map(SB_MAP.refs.toRow); }
+  else if (key === LS_KEYS.copy){
+    t=SB_TABLE.copy;
+    rows=Object.keys(value||{}).map(function(k){ return { key:k, value:String(value[k]==null?'':value[k]) }; });
+    // copy는 key가 기본키라 upsert가 더 안전(전체 삭제 시 다른 탭 값이 날아갈 수 있음)
+    return fetch(SB_URL + '/rest/v1/' + t, {
+      method:'POST', headers: sbHeaders({ 'Prefer':'resolution=merge-duplicates,return=minimal' }), body: JSON.stringify(rows)
+    }).then(function(r){ if(!r.ok) throw new Error('copy ' + r.status); sbOnline=true; })
+      .catch(function(e){ sbOnline=false; console.error('Supabase 저장 실패', e); toast('DB 저장 실패 — 이 브라우저에만 남았습니다'); });
+  }
+  else return Promise.resolve();   // 문의·히스토리는 여기서 다루지 않음
+  return sbReplaceAll(t, rows).catch(function(e){
+    sbOnline=false; console.error('Supabase 저장 실패', e);
+    toast('DB 저장 실패 — 이 브라우저에만 남았습니다');
+  });
 }
 
 /* ---------------- 초기 데이터 로드 ---------------- */
@@ -1386,6 +1490,11 @@ function switchTab(tab){
 
 /* ---------------- 부팅 ---------------- */
 function boot(){
+  /* DB에서 먼저 읽어 localStorage 사본을 채운 뒤 렌더한다.
+     실패해도 사본으로 그대로 진행하므로 화면이 비지 않는다. */
+  sbBootstrap().then(bootRender);
+}
+function bootRender(){
   initState();
   renderTeam();
   renderCopy();

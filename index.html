@@ -1930,6 +1930,8 @@
     var data=document.getElementById('teamData'), stack=document.getElementById('tStack');
     if(!data||!stack)return;
     var PH='assets/team/_ph.svg';
+    /* 데이터 파싱 + 아코디언 렌더. DB 반영 후 다시 호출할 수 있게 함수로 묶었다. */
+    function build(){
     var groups=[].slice.call(data.querySelectorAll('.team-group')).map(function(g){
       var h=g.querySelector('h3');
       return { name:(h?h.textContent.trim():''),
@@ -1968,6 +1970,11 @@
       }).join('');
       return '<div class="tm-row tm-dept"><div class="tm-lbl">'+esc(g.name)+'</div><div class="tm-body"><div class="tm-acc">'+items+'</div></div></div>';
     }).join('');
+    }
+    build();
+    /* 어드민에서 DB를 고치면 사이트 스크립트가 #teamData를 갈아끼운 뒤 이걸 호출한다.
+       클릭 이벤트는 아래에 위임 방식으로 걸려 있어 재호출해도 중복 등록되지 않는다. */
+    window.__rebuildTeam=build;
 
     // 아코디언 토글: + 누르면 그 자리에서 사진+설명 펼침(정확한 높이로 부드럽게)
     function setH(item){ var p=item.querySelector('.tm-panel'), inner=p.firstElementChild;
@@ -2426,7 +2433,7 @@
 
   /* [정리] 옛 #svc-preview 커서 미리보기 JS 제거 — 요소 없음(현재 서비스 미리보기는 #cfPreview가 담당) */
 
-  /* 문의 폼 (데모모드: Supabase 연결 전) */
+  /* 문의 폼 — 제출 시 Supabase inquiries 테이블에 저장(어드민 상담 탭에서 조회) */
   var f=document.getElementById('contactForm');
   /* [연락처] 숫자만 최대 11자리 입력 → 자동 하이픈(010-5555-5555). 02 지역번호는 2자리 국번으로 처리 */
   (function(){
@@ -2463,7 +2470,23 @@
     if(emailEl&&emailEl.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())){toast('이메일 형식을 확인해주세요.');emailEl.focus();return;}
     var cons=f.querySelector('[name="privacy"]');
     if(cons&&!cons.checked){toast('개인정보 수집·이용 동의가 필요합니다.');cons.focus();return;}
-    /* TODO: window.__supa 연결되면 여기서 insert */
+    /* [문의 저장] Supabase inquiries 테이블에 넣는다.
+       RLS: 방문자는 insert만 가능하고 조회는 막혀 있다(다른 사람 연락처가 새지 않게).
+       네트워크 실패로 사용자를 붙잡지 않는다 — 화면은 바로 접수 완료로 넘기고, 실패는 콘솔에만 남긴다.
+       (실패 시 재시도가 필요하면 나중에 로컬 큐를 붙이면 된다.) */
+    (function(){
+      var get=function(n){ var el=f.querySelector('[name="'+n+'"]'); return el?el.value.trim():''; };
+      var body={ name:get('name'), phone:get('phone'), email:get('email'), message:get('message') };
+      try{
+        fetch('https://mvrvmucsppinavwdstqe.supabase.co/rest/v1/inquiries',{
+          method:'POST',
+          headers:{ 'apikey':'sb_publishable_rF-qRS4oFo7i-n4d9dAkbg_0BXOaos0',
+                    'Content-Type':'application/json', 'Prefer':'return=minimal' },
+          body: JSON.stringify(body)
+        }).then(function(r){ if(!r.ok) console.warn('문의 저장 실패', r.status); })
+          .catch(function(e){ console.warn('문의 저장 실패', e); });
+      }catch(e){ console.warn('문의 저장 예외', e); }
+    })();
     /* [C2] 제출 성공 → 체크 애니메이션 패널로 교체 */
     /* 폼 내용을 지우지 않고(높이 유지) 오버레이만 덮는다. 좌측 CONTACT US 영역은 애초에 별개라 그대로. */
     var ok=document.createElement('div');
@@ -2900,5 +2923,118 @@
   })();
 })();
 </script>
+<script>
+/* ================================================================
+   [서비스 섹션 자동 확장] 카드 수에 따라 .crossfx 높이를 늘린다.
+   ----------------------------------------------------------------
+   기준(현재 8장)에서는 지금 값과 똑같아야 하므로, 8장을 기준점으로 잡고
+   초과분만 더한다. 카드가 줄면 다시 줄어든다.
+     · 데스크톱 4열: 2행 초과마다 +90vh (한 행이 화면 안에서 더 필요)
+     · 모바일 2열: 내부 스크럽 분량이 늘어나므로 4행 초과마다 +45vh
+   --vhpx 기반이라 주소창 변동과 무관하게 고정된다.
+   ================================================================ */
+(function(){
+  var BASE_N = 8;                                  // 기준 카드 수(지금 사이트)
+  function apply(){
+    var sec = document.querySelector('.crossfx');
+    var cards = document.querySelectorAll('.cf-grid .cf-s');
+    if (!sec || !cards.length) return;
+    var narrow = window.__NARROW;
+    var perRow = narrow ? 2 : 4;
+    var rows = Math.ceil(cards.length / perRow);
+    var baseRows = Math.ceil(BASE_N / perRow);
+    var extraRows = Math.max(0, rows - baseRows);
+    var baseVh = narrow ? 170 : 420;               // CSS와 같은 기준값
+    var perRowVh = narrow ? 45 : 90;
+    var vh = baseVh + extraRows * perRowVh;
+    sec.style.height = 'calc(' + vh + ' * var(--vhpx))';
+    sec.setAttribute('data-cards', cards.length);
+  }
+  window.__svcHeight = apply;                      // DB 반영 후 다시 호출됨
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+  else apply();
+  window.addEventListener('resize', function(){ apply(); });   // 데스크톱↔모바일 전환 시 열 수가 바뀜
+})();
+</script>
+
+<script>
+/* ================================================================
+   [Supabase 읽기] — 어드민에서 바꾼 내용을 사이트에 반영한다.
+   ----------------------------------------------------------------
+   · 읽기 전용. anon(공개) 키라 브라우저 노출은 정상이고, RLS가 읽기만 허용한다.
+   · DOM이 이미 하드코딩 데이터로 그려져 있으므로, DB 응답이 오면 그 위에 덮어쓴다.
+     → DB가 죽거나 느려도 사이트는 지금 내용 그대로 뜬다(폴백이 곧 기본값).
+   · 담당자 아코디언은 #teamData(원본 데이터 블록)를 갱신한 뒤 다시 그리게 한다.
+   ================================================================ */
+(function(){
+  var SB_URL='https://mvrvmucsppinavwdstqe.supabase.co';
+  var SB_KEY='sb_publishable_rF-qRS4oFo7i-n4d9dAkbg_0BXOaos0';
+  function sel(t,q){
+    return fetch(SB_URL+'/rest/v1/'+t+(q||'?select=*'),{headers:{apikey:SB_KEY}})
+      .then(function(r){ if(!r.ok) throw new Error(t+' '+r.status); return r.json(); });
+  }
+  function esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  /* ---- 담당자: #teamData 를 DB 내용으로 다시 만들고 아코디언 재생성 ---- */
+  function applyTeam(rows){
+    var host=document.getElementById('teamData'); if(!host||!rows.length) return;
+    host.innerHTML=rows.map(function(m){
+      var role=(m.dept?m.dept+' · ':'')+(m.role||'');
+      var ph=m.photo||'assets/team/_ph.svg';
+      return '<div class="member" data-name="'+esc(m.name)+'" data-role="'+esc(role)+'"'
+        +' data-photo="'+esc(ph)+'"'
+        +(m.qrmode?' data-qrmode="'+esc(m.qrmode)+'"':'')
+        +(m.qr?' data-qr="'+esc(m.qr)+'"':'')
+        +(m.kakao?' data-kakao="'+esc(m.kakao)+'"':'')
+        +' data-bio="'+esc(m.bio)+'">'
+        +'<img src="'+esc(ph)+'" alt="'+esc(m.name)+'" loading="lazy">'
+        +'<div class="m-cap"><div class="m-nm">'+esc(m.name)+'</div>'
+        +'<div class="m-role">'+esc(m.role)+'</div></div></div>';
+    }).join('');
+    if(typeof window.__rebuildTeam==='function') window.__rebuildTeam();
+  }
+
+  /* ---- 서비스: 카드 텍스트·태그·링크만 갱신(레이아웃/애니메이션은 건드리지 않음) ---- */
+  function applySvc(rows){
+    var cards=[].slice.call(document.querySelectorAll('.cf-grid .cf-s'));
+    if(!cards.length||!rows.length) return;
+    rows.slice(0,cards.length).forEach(function(s,i){
+      var c=cards[i];
+      var h3=c.querySelector('h3'); if(h3) h3.textContent=s.title||'';
+      var d=c.querySelector('.cf-desc'); if(d) d.textContent=s.descr||'';
+      var tg=c.querySelector('.cf-tags');
+      if(tg) tg.innerHTML=(s.tags||[]).map(function(t){return '<span>'+esc(t)+'</span>';}).join('');
+      var a=c.querySelector('a[href]')||c.closest('a[href]');
+      if(a&&s.url) a.setAttribute('href',s.url);
+      c.classList.toggle('soon',!!s.soon);
+    });
+    if(typeof window.__svcHeight==='function') window.__svcHeight();   // 카드 수 바뀌면 섹션 높이 재계산
+  }
+
+  /* ---- 레퍼런스: 캡션·이미지만 갱신 ---- */
+  function applyRefs(rows){
+    var cards=[].slice.call(document.querySelectorAll('#rcards .rcard'));
+    if(!cards.length||!rows.length) return;
+    rows.slice(0,cards.length).forEach(function(r,i){
+      var c=cards[i];
+      var f=c.querySelector('.rc-foot');
+      if(f&&r.caption){ var dot=f.querySelector('.d'); f.textContent=r.caption; if(dot) f.insertBefore(dot,f.firstChild); }
+      var img=c.querySelector('img'); if(img&&r.image) img.src=r.image;
+    });
+  }
+
+  Promise.all([
+    sel('team_members','?select=*&order=sort').catch(function(){return null;}),
+    sel('services','?select=*&order=sort').catch(function(){return null;}),
+    sel('refs','?select=*&order=sort').catch(function(){return null;})
+  ]).then(function(res){
+    try{ if(res[0]) applyTeam(res[0]); }catch(e){ console.warn('담당자 반영 실패',e); }
+    try{ if(res[1]) applySvc(res[1]); }catch(e){ console.warn('서비스 반영 실패',e); }
+    try{ if(res[2]) applyRefs(res[2]); }catch(e){ console.warn('레퍼런스 반영 실패',e); }
+  }).catch(function(e){ console.warn('Supabase 읽기 실패 — 하드코딩 내용 유지', e); });
+})();
+</script>
+
 </body>
 </html>
