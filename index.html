@@ -141,6 +141,32 @@
   /* [모바일] 가로 오버플로 차단은 반드시 #siteBody에 overflow-x:clip 으로.
      html/body에 걸거나 hidden을 쓰면 스크롤 컨테이너가 생겨 position:sticky(핀 연출)가 전부 깨짐. clip은 컨테이너를 안 만들어 sticky 유지됨. */
   @media(max-width:860px){#siteBody{overflow-x:clip}.nav-links{display:none}.menu-btn{display:block}.nav-right .btn-nav{display:none}}
+  /* ===== [모바일 메뉴] 햄버거 → 세로 드롭다운 =====
+     예전엔 버튼이 문의로 바로 스크롤만 했다(드롭다운이 아예 없었음).
+     데스크톱 네비 링크(.nav-links)를 그대로 재사용해 세로로 펼친다 — 링크·data-p 설정이 한 곳에 유지된다. */
+  @media(max-width:860px){
+    .nav-in{position:relative}
+    /* 펼침 상태에서만 세로 목록으로 표시 */
+    header.nav.menu-open .nav-links{
+      display:flex;flex-direction:column;align-items:stretch;gap:0;
+      position:absolute;left:0;right:0;top:calc(100% + 10px);
+      background:rgba(255,255,255,.92);
+      -webkit-backdrop-filter:blur(24px) saturate(185%);backdrop-filter:blur(24px) saturate(185%);
+      border-radius:16px;padding:6px;
+      box-shadow:0 18px 40px -18px rgba(15,23,42,.35),0 4px 12px -6px rgba(15,23,42,.16);
+      opacity:0;transform:translateY(-6px);animation:navMenuIn .22s var(--ease) forwards}
+    header.nav.menu-open .nav-links a{
+      opacity:1;font-size:16px;font-weight:600;padding:14px 16px;border-radius:11px;
+      min-height:48px;display:flex;align-items:center}   /* 터치 타깃 48px */
+    header.nav.menu-open .nav-links a:active{background:rgba(17,17,17,.06)}
+    header.nav.menu-open .nav-links a + a{border-top:1px solid rgba(17,17,17,.07)}
+    /* 햄버거 → X */
+    header.nav.menu-open .menu-btn span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+    header.nav.menu-open .menu-btn span:nth-child(2){opacity:0}
+    header.nav.menu-open .menu-btn span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+    .menu-btn span{transition:transform .22s var(--ease),opacity .16s var(--ease)}
+  }
+  @keyframes navMenuIn{to{opacity:1;transform:none}}
   @media(max-width:640px){.nav-in{padding:0 16px}.nav-logo{font-size:19px}.menu-btn{padding:11px}.hero-vid .hv{object-fit:cover}.soc{min-width:44px;min-height:44px}}   /* 모바일: 로고 축소(잘림 방지)·탭타깃 44px·히어로 영상 풀커버(검은여백 제거)·소셜 탭타깃 44px */
 
   /* ============ 히어로 ============ */
@@ -918,7 +944,7 @@
   <div class="nav-in">
     <div class="nav-left">
       <button class="menu-btn" id="menuBtn" aria-label="메뉴"><span></span><span></span><span></span></button>
-      <nav class="nav-links">
+      <nav class="nav-links" id="navLinks">
         <a href="#stats" data-p="1.005" data-pre="1.005" data-off="-0.1">성과</a>
         <a href="#crossFx" data-p="0.90" data-pre="0.6">서비스</a>
         <a href="#teamCardsWrap" data-p="0.07" data-align="#teamCardsInner .tm-lbl">담당자</a>
@@ -2305,7 +2331,12 @@
         var t=cl((cardP - i*GAP)/SPAN);    // 카드는 Stage1(cardP) 안에서 다 상승
         var TRV=NAR?0.46:0.70;   // SPAN이 0.36→0.19로 줄어 같은 거리면 2배 빨라진다 → 이동거리도 함께 축소
         var y=lp(vh*TRV, -vh*TRV, t);            // 수직 상승만(아래 → 위). ±0.70vh=끝점 화면 밖(스냅 안 보임). 모바일은 ±0.58vh로 이동거리도 축소(체감 속도↓)
-        var op=(t>0.0005 && t<0.9995)?1:0;       // 페이드 없음(양끝 오프스크린)
+        /* 예전엔 양 끝에서 카드가 화면 밖에 있어 페이드가 필요 없었다.
+           모바일 이동거리를 줄이면서(TRV 0.58→0.46) 끝점이 화면 안으로 들어와,
+           카드가 60%나 걸친 채로 확 나타나고 사라졌다(실측 156~209px 겹친 상태에서 0↔1 전환).
+           → 양 끝 6% 구간에서 부드럽게 페이드. 가운데 구간은 종전대로 완전 불투명. */
+        var FADE=NAR?0.20:0.06;   // 모바일은 이동거리가 짧아 끝단 25%가 화면 안에 남는다 → 그 구간을 덮도록 넉넉히
+        var op=cl(t/FADE)*cl((1-t)/FADE);
         var cw=cards[i].offsetWidth;
         var xFull=vw/2 - 44 - cw/2;              // 완전 오른쪽 정렬(오른쪽 여백 44)
         var xh=NAR ? 0 : ((i%2===0) ? xFull*0.3 : xFull);    // 지그재그: 짝=중앙쪽(더 왼쪽) / 홀=완전 오른쪽. 모바일은 카드가 90vw라 지그재그 폭이 없어 정중앙 고정(왼쪽 잘림 방지)
@@ -2359,13 +2390,13 @@
     // 네비: 존 기반 — 히어로=억제(카피 안 가림) / 경계 도착=슬라이드 등장 / 본문=팝업
     var whiteBehind = siteBody ? (siteBody.getBoundingClientRect().top <= 66) : (y > window.innerHeight);
     if(!whiteBehind){
-      if(!navHover) nav.classList.add('hide');                 // ② 히어로: 위로 올려도 네비 안 나옴
+      if(!navHover && !nav.classList.contains('menu-open')) nav.classList.add('hide');   // ② 히어로: 위로 올려도 네비 안 나옴 / 메뉴 펼친 중엔 숨기지 않음
     } else if(!navPrevWhite){
       nav.classList.remove('hide'); navDir=1; navAnchor=y; navShownAt=Date.now();   // ③ 경계 도착 → 네비 슬라이드 등장(0.8s 유예 시작)
     } else {
       if(y>lastNavY){                                          // 본문 내리는 중
         if(navDir!==1){ navDir=1; navAnchor=y; }
-        if(y>navAnchor+120 && !navHover && Date.now()-navShownAt>800) nav.classList.add('hide');   // ④ 두 번(≈120px) 내리면 숨김 — 단 등장 후 0.8s 유예
+        if(y>navAnchor+120 && !navHover && !nav.classList.contains('menu-open') && Date.now()-navShownAt>800) nav.classList.add('hide');   // ④ 두 번(≈120px) 내리면 숨김 — 단 등장 후 0.8s 유예
       } else if(y<lastNavY){                                   // 본문 올리는 중
         if(navDir!==-1){ navDir=-1; navAnchor=y; }
         if(y<navAnchor-20) nav.classList.remove('hide');
@@ -2430,9 +2461,33 @@
   })();
 
   /* 모바일 메뉴(간단: 문의로 스크롤) — 빈 #services 대신 실제 문의(#contact)로 */
-  document.getElementById('menuBtn').addEventListener('click',function(){
-    var c=document.getElementById('contact'); if(c) c.scrollIntoView({behavior:reduce?'auto':'smooth'});
-  });
+  /* [모바일 메뉴] 햄버거 → 네비 링크 세로 펼침/접기.
+     예전엔 문의로 바로 스크롤해버려서 메뉴 기능이 아예 없었다.
+     데스크톱 링크(.nav-links)를 그대로 재사용하므로 링크·data-p 설정이 한 곳에만 있다. */
+  (function(){
+    var mb=document.getElementById('menuBtn'), nav=document.getElementById('nav');
+    if(!mb||!nav) return;
+    mb.setAttribute('aria-expanded','false');
+    mb.setAttribute('aria-controls','navLinks');
+    function setOpen(on){
+      nav.classList.toggle('menu-open',on);
+      if(on) nav.classList.remove('hide');   // 숨어 있던 상태에서 열면 메뉴판만 최상단에 떠 보인다 → 네비를 먼저 내린다
+      mb.setAttribute('aria-expanded',on?'true':'false');
+      mb.setAttribute('aria-label',on?'메뉴 닫기':'메뉴');
+    }
+    mb.addEventListener('click',function(e){
+      e.stopPropagation();
+      setOpen(!nav.classList.contains('menu-open'));
+    });
+    // 링크를 고르면 닫는다(이동 연출은 기존 depthGo가 그대로 처리)
+    var links=document.getElementById('navLinks');
+    if(links) links.addEventListener('click',function(e){ if(e.target.closest('a')) setOpen(false); });
+    // 바깥 탭 / ESC 로도 닫힘
+    document.addEventListener('click',function(e){
+      if(nav.classList.contains('menu-open') && !e.target.closest('header.nav')) setOpen(false);
+    });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') setOpen(false); });
+  })();
 
   /* reveal on scroll */
   var io=new IntersectionObserver(function(es){
