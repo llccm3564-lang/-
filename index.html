@@ -469,17 +469,23 @@
      버튼 기본 스타일을 지우고 기존 카드 모양을 그대로 유지한다. */
   .tm-qr{appearance:none;-webkit-appearance:none;font:inherit;color:inherit;padding:0;cursor:pointer;
     text-align:inherit;position:relative}
-  /* 아이디 상자: QR 이미지 자리를 그대로 덮는다(라벨 '카카오톡 상담'은 아래에 그대로 남음) */
-  .tm-qr .qr-idbox{position:absolute;left:0;right:0;top:0;z-index:2;
-    display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  /* 아이디 상자: QR 이미지 자리를 정확히 덮는다(QR이 정사각이라 aspect-ratio로 높이를 맞춤).
+     상자 한가운데에 아이디만 놓는다 — 부제는 아래 라벨이 대신한다. */
+  .tm-qr .qr-idbox{position:absolute;left:0;right:0;top:0;aspect-ratio:1/1;z-index:2;
+    display:none;align-items:center;justify-content:center;
     background:#fff;border-radius:9px;padding:8px 6px}
   .tm-qr.showid .qr-idbox{display:flex}
   .tm-qr.showid img{visibility:hidden}          /* 자리(높이)는 유지해 카드 크기가 안 흔들린다 */
-  .tm-qr .qr-idbox b{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;
-    font-size:clamp(13px,1.05vw,16px);color:var(--ink);letter-spacing:.01em;
+  .tm-qr .qr-idbox b{font-family:var(--disp-en);font-weight:700;   /* 사이트 영문 폰트(Clash Display)로 통일 */
+    font-size:clamp(16px,1.26vw,19px);          /* 기존 13~16px의 1.2배 */
+    color:var(--ink);letter-spacing:.01em;
     word-break:break-all;line-height:1.25;text-align:center}
-  .tm-qr .qr-idbox i{font-style:normal;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:-.01em}
   .tm-qr.showid{border-color:var(--green)}
+  /* 하단 라벨: 평소 '카카오톡 상담' → 아이디 표시 중에는 '카카오톡 아이디' */
+  .tm-qr .qr-cap i{font-style:normal}
+  .tm-qr .qr-cap .c-on{display:none}
+  .tm-qr.showid .qr-cap .c-off{display:none}
+  .tm-qr.showid .qr-cap .c-on{display:inline}
   /* CTA 모드: 버튼 → 누르면 QR 펼침 */
   .qr-btn{display:inline-flex;align-items:center;gap:9px;font:inherit;font-size:14px;font-weight:700;letter-spacing:-.01em;
     color:var(--green-d);background:var(--green-dim);border:1px solid var(--green);border-radius:999px;padding:11px 20px;cursor:pointer;
@@ -2026,8 +2032,8 @@
               +(mode==='cta'?'<button type="button" class="qr-btn" aria-expanded="false"><span class="qr-btn-t">카카오톡으로 상담하기</span><span class="qr-btn-a" aria-hidden="true"></span></button>':'')
               +'<button type="button" class="tm-qr" data-kid="'+esc(m.kakaoid)+'" aria-label="'+esc(m.nm)+' 카카오톡 아이디 보기" aria-pressed="false">'
               +'<img src="'+esc(m.qr)+'" alt="'+esc(m.nm)+' 카카오톡 QR" loading="lazy">'
-              +'<span class="qr-idbox" aria-hidden="true"><b>'+esc(m.kakaoid)+'</b><i>카카오톡 아이디</i></span>'
-              +'<span>카카오톡 상담</span></button></div>') : '';
+              +'<span class="qr-idbox" aria-hidden="true"><b>'+esc(m.kakaoid)+'</b></span>'
+              +'<span class="qr-cap"><i class="c-off">카카오톡 상담</i><i class="c-on">카카오톡 아이디</i></span></button></div>') : '';
         return '<div class="tm-item">'
           +'<button class="tm-q" type="button" aria-expanded="false">'
           +'<span class="nm">'+esc(m.nm)+'</span><span class="rrole">'+esc(role)+'</span><span class="plus" aria-hidden="true"></span></button>'
