@@ -2896,7 +2896,11 @@
         if(down && !svcSnapped && p>0.70 && p<0.94){                 // 아래로: 부서짐 → 서비스 유지 구간까지 자동
           if(window.__snapTo(window.scrollY+r.top+0.92*range,{duration:1.2,lock:true,easing:function(x){return 1-Math.pow(1-x,3);},onComplete:function(){settling=false;}})){ svcSnapped=true; settling=true; }   // 차단됐으면 svcSnapped도 소모하지 않음(재장전 유지)
         } else if(!down && !crossSnapped && p>0.66 && p<0.90){        // 위로: 서비스에서 올리면 → 조각 재결합→십자가 복원까지 자동(내릴 때 역방향, 끝까지 부드럽게 되감아 멈춤 없음)
-          if(window.__snapTo(window.scrollY+r.top+0.60*range,{duration:1.5,lock:true,easing:function(x){return 1-Math.pow(1-x,3);},onComplete:function(){settling=false;}})){ crossSnapped=true; settling=true; }   // 차단됐으면 crossSnapped도 소모하지 않음
+          /* 목표 0.60 → 0.67. 0.60은 회전 구간(0.26~0.66) 한복판이라 십자가가 270°에서
+             229.5°까지 40°만 되감기고 멈췄고, lock 이 풀릴 때까지 300ms 입력이 막혀
+             '조금 돌다 멈췄다 다시 도는' 것으로 보였다. 0.67은 회전 시작 직전이라
+             자석은 조각 재결합(0.82~0.70)까지만 끝내주고, 회전 270°→0°는 스크롤이 끊김 없이 몬다. */
+          if(window.__snapTo(window.scrollY+r.top+0.67*range,{duration:1.5,lock:true,easing:function(x){return 1-Math.pow(1-x,3);},onComplete:function(){settling=false;}})){ crossSnapped=true; settling=true; }   // 차단됐으면 crossSnapped도 소모하지 않음
         }
       }
       if(p<0.68) svcSnapped=false;   // 회전 구간 전 재장전(아래 자석)
