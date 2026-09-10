@@ -462,9 +462,10 @@
     text-decoration:none;transition:transform .18s var(--ease),border-color .18s var(--ease),box-shadow .18s var(--ease)}
   .tm-qr img{display:block;width:100%;height:auto}
   .tm-qr span{display:block;text-align:center;font-size:12px;font-weight:600;color:var(--muted);padding:5px 4px 7px;letter-spacing:-.01em}
-  .tm-qr:hover{transform:translateY(-2px);border-color:var(--green);box-shadow:0 10px 22px -12px rgba(85,232,92,.55)}
+  /* 위아래로 움직이던 hover/active 모션 제거(요청) — 색·그림자 변화만 남긴다 */
+  .tm-qr:hover{border-color:var(--green);box-shadow:0 10px 22px -12px rgba(85,232,92,.55)}
   .tm-qr:focus-visible{outline:2px solid var(--green);outline-offset:3px}
-  .tm-qr:active{transform:translateY(0)}
+  .tm-qr:active{transform:none}
   /* [카톡 아이디] QR이 <a>에서 <button>으로 바뀌었다(링크 이동 → 아이디 표시).
      버튼 기본 스타일을 지우고 기존 카드 모양을 그대로 유지한다. */
   .tm-qr{appearance:none;-webkit-appearance:none;font:inherit;color:inherit;padding:0;cursor:pointer;
@@ -476,7 +477,7 @@
     background:#fff;border-radius:9px;padding:8px 6px}
   .tm-qr.showid .qr-idbox{display:flex}
   .tm-qr.showid img{visibility:hidden}          /* 자리(높이)는 유지해 카드 크기가 안 흔들린다 */
-  .tm-qr .qr-idbox b{font-family:var(--disp-en);font-weight:700;   /* 사이트 영문 폰트(Clash Display)로 통일 */
+  .tm-qr .qr-idbox b{font-family:inherit;font-weight:600;   /* 'Who we work with'(.tm-lbl)과 같은 본문 폰트(Pretendard 상속) */
     font-size:clamp(16px,1.26vw,19px);          /* 기존 13~16px의 1.2배 */
     color:var(--ink);letter-spacing:.01em;
     word-break:break-all;line-height:1.25;text-align:center}
@@ -1265,7 +1266,7 @@
         <div class="member" data-name="황현민" data-role="영업부서 · 매니저" data-photo="assets/team/황현민.webp" data-qr="assets/team/qr/황현민_qr.png" data-kakao="http://qr.kakao.com/talk/R6EGReJym.LcjcQ_kWV4zwe5UbU-" data-kakaoid="LEEE2474" data-bio="끊임없이 배우고 변화하며, 고객의 성장을 만들어내는 광고 전문가가 되겠습니다. 작은 차이가 큰 결과를 만든다는 마음으로 끝까지 고민하고 실행하겠습니다. 단순히 광고를 만드는 사람이 아닌, 결과로 증명하는 마케터가 되겠습니다. 새로운 트렌드와 데이터를 끊임없이 연구하며 고객에게 확실한 성과를 만들어내겠습니다."><img src="assets/team/황현민.webp" alt="황현민" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황현민'"><div class="m-cap"><div class="m-nm">황현민</div><div class="m-role">매니저</div></div></div>
         <div class="member" data-name="권오찬" data-role="영업부서 · 매니저" data-photo="assets/team/권오찬.webp" data-qr="assets/team/qr/권오찬_qr.png" data-kakao="http://qr.kakao.com/talk/Ibu1yf4v_U.UYIFQSlZGNi2nYzk-" data-kakaoid="shs7778" data-bio="광고를 집행하는 사람이 아니라, 고객의 매출을 함께 고민하는 사람이 되겠습니다. 숫자 너머의 이유까지 찾아내, 지금 필요한 다음 한 걸음을 정확히 제안하겠습니다. 한 번의 성과에 그치지 않고, 꾸준히 이어지는 성장을 만들어내겠습니다. 믿고 맡겨주신 만큼, 기대 이상의 결과로 보답하는 담당자가 되겠습니다."><img src="assets/team/권오찬.webp" alt="권오찬" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=권오찬'"><div class="m-cap"><div class="m-nm">권오찬</div><div class="m-role">매니저</div></div></div>
         <div class="member" data-name="황도영" data-role="영업부서 · 매니저" data-photo="assets/team/황도영.webp" data-qr="assets/team/qr/황도영_qr.png" data-kakao="http://qr.kakao.com/talk/gC1bqh48Qq1sh74qz8MY2eKSZl0-" data-kakaoid="papa6709" data-bio="광고비를 쓰게 만드는 사람이 아니라, 광고비가 아깝지 않게 만드는 사람이 되겠습니다.&#10;&#10;남들이 하니까 하는 광고, 많이 보여주면 된다는 식의 광고는 하지 않겠습니다.&#10;&#10;데이터를 보고 기회를 찾고, 경쟁을 분석하고, 고객이 움직이는 지점을 찾아 결과가 만들어지는 곳에 정확하게 집중하겠습니다.&#10;&#10;광고주가 원하는 것만 실행하는 사람보다 광고주가 미처 생각하지 못한 것까지 먼저 제안하는 사람.&#10;&#10;실패를 두려워해 안전한 방법만 찾기보다 끊임없이 테스트하고, 빠르게 실행하고, 결과로 증명하겠습니다.&#10;&#10;광고는 비용이 아니라 성장의 무기가 되어야 합니다. 그 무기를 가장 잘 다루는 광고 전문가가 되겠습니다."><img src="assets/team/황도영.webp" alt="황도영" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황도영'"><div class="m-cap"><div class="m-nm">황도영</div><div class="m-role">매니저</div></div></div>
-        <div class="member" data-name="이혜빈" data-role="영업부서 · 매니저" data-photo="assets/team/이혜빈.webp" data-bio="“광고주의 요청을 실행하는 것보다, 광고주에게 필요한 것을 먼저 고민합니다.”&#10;&#10;다년간 축적한 데이터와 다양한 마케팅 경험을 바탕으로 업종·상권·제품·고객을 분석하고, 업체마다 가장 효율적인 광고 방향을 설계합니다. 무조건 많은 광고를 권하지 않습니다. 필요한 광고를 선별하고, 더 나은 방법이 있다면 먼저 제안합니다. 결국 좋은 광고는 많이 보여주는 것이 아니라, 제대로 선택받게 만드는 것이라고 생각합니다."><img src="assets/team/이혜빈.webp" alt="이혜빈" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이혜빈'"><div class="m-cap"><div class="m-nm">이혜빈</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="이혜빈" data-role="영업부서 · 매니저" data-photo="assets/team/이혜빈.webp" data-qr="assets/team/qr/이혜빈_qr.png" data-kakao="http://qr.kakao.com/talk/KWKpRR3q63GC2wPWIoER8hR2ODE-" data-kakaoid="naver-_-" data-bio="“광고주의 요청을 실행하는 것보다, 광고주에게 필요한 것을 먼저 고민합니다.”&#10;&#10;다년간 축적한 데이터와 다양한 마케팅 경험을 바탕으로 업종·상권·제품·고객을 분석하고, 업체마다 가장 효율적인 광고 방향을 설계합니다. 무조건 많은 광고를 권하지 않습니다. 필요한 광고를 선별하고, 더 나은 방법이 있다면 먼저 제안합니다. 결국 좋은 광고는 많이 보여주는 것이 아니라, 제대로 선택받게 만드는 것이라고 생각합니다."><img src="assets/team/이혜빈.webp" alt="이혜빈" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이혜빈'"><div class="m-cap"><div class="m-nm">이혜빈</div><div class="m-role">매니저</div></div></div>
         <div class="member" data-name="김미정" data-role="영업부서 · 매니저" data-photo="assets/team/김미정.webp" data-bio="보여주기식 광고가 아니라, 실제로 문의가 늘어나는 광고를 만들겠습니다. 고객의 이야기를 먼저 듣고, 그 안에서 답을 찾아 실행하겠습니다. 작은 변화도 놓치지 않고 점검하며, 더 나은 방향으로 계속 다듬겠습니다. 맡겨주신 브랜드가 한 단계 더 성장하도록 끝까지 함께하겠습니다."><img src="assets/team/김미정.webp" alt="김미정" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=김미정'"><div class="m-cap"><div class="m-nm">김미정</div><div class="m-role">매니저</div></div></div>      </div>
     </div>
 
