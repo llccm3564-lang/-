@@ -569,7 +569,7 @@
 
   /* ============ 성과 & 레퍼런스 ============ */
   /* ===== 성과·레퍼런스 = 카드 컨베이어(녹화11 핵심 모션) ===== */
-  #refs.refsec{position:relative;height:calc(790 * var(--vhpx));background:#111111;margin-top:calc(-100 * var(--vhpx));z-index:1}   /* 790vh: 카드 컨베이어 속도(길수록 느림) → ±0.70vh sweep 유지하며 흰섹션 리빌과 속도 매칭. crossFx 겹침으로 phase 보정 */
+  #refs.refsec{position:relative;height:calc(993 * var(--vhpx));background:#111111;margin-top:calc(-100 * var(--vhpx));z-index:1}   /* 993vh: 카드 컨베이어 속도(길수록 느림). sweep을 ±0.70→±0.88vh(끝점 오프스크린)로 늘리면서 790×1.257=993 으로 같이 늘려 체감 속도 유지 */
   #about{position:relative;z-index:2;margin-top:calc(-100 * var(--vhpx));min-height:calc(140 * var(--vhpx));padding:0}   /* Stage2에서 about 커버. dwell 축소(200→140vh)로 contact 전환 더 부드럽게 */
   #about .rv-stick{position:sticky;top:0;min-height:calc(100 * var(--vhpx));display:grid;place-items:center;padding:80px 0}
   .refstick{position:sticky;top:0;height:calc(100 * var(--vhpx));overflow:hidden;background:transparent}   /* 다크는 #refs가 담당(부드럽게) → 언핀 튐 없음 */
@@ -2364,14 +2364,19 @@
       var s2=cl((p-C)/(1-C));              // Stage2 진행도(REAL RESULTS·회색 섹션이 스크롤로 올라감)
       for(var i=0;i<N;i++){
         var t=cl((cardP - i*GAP)/SPAN);    // 카드는 Stage1(cardP) 안에서 다 상승
-        var TRV=NAR?0.46:0.70;   // SPAN이 0.36→0.19로 줄어 같은 거리면 2배 빨라진다 → 이동거리도 함께 축소
+        /* PC 0.70 → 0.88: 0.70이면 가장 큰 카드(561px)의 끝점이 화면 안에 100px 걸쳐
+           '툭 튀어나왔다 툭 사라지는' 것으로 보였다. 0.88이면 끝점이 화면 밖이라 끊김이 없다.
+           이동거리를 1.257배 늘리면 같은 스크롤에서 그만큼 빨라지므로,
+           refsec 높이도 790 → 993vh 로 같은 비율만큼 늘려 체감 속도를 원래대로 유지한다. */
+        var TRV=NAR?0.46:0.88;   // 모바일은 종전 0.46 유지(이동거리 짧게 = 체감 속도↓, 대신 양끝 페이드)
         var y=lp(vh*TRV, -vh*TRV, t);            // 수직 상승만(아래 → 위). ±0.70vh=끝점 화면 밖(스냅 안 보임). 모바일은 ±0.58vh로 이동거리도 축소(체감 속도↓)
-        /* 예전엔 양 끝에서 카드가 화면 밖에 있어 페이드가 필요 없었다.
-           모바일 이동거리를 줄이면서(TRV 0.58→0.46) 끝점이 화면 안으로 들어와,
-           카드가 60%나 걸친 채로 확 나타나고 사라졌다(실측 156~209px 겹친 상태에서 0↔1 전환).
-           → 양 끝 6% 구간에서 부드럽게 페이드. 가운데 구간은 종전대로 완전 불투명. */
-        var FADE=NAR?0.20:0.06;   // 모바일은 이동거리가 짧아 끝단 25%가 화면 안에 남는다 → 그 구간을 덮도록 넉넉히
-        var op=cl(t/FADE)*cl((1-t)/FADE);
+        /* 페이드는 모바일 전용이다.
+           모바일은 이동거리를 줄이면서(TRV 0.58→0.46) 끝점이 화면 안으로 들어와,
+           카드가 걸친 채로 확 나타나고 사라졌다(실측 156~209px 겹친 상태에서 0↔1 전환).
+           → 모바일만 양 끝 20% 구간에서 페이드.
+           데스크톱은 끝점이 화면 밖(±0.70vh)이라 원래 페이드가 필요 없었다. 예전 식 그대로 0/1. */
+        var op = NAR ? cl(t/0.20)*cl((1-t)/0.20)
+                     : ((t>0.0005 && t<0.9995) ? 1 : 0);
         var cw=cards[i].offsetWidth;
         var xFull=vw/2 - 44 - cw/2;              // 완전 오른쪽 정렬(오른쪽 여백 44)
         var xh=NAR ? 0 : ((i%2===0) ? xFull*0.3 : xFull);    // 지그재그: 짝=중앙쪽(더 왼쪽) / 홀=완전 오른쪽. 모바일은 카드가 90vw라 지그재그 폭이 없어 정중앙 고정(왼쪽 잘림 방지)
@@ -2463,7 +2468,9 @@
     if(e.deltaY < 0 && nav.classList.contains('hide')){
       e.preventDefault(); e.stopPropagation();   // 위로 첫 입력: 화면 정지, 네비만 등장
       nav.classList.remove('hide'); navShownAt=Date.now();
-    } else if(e.deltaY > 0 && !nav.classList.contains('hide')){
+    } else if(e.deltaY > 0 && !nav.classList.contains('hide') && Date.now()-navShownAt>800){
+      /* 등장 직후 0.8s 유예. heroFx(스크롤 경로)에만 유예가 있고 이 휠 경로엔 없어서,
+         capture 로 먼저 잡히는 이 핸들러가 네비를 71ms·37px 만에 다시 숨기고 있었다. */
       e.preventDefault(); e.stopPropagation();   // 아래로 첫 입력: 화면 정지, 네비만 사라짐
       nav.classList.add('hide'); navAnchor=window.scrollY; navDir=1;   // anchor 갱신(스크롤 로직과 어긋나지 않게)
     }
