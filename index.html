@@ -465,13 +465,21 @@
   .tm-qr:hover{transform:translateY(-2px);border-color:var(--green);box-shadow:0 10px 22px -12px rgba(85,232,92,.55)}
   .tm-qr:focus-visible{outline:2px solid var(--green);outline-offset:3px}
   .tm-qr:active{transform:translateY(0)}
-  /* [카톡 아이디] QR이 <a>에서 <button>으로 바뀌었다(링크 이동 → 아이디 복사).
+  /* [카톡 아이디] QR이 <a>에서 <button>으로 바뀌었다(링크 이동 → 아이디 표시).
      버튼 기본 스타일을 지우고 기존 카드 모양을 그대로 유지한다. */
-  .tm-qr{appearance:none;-webkit-appearance:none;font:inherit;color:inherit;padding:0;cursor:pointer;text-align:inherit}
-  .tm-qr .qr-id{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;font-weight:700;
-    color:var(--ink);letter-spacing:.01em}
-  .tm-qr.copied{border-color:var(--green)!important;box-shadow:0 10px 22px -12px rgba(85,232,92,.7)!important}
-  .tm-qr.copied .qr-id{color:var(--green-d)}
+  .tm-qr{appearance:none;-webkit-appearance:none;font:inherit;color:inherit;padding:0;cursor:pointer;
+    text-align:inherit;position:relative}
+  /* 아이디 상자: QR 이미지 자리를 그대로 덮는다(라벨 '카카오톡 상담'은 아래에 그대로 남음) */
+  .tm-qr .qr-idbox{position:absolute;left:0;right:0;top:0;z-index:2;
+    display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    background:#fff;border-radius:9px;padding:8px 6px}
+  .tm-qr.showid .qr-idbox{display:flex}
+  .tm-qr.showid img{visibility:hidden}          /* 자리(높이)는 유지해 카드 크기가 안 흔들린다 */
+  .tm-qr .qr-idbox b{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;
+    font-size:clamp(13px,1.05vw,16px);color:var(--ink);letter-spacing:.01em;
+    word-break:break-all;line-height:1.25;text-align:center}
+  .tm-qr .qr-idbox i{font-style:normal;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:-.01em}
+  .tm-qr.showid{border-color:var(--green)}
   /* CTA 모드: 버튼 → 누르면 QR 펼침 */
   .qr-btn{display:inline-flex;align-items:center;gap:9px;font:inherit;font-size:14px;font-weight:700;letter-spacing:-.01em;
     color:var(--green-d);background:var(--green-dim);border:1px solid var(--green);border-radius:999px;padding:11px 20px;cursor:pointer;
@@ -2016,9 +2024,10 @@
         var mode=m.qrmode;   // ''(오른쪽 하단) | 'small'(사진 오른쪽 아래·축소) | 'under'(사진 바로 아래) | 'cta'(버튼→위로 펼침)
         var qrHtml = m.qr ? ('<div class="tm-cta'+(mode?' is-'+mode:'')+'">'
               +(mode==='cta'?'<button type="button" class="qr-btn" aria-expanded="false"><span class="qr-btn-t">카카오톡으로 상담하기</span><span class="qr-btn-a" aria-hidden="true"></span></button>':'')
-              +'<button type="button" class="tm-qr" data-kid="'+esc(m.kakaoid)+'" aria-label="'+esc(m.nm)+' 카카오톡 아이디 '+esc(m.kakaoid)+' 복사">'
+              +'<button type="button" class="tm-qr" data-kid="'+esc(m.kakaoid)+'" aria-label="'+esc(m.nm)+' 카카오톡 아이디 보기" aria-pressed="false">'
               +'<img src="'+esc(m.qr)+'" alt="'+esc(m.nm)+' 카카오톡 QR" loading="lazy">'
-              +'<span class="qr-id">'+esc(m.kakaoid||'카카오톡 상담')+'</span></button></div>') : '';
+              +'<span class="qr-idbox" aria-hidden="true"><b>'+esc(m.kakaoid)+'</b><i>카카오톡 아이디</i></span>'
+              +'<span>카카오톡 상담</span></button></div>') : '';
         return '<div class="tm-item">'
           +'<button class="tm-q" type="button" aria-expanded="false">'
           +'<span class="nm">'+esc(m.nm)+'</span><span class="rrole">'+esc(role)+'</span><span class="plus" aria-hidden="true"></span></button>'
@@ -2052,30 +2061,16 @@
         var itc=qb.closest('.tm-item');
         if(itc){ var n=0,iv=setInterval(function(){ setH(itc); if(++n>15) clearInterval(iv); },30); }   // 펼침 애니(380ms) 동안 패널 높이도 함께 따라가게(잘림 방지)
         return; }
-      /* [카톡 아이디] QR을 누르면 링크로 이동하지 않고 아이디를 보여주고 클립보드에 복사한다.
-         PC에서는 개인 카톡 프로필을 열 방법이 없어 링크가 카카오 소개 페이지로 튕겼다.
-         아이디를 알려주면 어느 기기에서든 카톡에서 직접 검색해 찾을 수 있다.
-         QR 스캔(폰)은 종전대로 프로필로 바로 연결된다. */
+      /* [카톡 아이디] QR을 누르면 링크로 이동하지 않고, QR 자리에 카톡 아이디가 뜬다(다시 누르면 QR로).
+         PC에는 개인 카톡 프로필 웹페이지가 없어 링크가 카카오 소개 페이지로 튕겼다.
+         폰에서 QR을 스캔하는 경로는 그대로다. */
       var qc=e.target.closest('.tm-qr');
       if(qc){
         e.preventDefault(); e.stopPropagation();
-        var kid=qc.getAttribute('data-kid')||'';
-        if(!kid) return;
-        var done=function(ok){
-          qc.classList.add('copied');
-          if(typeof toast==='function') toast(ok?('카카오톡 아이디 '+kid+' 복사됨'):('카카오톡 아이디: '+kid));
-          setTimeout(function(){ qc.classList.remove('copied'); },1400);
-        };
-        try{
-          if(navigator.clipboard && navigator.clipboard.writeText){
-            navigator.clipboard.writeText(kid).then(function(){done(true);},function(){done(false);});
-          } else {
-            var ta=document.createElement('textarea'); ta.value=kid;
-            ta.style.cssText='position:fixed;left:-9999px'; document.body.appendChild(ta);
-            ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(err){}
-            document.body.removeChild(ta); done(ok);
-          }
-        }catch(err){ done(false); }
+        if(!qc.getAttribute('data-kid')) return;
+        var on=!qc.classList.contains('showid');
+        qc.classList.toggle('showid',on);
+        qc.setAttribute('aria-pressed',on?'true':'false');
         return;
       }
       var it=e.target.closest('.tm-item'); if(!it)return;
