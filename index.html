@@ -465,6 +465,13 @@
   .tm-qr:hover{transform:translateY(-2px);border-color:var(--green);box-shadow:0 10px 22px -12px rgba(85,232,92,.55)}
   .tm-qr:focus-visible{outline:2px solid var(--green);outline-offset:3px}
   .tm-qr:active{transform:translateY(0)}
+  /* [카톡 아이디] QR이 <a>에서 <button>으로 바뀌었다(링크 이동 → 아이디 복사).
+     버튼 기본 스타일을 지우고 기존 카드 모양을 그대로 유지한다. */
+  .tm-qr{appearance:none;-webkit-appearance:none;font:inherit;color:inherit;padding:0;cursor:pointer;text-align:inherit}
+  .tm-qr .qr-id{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;font-weight:700;
+    color:var(--ink);letter-spacing:.01em}
+  .tm-qr.copied{border-color:var(--green)!important;box-shadow:0 10px 22px -12px rgba(85,232,92,.7)!important}
+  .tm-qr.copied .qr-id{color:var(--green-d)}
   /* CTA 모드: 버튼 → 누르면 QR 펼침 */
   .qr-btn{display:inline-flex;align-items:center;gap:9px;font:inherit;font-size:14px;font-weight:700;letter-spacing:-.01em;
     color:var(--green-d);background:var(--green-dim);border:1px solid var(--green);border-radius:999px;padding:11px 20px;cursor:pointer;
@@ -1240,10 +1247,10 @@
     <div class="team-group">
       <h3>영업부서</h3>
       <div class="team-grid">
-        <div class="member" data-name="한정완" data-role="영업부서 · 팀장" data-photo="assets/team/한정완.webp" data-qr="assets/team/qr/한정완_qr.png" data-kakao="http://qr.kakao.com/talk/CME8t6.HGBu8g2R2BqLhs18SZYo-" data-bio="고객이 만족하는 광고가 아닌, 고객의 성장을 만들어내는 광고를 하겠습니다. 과정은 치열하게, 결과는 확실하게 만들어내겠습니다. 트렌드를 따라가는 사람이 아닌, 트렌드를 먼저 읽는 사람이 되겠습니다. 끊임없는 연구와 실행으로 누구에게나 인정받는 광고 전문가가 되겠습니다."><img src="assets/team/한정완.webp" alt="한정완" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=한정완'"><div class="m-cap"><div class="m-nm">한정완</div><div class="m-role">팀장</div></div></div>
-        <div class="member" data-name="황현민" data-role="영업부서 · 매니저" data-photo="assets/team/황현민.webp" data-qr="assets/team/qr/황현민_qr.png" data-kakao="http://qr.kakao.com/talk/R6EGReJym.LcjcQ_kWV4zwe5UbU-" data-bio="끊임없이 배우고 변화하며, 고객의 성장을 만들어내는 광고 전문가가 되겠습니다. 작은 차이가 큰 결과를 만든다는 마음으로 끝까지 고민하고 실행하겠습니다. 단순히 광고를 만드는 사람이 아닌, 결과로 증명하는 마케터가 되겠습니다. 새로운 트렌드와 데이터를 끊임없이 연구하며 고객에게 확실한 성과를 만들어내겠습니다."><img src="assets/team/황현민.webp" alt="황현민" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황현민'"><div class="m-cap"><div class="m-nm">황현민</div><div class="m-role">매니저</div></div></div>
-        <div class="member" data-name="권오찬" data-role="영업부서 · 매니저" data-photo="assets/team/권오찬.webp" data-qr="assets/team/qr/권오찬_qr.png" data-kakao="http://qr.kakao.com/talk/Ibu1yf4v_U.UYIFQSlZGNi2nYzk-" data-bio="광고를 집행하는 사람이 아니라, 고객의 매출을 함께 고민하는 사람이 되겠습니다. 숫자 너머의 이유까지 찾아내, 지금 필요한 다음 한 걸음을 정확히 제안하겠습니다. 한 번의 성과에 그치지 않고, 꾸준히 이어지는 성장을 만들어내겠습니다. 믿고 맡겨주신 만큼, 기대 이상의 결과로 보답하는 담당자가 되겠습니다."><img src="assets/team/권오찬.webp" alt="권오찬" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=권오찬'"><div class="m-cap"><div class="m-nm">권오찬</div><div class="m-role">매니저</div></div></div>
-        <div class="member" data-name="황도영" data-role="영업부서 · 매니저" data-photo="assets/team/황도영.webp" data-qr="assets/team/qr/황도영_qr.png" data-kakao="http://qr.kakao.com/talk/gC1bqh48Qq1sh74qz8MY2eKSZl0-" data-bio="광고비를 쓰게 만드는 사람이 아니라, 광고비가 아깝지 않게 만드는 사람이 되겠습니다.&#10;&#10;남들이 하니까 하는 광고, 많이 보여주면 된다는 식의 광고는 하지 않겠습니다.&#10;&#10;데이터를 보고 기회를 찾고, 경쟁을 분석하고, 고객이 움직이는 지점을 찾아 결과가 만들어지는 곳에 정확하게 집중하겠습니다.&#10;&#10;광고주가 원하는 것만 실행하는 사람보다 광고주가 미처 생각하지 못한 것까지 먼저 제안하는 사람.&#10;&#10;실패를 두려워해 안전한 방법만 찾기보다 끊임없이 테스트하고, 빠르게 실행하고, 결과로 증명하겠습니다.&#10;&#10;광고는 비용이 아니라 성장의 무기가 되어야 합니다. 그 무기를 가장 잘 다루는 광고 전문가가 되겠습니다."><img src="assets/team/황도영.webp" alt="황도영" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황도영'"><div class="m-cap"><div class="m-nm">황도영</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="한정완" data-role="영업부서 · 팀장" data-photo="assets/team/한정완.webp" data-qr="assets/team/qr/한정완_qr.png" data-kakao="http://qr.kakao.com/talk/CME8t6.HGBu8g2R2BqLhs18SZYo-" data-kakaoid="ss0164" data-bio="고객이 만족하는 광고가 아닌, 고객의 성장을 만들어내는 광고를 하겠습니다. 과정은 치열하게, 결과는 확실하게 만들어내겠습니다. 트렌드를 따라가는 사람이 아닌, 트렌드를 먼저 읽는 사람이 되겠습니다. 끊임없는 연구와 실행으로 누구에게나 인정받는 광고 전문가가 되겠습니다."><img src="assets/team/한정완.webp" alt="한정완" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=한정완'"><div class="m-cap"><div class="m-nm">한정완</div><div class="m-role">팀장</div></div></div>
+        <div class="member" data-name="황현민" data-role="영업부서 · 매니저" data-photo="assets/team/황현민.webp" data-qr="assets/team/qr/황현민_qr.png" data-kakao="http://qr.kakao.com/talk/R6EGReJym.LcjcQ_kWV4zwe5UbU-" data-kakaoid="LEEE2474" data-bio="끊임없이 배우고 변화하며, 고객의 성장을 만들어내는 광고 전문가가 되겠습니다. 작은 차이가 큰 결과를 만든다는 마음으로 끝까지 고민하고 실행하겠습니다. 단순히 광고를 만드는 사람이 아닌, 결과로 증명하는 마케터가 되겠습니다. 새로운 트렌드와 데이터를 끊임없이 연구하며 고객에게 확실한 성과를 만들어내겠습니다."><img src="assets/team/황현민.webp" alt="황현민" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황현민'"><div class="m-cap"><div class="m-nm">황현민</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="권오찬" data-role="영업부서 · 매니저" data-photo="assets/team/권오찬.webp" data-qr="assets/team/qr/권오찬_qr.png" data-kakao="http://qr.kakao.com/talk/Ibu1yf4v_U.UYIFQSlZGNi2nYzk-" data-kakaoid="shs7778" data-bio="광고를 집행하는 사람이 아니라, 고객의 매출을 함께 고민하는 사람이 되겠습니다. 숫자 너머의 이유까지 찾아내, 지금 필요한 다음 한 걸음을 정확히 제안하겠습니다. 한 번의 성과에 그치지 않고, 꾸준히 이어지는 성장을 만들어내겠습니다. 믿고 맡겨주신 만큼, 기대 이상의 결과로 보답하는 담당자가 되겠습니다."><img src="assets/team/권오찬.webp" alt="권오찬" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=권오찬'"><div class="m-cap"><div class="m-nm">권오찬</div><div class="m-role">매니저</div></div></div>
+        <div class="member" data-name="황도영" data-role="영업부서 · 매니저" data-photo="assets/team/황도영.webp" data-qr="assets/team/qr/황도영_qr.png" data-kakao="http://qr.kakao.com/talk/gC1bqh48Qq1sh74qz8MY2eKSZl0-" data-kakaoid="papa6709" data-bio="광고비를 쓰게 만드는 사람이 아니라, 광고비가 아깝지 않게 만드는 사람이 되겠습니다.&#10;&#10;남들이 하니까 하는 광고, 많이 보여주면 된다는 식의 광고는 하지 않겠습니다.&#10;&#10;데이터를 보고 기회를 찾고, 경쟁을 분석하고, 고객이 움직이는 지점을 찾아 결과가 만들어지는 곳에 정확하게 집중하겠습니다.&#10;&#10;광고주가 원하는 것만 실행하는 사람보다 광고주가 미처 생각하지 못한 것까지 먼저 제안하는 사람.&#10;&#10;실패를 두려워해 안전한 방법만 찾기보다 끊임없이 테스트하고, 빠르게 실행하고, 결과로 증명하겠습니다.&#10;&#10;광고는 비용이 아니라 성장의 무기가 되어야 합니다. 그 무기를 가장 잘 다루는 광고 전문가가 되겠습니다."><img src="assets/team/황도영.webp" alt="황도영" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=황도영'"><div class="m-cap"><div class="m-nm">황도영</div><div class="m-role">매니저</div></div></div>
         <div class="member" data-name="이혜빈" data-role="영업부서 · 매니저" data-photo="assets/team/이혜빈.webp" data-bio="“광고주의 요청을 실행하는 것보다, 광고주에게 필요한 것을 먼저 고민합니다.”&#10;&#10;다년간 축적한 데이터와 다양한 마케팅 경험을 바탕으로 업종·상권·제품·고객을 분석하고, 업체마다 가장 효율적인 광고 방향을 설계합니다. 무조건 많은 광고를 권하지 않습니다. 필요한 광고를 선별하고, 더 나은 방법이 있다면 먼저 제안합니다. 결국 좋은 광고는 많이 보여주는 것이 아니라, 제대로 선택받게 만드는 것이라고 생각합니다."><img src="assets/team/이혜빈.webp" alt="이혜빈" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=이혜빈'"><div class="m-cap"><div class="m-nm">이혜빈</div><div class="m-role">매니저</div></div></div>
         <div class="member" data-name="김미정" data-role="영업부서 · 매니저" data-photo="assets/team/김미정.webp" data-bio="보여주기식 광고가 아니라, 실제로 문의가 늘어나는 광고를 만들겠습니다. 고객의 이야기를 먼저 듣고, 그 안에서 답을 찾아 실행하겠습니다. 작은 변화도 놓치지 않고 점검하며, 더 나은 방향으로 계속 다듬겠습니다. 맡겨주신 브랜드가 한 단계 더 성장하도록 끝까지 함께하겠습니다."><img src="assets/team/김미정.webp" alt="김미정" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/300x400/dddddd/999999?text=김미정'"><div class="m-cap"><div class="m-nm">김미정</div><div class="m-role">매니저</div></div></div>      </div>
     </div>
@@ -1994,7 +2001,7 @@
       return { name:(h?h.textContent.trim():''),
         members:[].slice.call(g.querySelectorAll('.member')).map(function(m){
           return {nm:m.getAttribute('data-name')||'', role:m.getAttribute('data-role')||'', photo:m.getAttribute('data-photo')||'', bio:m.getAttribute('data-bio')||'',
-                  qr:m.getAttribute('data-qr')||'', kakao:m.getAttribute('data-kakao')||'', qrmode:m.getAttribute('data-qrmode')||''};   // 카톡 QR(영업부서만). qrmode="cta"면 버튼 누른 뒤 QR 열림
+                  qr:m.getAttribute('data-qr')||'', kakao:m.getAttribute('data-kakao')||'', kakaoid:m.getAttribute('data-kakaoid')||'', qrmode:m.getAttribute('data-qrmode')||''};   // 카톡 QR(영업부서만). qrmode="cta"면 버튼 누른 뒤 QR 열림
         }) };
     }).filter(function(g){return g.members.length;});
     if(!groups.length)return;
@@ -2009,9 +2016,9 @@
         var mode=m.qrmode;   // ''(오른쪽 하단) | 'small'(사진 오른쪽 아래·축소) | 'under'(사진 바로 아래) | 'cta'(버튼→위로 펼침)
         var qrHtml = m.qr ? ('<div class="tm-cta'+(mode?' is-'+mode:'')+'">'
               +(mode==='cta'?'<button type="button" class="qr-btn" aria-expanded="false"><span class="qr-btn-t">카카오톡으로 상담하기</span><span class="qr-btn-a" aria-hidden="true"></span></button>':'')
-              +'<a class="tm-qr" href="'+esc(m.kakao||'#')+'" target="_blank" rel="noopener" aria-label="'+esc(m.nm)+' 카카오톡 상담">'
+              +'<button type="button" class="tm-qr" data-kid="'+esc(m.kakaoid)+'" aria-label="'+esc(m.nm)+' 카카오톡 아이디 '+esc(m.kakaoid)+' 복사">'
               +'<img src="'+esc(m.qr)+'" alt="'+esc(m.nm)+' 카카오톡 QR" loading="lazy">'
-              +'<span>카카오톡 상담</span></a></div>') : '';
+              +'<span class="qr-id">'+esc(m.kakaoid||'카카오톡 상담')+'</span></button></div>') : '';
         return '<div class="tm-item">'
           +'<button class="tm-q" type="button" aria-expanded="false">'
           +'<span class="nm">'+esc(m.nm)+'</span><span class="rrole">'+esc(role)+'</span><span class="plus" aria-hidden="true"></span></button>'
@@ -2045,7 +2052,32 @@
         var itc=qb.closest('.tm-item');
         if(itc){ var n=0,iv=setInterval(function(){ setH(itc); if(++n>15) clearInterval(iv); },30); }   // 펼침 애니(380ms) 동안 패널 높이도 함께 따라가게(잘림 방지)
         return; }
-      if(e.target.closest('.tm-qr')) return;   // QR 링크는 이동만(고정 토글 X)
+      /* [카톡 아이디] QR을 누르면 링크로 이동하지 않고 아이디를 보여주고 클립보드에 복사한다.
+         PC에서는 개인 카톡 프로필을 열 방법이 없어 링크가 카카오 소개 페이지로 튕겼다.
+         아이디를 알려주면 어느 기기에서든 카톡에서 직접 검색해 찾을 수 있다.
+         QR 스캔(폰)은 종전대로 프로필로 바로 연결된다. */
+      var qc=e.target.closest('.tm-qr');
+      if(qc){
+        e.preventDefault(); e.stopPropagation();
+        var kid=qc.getAttribute('data-kid')||'';
+        if(!kid) return;
+        var done=function(ok){
+          qc.classList.add('copied');
+          if(typeof toast==='function') toast(ok?('카카오톡 아이디 '+kid+' 복사됨'):('카카오톡 아이디: '+kid));
+          setTimeout(function(){ qc.classList.remove('copied'); },1400);
+        };
+        try{
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(kid).then(function(){done(true);},function(){done(false);});
+          } else {
+            var ta=document.createElement('textarea'); ta.value=kid;
+            ta.style.cssText='position:fixed;left:-9999px'; document.body.appendChild(ta);
+            ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(err){}
+            document.body.removeChild(ta); done(ok);
+          }
+        }catch(err){ done(false); }
+        return;
+      }
       var it=e.target.closest('.tm-item'); if(!it)return;
       var wasPinned=it.classList.contains('pinned');
       it.classList.toggle('pinned');
@@ -3070,6 +3102,13 @@
   /* ---- 담당자: #teamData 를 DB 내용으로 다시 만들고 아코디언 재생성 ---- */
   function applyTeam(rows){
     var host=document.getElementById('teamData'); if(!host||!rows.length) return;
+    /* DB에 kakaoid 컬럼이 아직 없을 수 있다. 그 경우 지금 화면에 있는 값을 이름으로 찾아 살린다.
+       (이 폴백이 없으면 DB를 읽는 순간 카톡 아이디가 사라진다) */
+    var keepId={};
+    [].forEach.call(host.querySelectorAll('.member'),function(el){
+      var n=el.getAttribute('data-name')||'', k=el.getAttribute('data-kakaoid')||'';
+      if(n&&k) keepId[n]=k;
+    });
     /* build()는 #teamData 안의 .team-group(부서 묶음) 단위로 읽는다.
        예전엔 여기서 .member만 평평하게 만들어 그룹이 0개가 되고, build()가 바로 빠져나가
        하드코딩 내용이 그대로 남았다(어드민 수정이 사이트에 반영 안 되던 원인).
@@ -3090,6 +3129,7 @@
             +(m.qrmode?' data-qrmode="'+esc(m.qrmode)+'"':'')
             +(m.qr?' data-qr="'+esc(m.qr)+'"':'')
             +(m.kakao?' data-kakao="'+esc(m.kakao)+'"':'')
+            +' data-kakaoid="'+esc(m.kakaoid||keepId[m.name]||'')+'"'
             +' data-bio="'+esc(m.bio)+'">'
             +'<img src="'+esc(ph)+'" alt="'+esc(m.name)+'" loading="lazy">'
             +'<div class="m-cap"><div class="m-nm">'+esc(m.name)+'</div>'
