@@ -1094,19 +1094,15 @@
       </article>
 
       <article class="rcard c-green" data-i="1">
-        <div class="rc-top"><span class="rc-no">/02 &nbsp;VOICE</span><span class="rico"><svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg></span></div>
-        <div class="rc-body rc-chat">
-          <div class="rb them">사장님, 이번에 올려주신 키워드 지금 1위 떴어요! 감사합니다 🙏</div>
-          <div class="rb me">넵 계속 관리해드리겠습니다 :)</div>
-          <div class="rb them">덕분에 문의가 확 늘었어요</div>
-        </div>
-        <div class="rc-foot"><span class="d"></span>고객 반응 · 인기글 1위 달성</div>
+        <div class="rc-top"><span class="rc-no">/02 &nbsp;RESULT</span><span class="rico"><svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg></span></div>
+        <div class="rc-body"><img src="assets/refs/clip_top.webp" alt="네이버 클립 상위노출 1위 캡처" loading="lazy" /></div>
+        <div class="rc-foot"><span class="d"></span>요식업 · 네이버 클립 상위노출</div>
       </article>
 
       <article class="rcard c-lime" data-i="2">
         <div class="rc-top"><span class="rc-no">/03 &nbsp;RESULT</span><span class="rico"><svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg></span></div>
-        <div class="rc-body"><img src="https://placehold.co/720x430/EFF3F1/8B968F?text=BLOG+RANK+%231" alt="강동구 세무사 비즈니스 인기글" loading="lazy" /></div>
-        <div class="rc-foot"><span class="d"></span>강동구 세무사 · 비즈니스 인기글</div>
+        <div class="rc-body"><img src="assets/refs/popular_gangdong.webp" alt="인기글 상위노출 캡처" loading="lazy" /></div>
+        <div class="rc-foot"><span class="d"></span>인기글 상위노출</div>
       </article>
 
       <article class="rcard c-white" data-i="3">
@@ -3155,12 +3151,21 @@
          링크를 바꿀 땐 href 뿐 아니라 호버 미리보기가 쓰는 data-url·data-shot 도 같이 맞춰야
          카드 링크와 미리보기가 서로 다른 곳을 가리키지 않는다. */
       var a=(c.tagName==='A')?c:(c.closest('a[href]')||c.querySelector('a[href]'));
-      if(a && s.url){
-        a.setAttribute('href', s.url);
-        var bare=String(s.url).replace(/^https?:\/\//,'').replace(/\/$/,'');
-        a.setAttribute('data-url', bare);
-        a.setAttribute('data-shot', 'https://s.wordpress.com/mshots/v1/'+encodeURIComponent(s.url)+'?w=680');
-        a.classList.add('has-link');
+      /* '#' 이나 빈 값은 '연결 안 된 카드'다. 링크로 취급하면 has-link 가 붙어서
+         호버 화살표와 미리보기가 되살아난다(어드민 시드값이 '#'). 실제 주소일 때만 링크로 본다. */
+      var u=(s.url==null?'':String(s.url)).trim();
+      var real=!!u && u!=='#';
+      if(a){
+        if(real){
+          a.setAttribute('href', u);
+          var bare=u.split('://').pop(); if(bare.slice(-1)==='/') bare=bare.slice(0,-1);
+          a.setAttribute('data-url', bare);
+          a.setAttribute('data-shot', 'https://s.wordpress.com/mshots/v1/'+encodeURIComponent(u)+'?w=680');
+          a.classList.add('has-link');
+        }else{
+          a.classList.remove('has-link');            // .cf-arrow 화살표 · 호버 미리보기 둘 다 꺼진다
+          a.removeAttribute('target'); a.removeAttribute('rel');
+        }
       }
       /* 서비스 카드 이미지는 <img>가 아니라 .cf-shot::before 의 배경(--g 변수)이다.
          어드민에서 이미지 주소를 넣으면 그 사진을, 비우면 원래 그라데이션(.cf-g1~g6)을 쓴다. */
@@ -3196,20 +3201,42 @@
     var v={}; rows.forEach(function(r){ if(r && r.key) v[r.key]=r.value; });
     var MAP={
       hero_big1:'.hero-copy .hc-big1', hero_big2:'.hero-copy .hc-big2',
-      hero_small1:'.hero-copy .hc-small', hero_small2:'.hero-copy .hc-small2',
+      /* 히어로 작은 줄은 3줄이다. .hc-small 첫 매치=1줄, .hc-small-b=2줄, .hc-small2=3줄.
+         hero_small2 가 .hc-small2(3줄)를 가리키고 있어서 3줄이 2줄과 같은 글로 덮였다. */
+      hero_small1:'.hero-copy .hc-small', hero_small2:'.hero-copy .hc-small-b',
+      hero_small3:'.hero-copy .hc-small2',
       edit_big:'.hsec .hbig',
       edit_sub1:'.hsec .hcol-2a .hsub',
       svc_title:'.cf-svc-head h2', svc_desc:'.cf-svc-head p',
       team_plexus:'.plexus-lead',
-      team_who:'#teamCardsInner .tm-row:nth-child(1) .tm-lbl',
-      team_how:'#teamCardsInner .tm-row:nth-child(2) .tm-lbl',
+      /* .tm-lbl 은 'Who we work with' 라벨이고 본문은 .tm-body 다.
+         라벨을 가리키고 있어서 본문이 라벨 자리를 덮어써 라벨이 사라졌다. */
+      team_who:'#teamCardsInner .tm-row:nth-child(1) .tm-body',
+      team_how:'#teamCardsInner .tm-row:nth-child(2) .tm-body',
       about_title:'#about h2', about_desc:'#about p',
       contact_title:'#contact h2'
     };
+    /* textContent 로 꽂으면 <br> 과 초록 강조(<span class="hbig-em">)가 같이 지워진다.
+       · DB 값이 지금 화면 글과 같으면 아예 손대지 않는다 → 원래 줄바꿈·강조 그대로 유지
+       · 실제로 바뀐 값만 넣되, 어드민에서 친 줄바꿈(\n)은 <br> 로 살린다 */
+    function setCopy(el, val){
+      var norm=function(t){ return String(t==null?'':t).replace(/\s+/g,' ').trim(); };
+      /* <br> 과 </p> 는 textContent 에서 공백을 만들지 않는다("것은누구나", "함께합니다.좋은").
+         블록 끝만 공백으로 바꾸고(인라인 <span>은 그대로 붙여둬야 "필요하다는"이 유지된다)
+         DB의 한 줄짜리 평문과 같은 글인지 판정한다. */
+      var box=document.createElement('div');
+      box.innerHTML=String(el.innerHTML)
+        .replace(/<br\s*\/?>/gi,' ')
+        .replace(/<\/(p|div|li|h[1-6])\s*>/gi,' ');
+      if(norm(box.textContent)===norm(val)) return;
+      var lines=String(val==null?'':val).split(/\r\n|\r|\n/);
+      if(el.querySelector('p')) el.innerHTML=lines.map(function(t){return '<p>'+esc(t)+'</p>';}).join('');
+      else                      el.innerHTML=lines.map(function(t){return esc(t);}).join('<br>');
+    }
     for(var k in MAP){
       if(v[k]==null || v[k]==='') continue;
       var el=document.querySelector(MAP[k]);
-      if(el) el.textContent=v[k];
+      if(el) setCopy(el, v[k]);
     }
     // 통계 3개: 숫자(data-count + 표시값)와 라벨
     var stats=[].slice.call(document.querySelectorAll('.m-stats .m-stat'));

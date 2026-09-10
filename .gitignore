@@ -29,3 +29,6 @@ assets/team/*.png
 # 어드민 개발 스크린샷 · 편집기 로컬 상태
 _admin_*.png
 _editor_state.json
+
+# 모자이크 전 원본 — 공개되면 안 됨(위치·계정·업체명 노출). 로컬에만 둔다.
+assets/클립 상위노출.png
