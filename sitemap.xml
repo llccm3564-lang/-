@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 공개 페이지는 원페이지 1개뿐이다. admin.html·preview.html·supabase/ 는 제외.
+     lastmod 는 index.html 의 실제 마지막 커밋 날짜. 임의의 오늘 날짜를 넣지 않는다.
+     한글 도메인은 XML 규격상 ASCII(Punycode)로 적는다 — 같은 사이트다. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://xn--2e0br59ap3af3foy0a.com/</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
