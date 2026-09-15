@@ -2426,7 +2426,7 @@
       for(var i=1;i<N;i++) dcum[i] = dcum[i-1] + cards[i-1].offsetHeight/2 + GPX + cards[i].offsetHeight/2;
       /* 꼬리 여백 = 진입1화면 + 마지막카드 반높이 + crossFx 오버랩(-146vh≈1.46vh) + 여유.
          → 마지막 카드가 crossFx가 덮기 전에 깨끗이 빠짐(겹쳐 엉킴 방지). */
-      var want = Math.round(dcum[N-1] + cards[0].offsetHeight/2 + cards[N-1].offsetHeight/2 + vh*2.5);
+      var want = Math.round(dcum[N-1] + cards[0].offsetHeight/2 + cards[N-1].offsetHeight/2 + vh*3.3);
       if(Math.abs(want - (parseFloat(sec.style.height)||0)) > 4) sec.style.height = want+'px';
     }
     window.__refreshRefs=function(){
