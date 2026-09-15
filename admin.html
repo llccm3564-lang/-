@@ -950,6 +950,14 @@ function renderCopy(){
   wrap.innerHTML = html;
 }
 
+/* 배열에서 id 항목을 dir(-1 앞 / +1 뒤)로 한 칸 이동. 순서(sort)는 저장 시 배열 인덱스로 기록됨 */
+function swapById(arr, id, dir){
+  var i=-1; for (var k=0;k<arr.length;k++){ if(String(arr[k].id)===String(id)){ i=k; break; } }
+  var j=i+dir;
+  if (i<0 || j<0 || j>=arr.length) return false;
+  var t=arr[i]; arr[i]=arr[j]; arr[j]=t; return true;
+}
+
 /* ================================================================
    탭3 — 레퍼런스
    ================================================================ */
@@ -965,6 +973,8 @@ function renderRefs(){
       '<div class="ref-thumb" data-drop="ref" data-drop-id="' + esc(r.id) + '">' + thumb + '</div>' +
       '<div class="ref-meta"><input type="text" data-ref-caption placeholder="캡션(설명)" value="' + esc(r.caption||'') + '"></div>' +
       '<div class="ref-actions">' +
+        '<button class="btn btn-ghost btn-sm" data-ref-move="' + esc(r.id) + '" data-dir="-1" title="앞으로">▲</button>' +
+        '<button class="btn btn-ghost btn-sm" data-ref-move="' + esc(r.id) + '" data-dir="1" title="뒤로">▼</button>' +
         '<label class="btn btn-ghost btn-sm" style="flex:1">교체<input type="file" accept="image/*" class="file-hidden" data-ref-input="' + esc(r.id) + '"></label>' +
         '<button class="btn btn-danger btn-sm" data-ref-del="' + esc(r.id) + '">삭제</button>' +
       '</div>' +
@@ -1015,7 +1025,10 @@ function svcItemHtml(s, i){
     '<div class="svc-flags">' +
       '<label class="check"><input type="checkbox" data-sf="hasLink"' + (s.hasLink?' checked':'') + '>링크 있음(클릭 이동)</label>' +
       '<label class="check"><input type="checkbox" data-sf="soon"' + (s.soon?' checked':'') + '>준비 중(soon)</label>' +
-      '<div class="svc-actions"><button class="btn btn-danger btn-sm" data-svc-del="' + esc(s.id) + '">삭제</button></div>' +
+      '<div class="svc-actions">' +
+        '<button class="btn btn-ghost btn-sm" data-svc-move="' + esc(s.id) + '" data-dir="-1" title="앞으로">▲</button>' +
+        '<button class="btn btn-ghost btn-sm" data-svc-move="' + esc(s.id) + '" data-dir="1" title="뒤로">▼</button>' +
+        '<button class="btn btn-danger btn-sm" data-svc-del="' + esc(s.id) + '">삭제</button></div>' +
     '</div>' +
   '</div>';
 }
@@ -1317,6 +1330,14 @@ function bindEvents(){
     }
   });
   $('#refGrid').addEventListener('click', function(e){
+    var mv = e.target.closest('[data-ref-move]');
+    if (mv){
+      collectRefs();
+      if (swapById(state.refs, mv.getAttribute('data-ref-move'), +mv.getAttribute('data-dir'))){
+        renderRefs(); setDirty('refs', true); toast('순서 변경 — 저장을 눌러 반영하세요.');
+      }
+      return;
+    }
     var del = e.target.closest('[data-ref-del]');
     if (del){
       var id = del.getAttribute('data-ref-del');
@@ -1333,6 +1354,14 @@ function bindEvents(){
     }
   });
   $('#svcList').addEventListener('click', function(e){
+    var mv = e.target.closest('[data-svc-move]');
+    if (mv){
+      collectSvc();
+      if (swapById(state.svc, mv.getAttribute('data-svc-move'), +mv.getAttribute('data-dir'))){
+        renderSvc(); setDirty('svc', true); toast('순서 변경 — 저장을 눌러 반영하세요.');
+      }
+      return;
+    }
     var del = e.target.closest('[data-svc-del]');
     if (del){
       var id = del.getAttribute('data-svc-del');
