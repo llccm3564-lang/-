@@ -554,6 +554,20 @@ var LS_KEYS  = {
   hist: 'silhaeng_admin_history'     // 변경 히스토리 스냅샷
 };
 
+/* 메모리 캐시(원본): DB에서 받은 최신 데이터를 그대로 보관.
+   레퍼 이미지(base64)는 통째 12MB+라 localStorage 한도(~5MB)를 넘어 setItem이 터진다.
+   → 무거운 데이터는 메모리에 두고, loadData가 이 캐시를 localStorage보다 먼저 쓴다.
+   (localStorage는 오프라인 폴백용 '가능하면' 사본일 뿐, 원본 아님) */
+var SB_CACHE = {};
+var CACHE_OF = {};   // LS_KEYS 값 → SB_CACHE 키
+CACHE_OF[LS_KEYS.team] = 'team'; CACHE_OF[LS_KEYS.svc]  = 'svc';
+CACHE_OF[LS_KEYS.refs] = 'refs'; CACHE_OF[LS_KEYS.copy] = 'copy';
+CACHE_OF[LS_KEYS.inq]  = 'inq';
+function trySet(key, value){   // localStorage 사본 저장 시도(용량초과해도 무시)
+  try { localStorage.setItem(key, JSON.stringify(value)); }
+  catch(e){ console.warn('사본 저장 건너뜀(용량 초과 — 메모리 캐시가 원본)', key); }
+}
+
 // 부서 고정 3개 (부서 자체 추가/삭제는 없음)
 var DEPARTMENTS = ['영업부서','경영·업무지원','개발부서'];
 // 구버전 부서명 → 신버전 매핑(저장본 마이그레이션)
@@ -572,7 +586,11 @@ var DEPT_ALIAS = { '경영 및 업무 지원':'경영·업무지원', '개발 �
 
 // 데이터 로드: key(LS_KEYS 중 하나), fallback(기본값)
 function loadData(key, fallback){
-  // TODO: Supabase — const { data } = await supabase.from(<table>).select('*'); return data;
+  // 메모리 캐시(DB 원본)가 있으면 최우선 — localStorage 용량초과와 무관하게 항상 최신
+  var ck = CACHE_OF[key];
+  if (ck && SB_CACHE[ck] != null){
+    try { return JSON.parse(JSON.stringify(SB_CACHE[ck])); } catch(e){}
+  }
   try {
     var raw = localStorage.getItem(key);
     if (raw == null) return fallback;
@@ -586,8 +604,10 @@ function loadData(key, fallback){
 // 데이터 저장: key, value(직렬화 가능한 객체/배열)
 function saveData(key, value){
   var ok = true;
-  try { localStorage.setItem(key, JSON.stringify(value)); }   // 화면용 사본(즉시 반영)
-  catch(e){ ok = false; console.error('saveData 실패(용량 초과 가능)', key, e); }
+  var ck = CACHE_OF[key];
+  if (ck){ try { SB_CACHE[ck] = JSON.parse(JSON.stringify(value)); } catch(e){} }   // 메모리 캐시(원본) 즉시 갱신
+  try { localStorage.setItem(key, JSON.stringify(value)); }   // 화면용 사본(용량초과 시 스킵 — 캐시가 원본)
+  catch(e){ ok = false; console.warn('사본 저장 스킵(용량 초과 — 원본 DB·메모리는 정상)', key); }
   try { sbPush(key, value); } catch(e){ console.error('sbPush 실패', e); }   // 원본 DB(비동기)
   return ok;
 }
@@ -810,17 +830,23 @@ function sbBootstrap(){
     sbSelect(SB_TABLE.inq,  '?select=*&order=created_at.desc')
   ]).then(function(res){
     var team=res[0], svc=res[1], refs=res[2], copy=res[3], inq=res[4];
-    if (team && team.length) localStorage.setItem(LS_KEYS.team, JSON.stringify(team.map(SB_MAP.team.toObj)));
-    if (svc  && svc.length)  localStorage.setItem(LS_KEYS.svc,  JSON.stringify(svc.map(SB_MAP.svc.toObj)));
-    if (refs && refs.length) localStorage.setItem(LS_KEYS.refs, JSON.stringify(refs.map(SB_MAP.refs.toObj)));
+    // 1) 메모리 캐시(원본)에 최신 DB를 담는다 — 용량 한도와 무관, 항상 성공
+    if (team && team.length) SB_CACHE.team = team.map(SB_MAP.team.toObj);
+    if (svc  && svc.length)  SB_CACHE.svc  = svc.map(SB_MAP.svc.toObj);
+    if (refs && refs.length) SB_CACHE.refs = refs.map(SB_MAP.refs.toObj);
     if (copy && copy.length){
-      var c={}; copy.forEach(function(r){ c[r.key]=r.value; });
-      localStorage.setItem(LS_KEYS.copy, JSON.stringify(c));
+      var c={}; copy.forEach(function(r){ c[r.key]=r.value; }); SB_CACHE.copy = c;
     }
-    if (inq) localStorage.setItem(LS_KEYS.inq, JSON.stringify(inq.map(function(q){
+    if (inq) SB_CACHE.inq = inq.map(function(q){
       return { id:q.id, name:q.name, phone:q.phone, email:q.email, message:q.message,
                status:q.status, memo:q.memo, created:q.created_at };
-    })));
+    });
+    // 2) localStorage 사본은 '가능하면' 저장(레퍼는 용량초과로 스킵될 수 있음 — 캐시가 원본이라 무해)
+    if (SB_CACHE.team) trySet(LS_KEYS.team, SB_CACHE.team);
+    if (SB_CACHE.svc)  trySet(LS_KEYS.svc,  SB_CACHE.svc);
+    if (SB_CACHE.refs) trySet(LS_KEYS.refs, SB_CACHE.refs);
+    if (SB_CACHE.copy) trySet(LS_KEYS.copy, SB_CACHE.copy);
+    if (SB_CACHE.inq)  trySet(LS_KEYS.inq,  SB_CACHE.inq);
     return true;
   }).catch(function(e){
     console.warn('Supabase 초기 로드 실패 — 로컬 사본으로 진행', e);
