@@ -2456,7 +2456,7 @@
                      : ((t>0.0005 && t<0.9995) ? 1 : 0);
         var cw=cards[i].offsetWidth;
         var xFull=vw/2 - 44 - cw/2;              // 완전 오른쪽 정렬(오른쪽 여백 44)
-        var xh=NAR ? 0 : ((i%2===0) ? xFull*0.3 : xFull);    // 지그재그: 짝=중앙쪽(더 왼쪽) / 홀=완전 오른쪽. 모바일은 카드가 90vw라 지그재그 폭이 없어 정중앙 고정(왼쪽 잘림 방지)
+        var xh=NAR ? 0 : xFull*0.60;    // 전 카드 동일 x(지그재그 제거) → 한 줄로 등간격 상승, 간격 일정하게. 모바일은 정중앙(0)
         cards[i].style.transform='translate(calc(-50% + '+xh+'px), calc(-50% + '+y+'px))';
         cards[i].style.opacity=String(op);
         cards[i].style.zIndex=String(10+i);
