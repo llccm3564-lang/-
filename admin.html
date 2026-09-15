@@ -232,6 +232,61 @@
   .rp-card .rp-img{width:100%;display:block;background:#242c27}
   .rp-card .rp-cap{padding:12px 14px;font-size:14px;color:var(--ink)}
   .rp-empty{padding:40px;text-align:center;color:var(--faint);font-size:13px}
+
+  /* 서비스: 4칸 카드 그리드(미리보기형) + ⚙설정 + DnD */
+  .svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:1100px){ .svc-grid{grid-template-columns:repeat(3,1fr)} }
+  @media(max-width:820px){ .svc-grid{grid-template-columns:repeat(2,1fr)} }
+  @media(max-width:520px){ .svc-grid{grid-template-columns:1fr} }
+  .svc-card{background:var(--bg-3);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;
+    transition:transform .18s var(--ease),border-color .18s var(--ease)}
+  .svc-card:hover{transform:translateY(-3px);border-color:var(--line-2)}
+  .svc-card.is-soon{opacity:.7}
+  .svc-cd-thumb{aspect-ratio:16/10;position:relative;background:#242c27;cursor:pointer;display:grid;place-items:center}
+  .svc-cd-thumb img{width:100%;height:100%;object-fit:cover}
+  .svc-cd-thumb .ph{color:var(--faint);font-size:11.5px;text-align:center;line-height:1.4}
+  .svc-cd-thumb::after{content:"설정 열기";position:absolute;inset:0;display:grid;place-items:center;
+    background:rgba(10,14,12,.5);color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .16s var(--ease)}
+  .svc-cd-thumb:hover::after{opacity:1}
+  .svc-gear{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.25);
+    background:rgba(10,14,12,.62);color:#fff;font-size:15px;cursor:pointer;display:grid;place-items:center;z-index:2}
+  .svc-gear:hover{background:var(--green);border-color:var(--green);color:#04120a}
+  .svc-drag{position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.25);
+    background:rgba(10,14,12,.62);color:#fff;font-size:14px;cursor:grab;display:grid;place-items:center;z-index:2;user-select:none}
+  .svc-drag:active{cursor:grabbing}
+  .svc-cd-body{padding:11px 13px}
+  .svc-cd-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .svc-cd-tags{font-size:11.5px;color:var(--green-3);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .svc-cd-soon{display:inline-block;font-size:10.5px;font-weight:700;color:var(--muted);background:var(--bg-2);border:1px solid var(--line-2);border-radius:999px;padding:2px 8px;margin-top:6px}
+  .svc-card.dragging{opacity:.4}
+  .svc-card.drop-before{box-shadow:-3px 0 0 0 var(--green)}
+  .svc-card.drop-after{box-shadow:3px 0 0 0 var(--green)}
+  .svc-add-card{border:1.5px dashed var(--line-2);border-radius:var(--radius-sm);display:grid;place-items:center;min-height:150px;
+    cursor:pointer;color:var(--muted);font-size:13.5px;font-weight:600;transition:border-color .18s,color .18s,background-color .18s}
+  .svc-add-card:hover{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+  .svc-modal-thumb{aspect-ratio:16/10;max-height:180px;border-radius:9px;overflow:hidden;background:#242c27;position:relative;cursor:pointer;display:grid;place-items:center;margin-bottom:14px}
+  .svc-modal-thumb img{width:100%;height:100%;object-fit:cover}
+  .svc-modal-thumb .ph{color:var(--faint);font-size:12px}
+  .svc-modal-thumb::after{content:"사진 조정/교체";position:absolute;inset:0;display:grid;place-items:center;background:rgba(10,14,12,.5);color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .16s}
+  .svc-modal-thumb:hover::after{opacity:1}
+
+  /* 담당자 카드: 사이트형 미리보기 + 사진조정 + 순서 화살표 */
+  .member-photo{cursor:pointer}
+  .member-photo::after{content:"사진 조정";position:absolute;inset:0;display:grid;place-items:center;
+    background:rgba(10,14,12,.5);color:#fff;font-size:11.5px;font-weight:700;opacity:0;transition:opacity .16s var(--ease)}
+  .member-photo:hover::after{opacity:1}
+  .member-order{display:inline-flex;gap:4px;margin-left:8px}
+
+  /* 히스토리 자세히 보기 */
+  .hist-item .hist-meta{flex:1}
+  .hd-list{margin-top:14px;display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow:auto}
+  .hd-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;color:var(--ink);
+    background:var(--bg-3);border:1px solid var(--line);border-radius:9px;padding:9px 12px;line-height:1.5}
+  .hd-tag{font-size:11px;font-weight:700;color:var(--green-3);background:var(--green-dim);border-radius:999px;padding:2px 9px}
+  .hd-from{color:var(--muted);text-decoration:line-through;opacity:.8}
+  .hd-to{color:var(--ink);font-weight:600}
+  .hd-arrow{color:var(--green);font-weight:800}
+  .hd-ch{color:var(--green-3);font-weight:700}
   .svc-flags{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
   .check{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;user-select:none}
   .check input{width:17px;height:17px;accent-color:var(--green);cursor:pointer}
@@ -595,6 +650,42 @@
       <label class="btn btn-ghost">사진 교체<input type="file" accept="image/*" class="file-hidden" id="rpReplace"></label>
       <button class="btn btn-primary" id="rpAdjust">사진 조정(자르기·확대·위치)</button>
     </div>
+  </div>
+</div>
+
+<div class="modal" id="svcModal" aria-hidden="true">
+  <div class="modal-back" data-svc-close></div>
+  <div class="modal-card">
+    <button class="modal-close" data-svc-close aria-label="닫기">✕</button>
+    <h3>서비스 설정</h3>
+    <div class="card-note">사진·제목·태그·설명·링크를 편집합니다. 편집 후 <b style="color:var(--ink)">변경사항 저장</b>으로 사이트 반영.</div>
+    <div id="svcModalThumb" class="svc-modal-thumb"></div>
+    <input type="file" id="svcfImgInput" accept="image/*" class="file-hidden">
+    <div class="grid2">
+      <div class="field"><label>제목</label><input type="text" id="svcfTitle"></div>
+      <div class="field"><label>태그 (쉼표로 구분)</label><input type="text" id="svcfTags"></div>
+    </div>
+    <div class="field"><label>설명</label><textarea id="svcfDesc"></textarea></div>
+    <div class="field"><label>링크 URL</label><input type="url" id="svcfUrl" placeholder="https://..."></div>
+    <div class="svc-flags" style="border-top:0;padding-top:4px;margin-top:4px">
+      <label class="check"><input type="checkbox" id="svcfHasLink">링크 있음(클릭 이동)</label>
+      <label class="check"><input type="checkbox" id="svcfSoon">준비 중(soon)</label>
+    </div>
+    <div class="ie-actions" style="justify-content:space-between">
+      <button class="btn btn-danger" id="svcfDel">삭제</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" data-svc-close>취소</button>
+        <button class="btn btn-primary" id="svcfApply">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="histModal" aria-hidden="true">
+  <div class="modal-back" data-hist-close></div>
+  <div class="modal-card">
+    <button class="modal-close" data-hist-close aria-label="닫기">✕</button>
+    <div id="histModalBody"></div>
   </div>
 </div>
 
@@ -1003,6 +1094,10 @@ function memberRowHtml(m){
       '<div class="member-ctrl">' +
         '<span class="sel-wrap"><label class="mini">부서</label>' +
           '<select class="dept-sel" data-mdept="' + esc(m.id) + '">' + deptOptions(m.dept) + '</select></span>' +
+        '<span class="member-order">' +
+          '<button class="btn btn-ghost btn-sm" data-team-move="' + esc(m.id) + '" data-dir="-1" title="위로">▲</button>' +
+          '<button class="btn btn-ghost btn-sm" data-team-move="' + esc(m.id) + '" data-dir="1" title="아래로">▼</button>' +
+        '</span>' +
         '<button class="member-del" data-member-del="' + esc(m.id) + '" title="팀원 삭제" aria-label="팀원 삭제">×</button>' +
       '</div>' +
       '<div class="grid2">' +
@@ -1012,6 +1107,29 @@ function memberRowHtml(m){
       '<div class="field"><label>소개</label><textarea data-f="bio">' + esc(m.bio) + '</textarea></div>' +
     '</div>' +
   '</div>';
+}
+
+// 담당자 사진 클릭: 사진 있으면 조정기(자르기·확대·위치+압축), 없으면 파일 선택
+function openTeamPhotoEdit(id){
+  collectTeam();
+  var m = state.team.filter(function(x){ return x.id === id; })[0]; if (!m) return;
+  if (m.photo){
+    openImgEditor(m.photo, { title:'담당자 사진 조정' }, function(out){
+      m.photo = out; renderTeam(); setDirty('team', true); toast('사진 적용 — 저장을 눌러 반영하세요.');
+    });
+  } else {
+    var inp = $('[data-photo-input="' + id + '"]'); if (inp) inp.click();
+  }
+}
+// 담당자 순서: 같은 부서 안에서 인접 팀원과 위치 교환
+function teamMove(id, dir){
+  var arr = state.team, i = -1, k;
+  for (k = 0; k < arr.length; k++){ if (arr[k].id === id){ i = k; break; } }
+  if (i < 0) return false;
+  var dept = arr[i].dept, j = i + dir;
+  while (j >= 0 && j < arr.length && arr[j].dept !== dept) j += dir;
+  if (j < 0 || j >= arr.length || arr[j].dept !== dept) return false;
+  var t = arr[i]; arr[i] = arr[j]; arr[j] = t; return true;
 }
 
 /* ================================================================
@@ -1086,40 +1204,70 @@ function renderRefs(){
 function renderSvc(){
   var wrap = $('#svcList');
   if (!state.svc.length){ wrap.innerHTML = '<div class="empty">서비스가 없습니다. 아래 버튼으로 추가하세요.</div>'; return; }
-  var html = '';
-  state.svc.forEach(function(s, i){
-    html += svcItemHtml(s, i);
-  });
-  wrap.innerHTML = html;
+  wrap.innerHTML = '<div class="svc-grid" id="svcGrid">' + state.svc.map(svcCardHtml).join('') + '</div>';
 }
-function svcItemHtml(s, i){
-  var imgHtml = s.image ? '<img src="' + esc(s.image) + '" alt="">' : '<span class="ph">이미지 없음<br>클릭/드래그</span>';
+function svcCardHtml(s){
+  var imgHtml = s.image ? '<img src="' + esc(s.image) + '" alt="">' : '<span class="ph">이미지 없음<br>⚙ 설정에서 추가</span>';
+  var tags = (s.tags||[]).join(' · ');
   return '' +
-  '<div class="svc-item' + (s.soon?' is-soon':'') + '" data-id="' + esc(s.id) + '">' +
-    '<div class="svc-top">' +
-      '<div>' +
-        '<div class="svc-thumb" data-drop="svc" data-drop-id="' + esc(s.id) + '">' + imgHtml + '</div>' +
-        '<label class="btn btn-ghost btn-sm" style="margin-top:9px;width:100%;justify-content:center">이미지' +
-          '<input type="file" accept="image/*" class="file-hidden" data-svc-input="' + esc(s.id) + '"></label>' +
-      '</div>' +
-      '<div>' +
-        '<div class="grid2">' +
-          '<div class="field"><label>제목</label><input type="text" data-sf="title" value="' + esc(s.title) + '"></div>' +
-          '<div class="field"><label>태그 (쉼표로 구분)</label><input type="text" data-sf="tags" value="' + esc((s.tags||[]).join(', ')) + '"></div>' +
-        '</div>' +
-        '<div class="field"><label>설명</label><textarea data-sf="desc">' + esc(s.desc) + '</textarea></div>' +
-        '<div class="field"><label>링크 URL</label><input type="url" data-sf="url" placeholder="https://..." value="' + esc(s.url||'') + '"></div>' +
-      '</div>' +
+  '<div class="svc-card' + (s.soon?' is-soon':'') + '" data-id="' + esc(s.id) + '">' +
+    '<div class="svc-cd-thumb" data-svc-img="' + esc(s.id) + '" data-drop="svc" data-drop-id="' + esc(s.id) + '">' + imgHtml +
+      '<span class="svc-drag" draggable="true" data-svc-drag="' + esc(s.id) + '" title="드래그로 순서 변경">⠿</span>' +
+      '<button class="svc-gear" data-svc-cfg="' + esc(s.id) + '" title="설정">⚙</button>' +
     '</div>' +
-    '<div class="svc-flags">' +
-      '<label class="check"><input type="checkbox" data-sf="hasLink"' + (s.hasLink?' checked':'') + '>링크 있음(클릭 이동)</label>' +
-      '<label class="check"><input type="checkbox" data-sf="soon"' + (s.soon?' checked':'') + '>준비 중(soon)</label>' +
-      '<div class="svc-actions">' +
-        '<button class="btn btn-ghost btn-sm" data-svc-move="' + esc(s.id) + '" data-dir="-1" title="앞으로">▲</button>' +
-        '<button class="btn btn-ghost btn-sm" data-svc-move="' + esc(s.id) + '" data-dir="1" title="뒤로">▼</button>' +
-        '<button class="btn btn-danger btn-sm" data-svc-del="' + esc(s.id) + '">삭제</button></div>' +
+    '<div class="svc-cd-body">' +
+      '<div class="svc-cd-title">' + esc(s.title || '(제목 없음)') + '</div>' +
+      '<div class="svc-cd-tags">' + (tags ? esc(tags) : '<span style="color:var(--faint)">태그 없음</span>') + '</div>' +
+      (s.soon ? '<span class="svc-cd-soon">준비 중</span>' : '') +
     '</div>' +
   '</div>';
+}
+
+/* ---- 서비스 설정 모달 ---- */
+var SVCM = { id:null };
+function openSvcModal(id){
+  var s = state.svc.filter(function(x){ return x.id === id; })[0]; if (!s) return;
+  SVCM.id = id;
+  $('#svcfTitle').value = s.title || '';
+  $('#svcfTags').value  = (s.tags||[]).join(', ');
+  $('#svcfDesc').value  = s.desc || '';
+  $('#svcfUrl').value   = s.url || '';
+  $('#svcfHasLink').checked = !!s.hasLink;
+  $('#svcfSoon').checked = !!s.soon;
+  renderSvcModalThumb(s);
+  $('#svcModal').classList.add('open');
+}
+function renderSvcModalThumb(s){
+  $('#svcModalThumb').innerHTML = s.image ? '<img src="' + esc(s.image) + '" alt="">' : '<span class="ph">이미지 없음 — 클릭해서 추가</span>';
+}
+function closeSvcModal(){ $('#svcModal').classList.remove('open'); SVCM.id = null; }
+function applySvcModal(){
+  var s = state.svc.filter(function(x){ return x.id === SVCM.id; })[0]; if (!s) return;
+  s.title   = $('#svcfTitle').value;
+  s.tags    = $('#svcfTags').value.split(',').map(function(t){ return t.trim(); }).filter(Boolean);
+  s.desc    = $('#svcfDesc').value;
+  s.url     = $('#svcfUrl').value;
+  s.hasLink = $('#svcfHasLink').checked;
+  s.soon    = $('#svcfSoon').checked;
+  renderSvc(); setDirty('svc', true); closeSvcModal(); toast('적용됨 — 저장을 눌러 반영하세요.');
+}
+function delSvcModal(){
+  var s = state.svc.filter(function(x){ return x.id === SVCM.id; })[0];
+  if (s && !confirm('‘' + (s.title||'이 서비스') + '’ 를 삭제할까요?')) return;
+  state.svc = state.svc.filter(function(x){ return x.id !== SVCM.id; });
+  renderSvc(); setDirty('svc', true); closeSvcModal(); toast('삭제됨 — 저장을 눌러 반영하세요.');
+}
+function svcImgApply(out){
+  var s = state.svc.filter(function(x){ return x.id === SVCM.id; })[0]; if (!s) return;
+  s.image = out; renderSvc(); setDirty('svc', true);
+  if ($('#svcModal').classList.contains('open')) renderSvcModalThumb(s);
+  toast('사진 적용 — 저장을 눌러 반영하세요.');
+}
+// 서비스 모달 썸네일 클릭: 사진 있으면 조정, 없으면 파일 선택
+function svcModalImg(){
+  var s = state.svc.filter(function(x){ return x.id === SVCM.id; })[0]; if (!s) return;
+  if (s.image) openImgEditor(s.image, { title:'서비스 사진 조정' }, svcImgApply);
+  else { var inp = $('#svcfImgInput'); if (inp) inp.click(); }
 }
 
 /* ================================================================
@@ -1272,6 +1420,7 @@ function renderHist(){
       '<span class="hist-badge' + (isAuto?' auto':'') + '">' + esc(lbl) + '</span>' +
       '<div class="hist-meta"><div class="ht">' + fmtDate(h.ts) + ' 저장</div>' +
         '<div class="hd">팀원 ' + h.data.team.length + '명 · 서비스 ' + h.data.svc.length + '개 · 레퍼런스 ' + h.data.refs.length + '개</div></div>' +
+      '<button class="btn btn-ghost btn-sm" data-hist-detail="' + esc(h.id) + '">▸ 자세히</button>' +
       '<button class="btn btn-ghost btn-sm" data-hist-restore="' + esc(h.id) + '">이 버전으로 되돌리기</button>' +
     '</div>';
   });
@@ -1296,6 +1445,77 @@ function restoreSnapshot(id){
   setDirty('team', false); setDirty('copy', false); setDirty('refs', false); setDirty('svc', false);
   toast('선택한 버전으로 되돌렸습니다.');
 }
+
+/* ---- 히스토리 자세히: 이전 스냅샷과 비교해 변경 내역 산출 ---- */
+function copyLabelMap(){ var m={}; DEFAULT_COPY_GROUPS.forEach(function(g){ g.fields.forEach(function(f){ m[f.key]=f.label; }); }); return m; }
+function idMap(arr){ var m={}; (arr||[]).forEach(function(x){ m[x.id]=x; }); return m; }
+function orderStr(arr){ return (arr||[]).map(function(x){ return x.id; }).join(','); }
+function sortedIds(arr){ return (arr||[]).map(function(x){ return x.id; }).sort().join(','); }
+function teamFieldDiff(out, label, name, a, b){
+  var fl = { name:'이름', role:'직책', bio:'소개', dept:'부서' };
+  ['name','role','bio','dept'].forEach(function(f){ if ((a[f]||'') !== (b[f]||'')) out.push({ t:label, s:name, ff:fl[f], from:a[f]||'(없음)', to:b[f]||'(없음)' }); });
+  if ((a.photo||'') !== (b.photo||'')) out.push({ t:label, s:name, change:'사진 변경' });
+}
+function refFieldDiff(out, label, name, a, b){
+  if ((a.caption||'') !== (b.caption||'')) out.push({ t:label, s:name, ff:'캡션', from:a.caption||'(없음)', to:b.caption||'(없음)' });
+  if ((a.image||'') !== (b.image||'')) out.push({ t:label, s:name, change:'사진 변경' });
+}
+function svcFieldDiff(out, label, name, a, b){
+  if ((a.title||'') !== (b.title||'')) out.push({ t:label, s:name, ff:'제목', from:a.title||'(없음)', to:b.title||'(없음)' });
+  if ((a.desc||'')  !== (b.desc||''))  out.push({ t:label, s:name, ff:'설명', from:a.desc||'(없음)',  to:b.desc||'(없음)' });
+  if (((a.tags||[]).join(',')) !== ((b.tags||[]).join(','))) out.push({ t:label, s:name, ff:'태그', from:(a.tags||[]).join(', ')||'(없음)', to:(b.tags||[]).join(', ')||'(없음)' });
+  if ((a.url||'') !== (b.url||'')) out.push({ t:label, s:name, ff:'URL', from:a.url||'(없음)', to:b.url||'(없음)' });
+  if ((a.image||'') !== (b.image||'')) out.push({ t:label, s:name, change:'사진 변경' });
+  if (!!a.soon !== !!b.soon) out.push({ t:label, s:name, change: b.soon?'준비중 켜짐':'준비중 꺼짐' });
+  if (!!a.hasLink !== !!b.hasLink) out.push({ t:label, s:name, change: b.hasLink?'링크 켜짐':'링크 꺼짐' });
+}
+function diffSnapshots(prev, curr){
+  var out = [], P = prev ? prev.data : null, C = curr.data;
+  if (P){
+    var lbl = copyLabelMap(), keys = {};
+    Object.keys(P.copy||{}).concat(Object.keys(C.copy||{})).forEach(function(k){ keys[k]=1; });
+    Object.keys(keys).forEach(function(k){
+      var a=(P.copy||{})[k], b=(C.copy||{})[k];
+      if (a !== b) out.push({ t:'멘트', s:(lbl[k]||k), from:(a==null?'(없음)':String(a)), to:(b==null?'(없음)':String(b)) });
+    });
+  }
+  [['담당자','team',function(x){return x.name||'(이름없음)';}, teamFieldDiff],
+   ['레퍼런스','refs',function(x){return x.caption||'(캡션없음)';}, refFieldDiff],
+   ['서비스','svc',function(x){return x.title||'(제목없음)';}, svcFieldDiff]
+  ].forEach(function(d){
+    var label=d[0], key=d[1], nameOf=d[2], fdiff=d[3];
+    var pa = P?P[key]:[], ca = C[key], pm=idMap(pa), cm=idMap(ca);
+    (ca||[]).forEach(function(x){ if (!pm[x.id]) out.push({ t:label, s:nameOf(x), change:'추가' }); });
+    (pa||[]).forEach(function(x){ if (!cm[x.id]) out.push({ t:label, s:nameOf(x), change:'삭제' }); });
+    (ca||[]).forEach(function(x){ var y=pm[x.id]; if (y) fdiff(out, label, nameOf(x), y, x); });
+    if (P && sortedIds(pa)===sortedIds(ca) && orderStr(pa)!==orderStr(ca)) out.push({ t:label, s:'', change:'순서 변경' });
+  });
+  return out;
+}
+function openHistDetail(id){
+  var list = state.history || [], idx = -1;
+  for (var i=0;i<list.length;i++){ if (list[i].id===id){ idx=i; break; } }
+  if (idx<0) return;
+  var curr = list[idx], prev = list[idx+1] || null;   // 다음 인덱스 = 더 이전(오래된) 스냅샷
+  var diffs = diffSnapshots(prev, curr);
+  var head = '<h3>변경 내역</h3><div class="card-note" style="margin-bottom:0">' + fmtDate(curr.ts) + ' 저장' + (prev ? '' : ' · 첫 스냅샷(이전 기록 없음)') + '</div>';
+  var bodyHtml;
+  if (!diffs.length){
+    bodyHtml = '<div class="rp-empty">' + (prev ? '이전 저장과 비교해 바뀐 내용이 없습니다.' : '비교할 이전 스냅샷이 없습니다.') + '</div>';
+  } else {
+    bodyHtml = '<div class="hd-list">' + diffs.map(function(dd){
+      var tag = '<span class="hd-tag">' + esc(dd.t) + '</span>';
+      var sub = dd.s ? ('<b>' + esc(dd.s) + '</b>') : '';
+      if (dd.change) return '<div class="hd-row">' + tag + sub + '<span class="hd-ch">' + esc(dd.change) + '</span></div>';
+      var ff = dd.ff ? (esc(dd.ff) + ' ') : '';
+      return '<div class="hd-row">' + tag + sub + ' ' + ff +
+        '<span class="hd-from">' + esc(dd.from) + '</span> <span class="hd-arrow">→</span> <span class="hd-to">' + esc(dd.to) + '</span></div>';
+    }).join('') + '</div>';
+  }
+  $('#histModalBody').innerHTML = head + bodyHtml;
+  $('#histModal').classList.add('open');
+}
+function closeHistModal(){ $('#histModal').classList.remove('open'); }
 
 /* ================================================================
    수집(collect) — DOM 입력값을 state에 반영
@@ -1402,6 +1622,14 @@ function bindEvents(){
   });
   // ---- 팀: 추가 / 삭제(위임) ----
   $('#teamList').addEventListener('click', function(e){
+    var mv = e.target.closest('[data-team-move]');
+    if (mv){
+      collectTeam();
+      if (teamMove(mv.getAttribute('data-team-move'), +mv.getAttribute('data-dir'))){
+        renderTeam(); setDirty('team', true); toast('순서 변경 — 저장을 눌러 반영하세요.');
+      }
+      return;
+    }
     var add = e.target.closest('[data-member-add]');
     if (add){
       collectTeam();
@@ -1452,36 +1680,61 @@ function bindEvents(){
     }
   });
 
-  // ---- 서비스: 이미지 업로드 / 삭제 / 추가 ----
-  $('#svcList').addEventListener('change', function(e){
-    if (e.target.matches('[data-svc-input]')){
-      applyImageTo('svc', e.target.getAttribute('data-svc-input'), e.target.files[0]);
-    }
-  });
+  // ---- 서비스: 카드(⚙설정/썸네일) → 설정 모달 ----
   $('#svcList').addEventListener('click', function(e){
-    var mv = e.target.closest('[data-svc-move]');
-    if (mv){
-      collectSvc();
-      if (swapById(state.svc, mv.getAttribute('data-svc-move'), +mv.getAttribute('data-dir'))){
-        renderSvc(); setDirty('svc', true); toast('순서 변경 — 저장을 눌러 반영하세요.');
-      }
-      return;
-    }
-    var del = e.target.closest('[data-svc-del]');
-    if (del){
-      var id = del.getAttribute('data-svc-del');
-      collectSvc();
-      state.svc = state.svc.filter(function(x){ return x.id !== id; });
-      renderSvc(); setDirty('svc', true); toast('삭제됨 — 저장을 눌러 반영하세요.');
-    }
+    var cfg = e.target.closest('[data-svc-cfg]');
+    if (cfg){ openSvcModal(cfg.getAttribute('data-svc-cfg')); return; }
+    var img = e.target.closest('[data-svc-img]');
+    if (img){ openSvcModal(img.getAttribute('data-svc-img')); return; }
   });
+  // ---- 서비스: 설정 모달 버튼 ----
+  $all('[data-svc-close]').forEach(function(b){ b.addEventListener('click', closeSvcModal); });
+  $('#svcfApply').addEventListener('click', applySvcModal);
+  $('#svcfDel').addEventListener('click', delSvcModal);
+  $('#svcModalThumb').addEventListener('click', svcModalImg);
+  $('#svcfImgInput').addEventListener('change', function(e){
+    var f = e.target.files[0]; e.target.value = '';
+    if (f) handleImageUpload(f, function(u){ openImgEditor(u, { title:'서비스 사진 조정' }, svcImgApply); });
+  });
+  // ---- 서비스: 드래그앤드랍 순서 변경 ----
+  (function(){
+    var host = $('#svcList'); var dragId = null;
+    host.addEventListener('dragstart', function(e){
+      var h = e.target.closest('[data-svc-drag]'); if (!h) return;
+      dragId = h.getAttribute('data-svc-drag');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('application/x-reorder', dragId); } catch(_){}
+      var card = h.closest('.svc-card'); if (card) card.classList.add('dragging');
+    });
+    host.addEventListener('dragend', function(){ dragId = null;
+      $all('#svcList .svc-card').forEach(function(x){ x.classList.remove('dragging','drop-before','drop-after'); });
+    });
+    host.addEventListener('dragover', function(e){
+      if (!dragId) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      var card = e.target.closest('.svc-card');
+      $all('#svcList .svc-card').forEach(function(x){ x.classList.remove('drop-before','drop-after'); });
+      if (card && card.getAttribute('data-id') !== dragId){
+        var rc = card.getBoundingClientRect();
+        card.classList.add((e.clientX < rc.left + rc.width/2) ? 'drop-before' : 'drop-after');
+      }
+    });
+    host.addEventListener('drop', function(e){
+      if (!dragId) return; e.preventDefault();
+      var card = e.target.closest('.svc-card');
+      if (card && card.getAttribute('data-id') !== dragId){
+        var rc = card.getBoundingClientRect();
+        if (reorderById(state.svc, dragId, card.getAttribute('data-id'), (e.clientX < rc.left + rc.width/2))){
+          renderSvc(); setDirty('svc', true); toast('순서 변경 — 저장을 눌러 반영하세요.');
+        }
+      }
+      dragId = null;
+    });
+  })();
   $('#svcAddBtn').addEventListener('click', function(){
-    collectSvc();
-    state.svc.push({ id: uid('s'), title:'새 서비스', desc:'', tags:[], url:'', image:'', hasLink:false, soon:false });
+    var nid = uid('s');
+    state.svc.push({ id: nid, title:'새 서비스', desc:'', tags:[], url:'', image:'', hasLink:false, soon:false });
     renderSvc(); setDirty('svc', true);
-    // 새 항목으로 스크롤
-    var items = $all('#svcList .svc-item');
-    if (items.length) items[items.length-1].scrollIntoView({behavior:'smooth', block:'center'});
+    openSvcModal(nid);   // 새 서비스는 바로 설정 모달 열기
   });
 
   // ---- 상담/문의: 필터 / 상세 / 상태변경 / 삭제 ----
@@ -1512,12 +1765,15 @@ function bindEvents(){
 
   // ---- 히스토리: 되돌리기 ----
   $('#histBody').addEventListener('click', function(e){
+    var d = e.target.closest('[data-hist-detail]');
+    if (d){ openHistDetail(d.getAttribute('data-hist-detail')); return; }
     var r = e.target.closest('[data-hist-restore]');
     if (r){
       if (!confirm('이 시점으로 콘텐츠 전체(담당자·멘트·레퍼런스·서비스)를 되돌릴까요?\n되돌리기 전 현재 상태는 자동 백업됩니다.')) return;
       restoreSnapshot(r.getAttribute('data-hist-restore'));
     }
   });
+  $all('[data-hist-close]').forEach(function(b){ b.addEventListener('click', closeHistModal); });
 
   // 로그아웃
   $('#logoutBtn').addEventListener('click', function(){
@@ -1535,7 +1791,7 @@ function bindEvents(){
     var f = e.target.files[0]; e.target.value = '';
     if (f) handleImageUpload(f, function(u){ openImgEditor(u, { title:'새 사진 조정' }, refImgApply); });
   });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ closeRefPreview(); closeImgEditor(); } });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ closeRefPreview(); closeImgEditor(); closeSvcModal(); closeHistModal(); } });
 
   // ---- 레퍼런스: 드래그앤드랍 순서 변경 ----
   (function(){
@@ -1594,12 +1850,14 @@ function applyImageTo(type, id, file){
   if (!file) return;
   handleImageUpload(file, function(url){
     if (type === 'team'){
-      var m = state.team.filter(function(x){return x.id===id;})[0];
-      if (m){ collectTeam(); m.photo = url; renderTeam(); setDirty('team', true); toast('사진 미리보기 적용 — 저장을 눌러 반영하세요.'); }
+      openImgEditor(url, { title:'담당자 사진 조정' }, function(out){
+        collectTeam();
+        var m = state.team.filter(function(x){return x.id===id;})[0];
+        if (m){ m.photo = out; renderTeam(); setDirty('team', true); toast('사진 적용 — 저장을 눌러 반영하세요.'); }
+      });
     } else if (type === 'svc'){
-      collectSvc();
-      var s = state.svc.filter(function(x){return x.id===id;})[0];
-      if (s){ s.image = url; renderSvc(); setDirty('svc', true); toast('이미지 적용 — 저장을 눌러 반영하세요.'); }
+      SVCM.id = id;
+      openImgEditor(url, { title:'서비스 사진 조정' }, svcImgApply);
     } else if (type === 'ref'){
       openImgEditor(url, { title:'사진 조정' }, function(out){
         collectRefs();
@@ -1768,10 +2026,10 @@ function setupDnD(){
       applyImageTo(zone.getAttribute('data-drop'), zone.getAttribute('data-drop-id'), file);
     });
 
-    // 썸네일 클릭 → 숨은 파일 입력 열기 (레퍼 썸네일은 미리보기 모달을 열므로 제외)
+    // 담당자 사진 클릭 → 조정기(사진 있으면 조정, 없으면 파일선택). 레퍼/서비스는 각자 모달로 처리.
     panel.addEventListener('click', function(e){
-      var mp = e.target.closest('.member-photo'); if (mp){ var i1 = $('[data-photo-input="'+mp.getAttribute('data-drop-id')+'"]'); if(i1) i1.click(); return; }
-      var st = e.target.closest('.svc-thumb');    if (st){ var i2 = $('[data-svc-input="'+st.getAttribute('data-drop-id')+'"]'); if(i2) i2.click(); return; }
+      var mp = e.target.closest('.member-photo');
+      if (mp){ openTeamPhotoEdit(mp.getAttribute('data-drop-id')); return; }
     });
   });
   // 문서 밖으로 파일이 떨어지면 브라우저가 열리는 것 방지(패널 외)
