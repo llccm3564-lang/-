@@ -1067,22 +1067,35 @@ function sbReplaceAll(table, rows){
 }
 
 /* state ↔ DB 행 변환. DB는 snake_case·예약어 회피(desc→descr), 화면은 기존 키를 그대로 쓴다. */
+/* 사진 재편집 유지: image/photo 칸에 baked(표시용)+편집소스(src)+크롭(crop)을 JSON으로 함께 저장.
+   구버전(순수 dataURI)도 그대로 읽힘. DB 스키마 변경 없이 새로고침 후에도 재편집 복원. */
+function packImg(baked, editSrc, crop){
+  if (editSrc && crop){ try { return JSON.stringify({ v:1, img:baked||'', src:editSrc, crop:crop }); } catch(e){} }
+  return baked || '';
+}
+function unpackImg(field){
+  if (!field) return { img:'', src:'', crop:null };
+  if (typeof field === 'string' && field.charAt(0) === '{'){
+    try { var o = JSON.parse(field); if (o && o.v){ return { img:o.img||'', src:o.src||'', crop:o.crop||null }; } } catch(e){}
+  }
+  return { img:field, src:'', crop:null };
+}
 var SB_MAP = {
   team: {
     toRow: function(m,i){ return { sort:i, dept:m.dept||'', name:m.name||'', role:m.role||'', bio:m.bio||'',
-                                   photo:m.photo||'', qr:m.qr||'', kakao:m.kakao||'', qrmode:m.qrmode||'' }; },
-    toObj: function(r,i){ return { id:r.id||('m'+i), dept:r.dept||'', name:r.name||'', role:r.role||'', bio:r.bio||'',
-                                   photo:r.photo||'', qr:r.qr||'', kakao:r.kakao||'', qrmode:r.qrmode||'' }; }
+                                   photo:packImg(m.photo, m._editSrc, m._crop), qr:m.qr||'', kakao:m.kakao||'', qrmode:m.qrmode||'' }; },
+    toObj: function(r,i){ var im=unpackImg(r.photo); return { id:r.id||('m'+i), dept:r.dept||'', name:r.name||'', role:r.role||'', bio:r.bio||'',
+                                   photo:im.img, _editSrc:im.src, _crop:im.crop, qr:r.qr||'', kakao:r.kakao||'', qrmode:r.qrmode||'' }; }
   },
   svc: {
     toRow: function(s,i){ return { sort:i, title:s.title||'', descr:s.desc||'', tags:s.tags||[], url:s.url||'',
-                                   image:s.image||'', has_link:!!s.hasLink, soon:!!s.soon }; },
-    toObj: function(r,i){ return { id:r.id||('s'+i), title:r.title||'', desc:r.descr||'', tags:r.tags||[],
-                                   url:r.url||'', image:r.image||'', hasLink:!!r.has_link, soon:!!r.soon }; }
+                                   image:packImg(s.image, s._editSrc, s._crop), has_link:!!s.hasLink, soon:!!s.soon }; },
+    toObj: function(r,i){ var im=unpackImg(r.image); return { id:r.id||('s'+i), title:r.title||'', desc:r.descr||'', tags:r.tags||[],
+                                   url:r.url||'', image:im.img, _editSrc:im.src, _crop:im.crop, hasLink:!!r.has_link, soon:!!r.soon }; }
   },
   refs: {
-    toRow: function(r,i){ return { sort:i, caption:r.caption||'', image:r.image||'', url:r.url||'' }; },
-    toObj: function(r,i){ return { id:r.id||('r'+i), caption:r.caption||'', image:r.image||'', url:r.url||'' }; }
+    toRow: function(r,i){ return { sort:i, caption:r.caption||'', image:packImg(r.image, r._editSrc, r._crop), url:r.url||'' }; },
+    toObj: function(r,i){ var im=unpackImg(r.image); return { id:r.id||('r'+i), caption:r.caption||'', image:im.img, _editSrc:im.src, _crop:im.crop, url:r.url||'' }; }
   }
 };
 
