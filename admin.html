@@ -603,13 +603,12 @@ function loadData(key, fallback){
 
 // 데이터 저장: key, value(직렬화 가능한 객체/배열)
 function saveData(key, value){
-  var ok = true;
   var ck = CACHE_OF[key];
   if (ck){ try { SB_CACHE[ck] = JSON.parse(JSON.stringify(value)); } catch(e){} }   // 메모리 캐시(원본) 즉시 갱신
-  try { localStorage.setItem(key, JSON.stringify(value)); }   // 화면용 사본(용량초과 시 스킵 — 캐시가 원본)
-  catch(e){ ok = false; console.warn('사본 저장 스킵(용량 초과 — 원본 DB·메모리는 정상)', key); }
-  try { sbPush(key, value); } catch(e){ console.error('sbPush 실패', e); }   // 원본 DB(비동기)
-  return ok;
+  trySet(key, value);   // 화면용 사본(용량초과 시 조용히 스킵 — 캐시·DB가 원본이라 무해)
+  // 진짜 저장 = DB. 성공(true)/실패(false) 프로미스를 그대로 넘긴다(성패 판단은 DB 기준).
+  try { return sbPush(key, value); }
+  catch(e){ console.error('sbPush 실패', e); return Promise.resolve(false); }
 }
 
 // 이미지 업로드: File → data URL (미리보기 + 저장 겸용)
@@ -866,13 +865,12 @@ function sbPush(key, value){
     // copy는 key가 기본키라 upsert가 더 안전(전체 삭제 시 다른 탭 값이 날아갈 수 있음)
     return fetch(SB_URL + '/rest/v1/' + t, {
       method:'POST', headers: sbHeaders({ 'Prefer':'resolution=merge-duplicates,return=minimal' }), body: JSON.stringify(rows)
-    }).then(function(r){ if(!r.ok) throw new Error('copy ' + r.status); sbOnline=true; })
-      .catch(function(e){ sbOnline=false; console.error('Supabase 저장 실패', e); toast('DB 저장 실패 — 이 브라우저에만 남았습니다'); });
+    }).then(function(r){ if(!r.ok) throw new Error('copy ' + r.status); sbOnline=true; return true; })
+      .catch(function(e){ sbOnline=false; console.error('Supabase 저장 실패', e); return false; });
   }
-  else return Promise.resolve();   // 문의·히스토리는 여기서 다루지 않음
-  return sbReplaceAll(t, rows).catch(function(e){
-    sbOnline=false; console.error('Supabase 저장 실패', e);
-    toast('DB 저장 실패 — 이 브라우저에만 남았습니다');
+  else return Promise.resolve(true);   // 문의·히스토리는 DB 대상 아님 → 성공 취급
+  return sbReplaceAll(t, rows).then(function(){ return true; }).catch(function(e){
+    sbOnline=false; console.error('Supabase 저장 실패', e); return false;
   });
 }
 
@@ -1278,17 +1276,23 @@ function collectSvc(){
    저장
    ================================================================ */
 function doSave(tab){
-  var ok = false;
-  if (tab==='team'){ collectTeam(); ok = saveData(LS_KEYS.team, state.team); }
-  else if (tab==='copy'){ collectCopy(); ok = saveData(LS_KEYS.copy, state.copy); }
-  else if (tab==='refs'){ collectRefs(); ok = saveData(LS_KEYS.refs, state.refs); }
-  else if (tab==='svc'){ collectSvc(); ok = saveData(LS_KEYS.svc, state.svc); }
-  if (ok){
-    setDirty(tab, false);
-    pushSnapshot(tab);          // 저장 시마다 스냅샷 기록
-    toast('저장되었습니다.');
-  }
-  else { toast('저장 실패 — 저장 용량을 초과했을 수 있습니다.', true); }
+  var p = null;
+  if (tab==='team'){ collectTeam(); p = saveData(LS_KEYS.team, state.team); }
+  else if (tab==='copy'){ collectCopy(); p = saveData(LS_KEYS.copy, state.copy); }
+  else if (tab==='refs'){ collectRefs(); p = saveData(LS_KEYS.refs, state.refs); }
+  else if (tab==='svc'){ collectSvc(); p = saveData(LS_KEYS.svc, state.svc); }
+  else return;
+  toast('저장 중...');
+  // 성패는 DB(원본) 기준. localStorage 용량초과는 저장 실패 아님(캐시·DB가 원본).
+  Promise.resolve(p).then(function(dbOk){
+    if (dbOk){
+      setDirty(tab, false);
+      pushSnapshot(tab);          // 저장 시마다 스냅샷 기록
+      toast('저장되었습니다.');
+    } else {
+      toast('저장 실패 — DB 저장에 실패했습니다. 잠시 후 다시 시도하세요.', true);
+    }
+  });
 }
 
 /* ================================================================
