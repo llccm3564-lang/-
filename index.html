@@ -3227,42 +3227,34 @@
 
   /* ---- 서비스: 카드 텍스트·태그·링크만 갱신(레이아웃/애니메이션은 건드리지 않음) ---- */
   function applySvc(rows){
-    var cards=[].slice.call(document.querySelectorAll('.cf-grid .cf-s'));
-    if(!cards.length||!rows.length) return;
-    rows.slice(0,cards.length).forEach(function(s,i){
-      var c=cards[i];
-      var h3=c.querySelector('h3'); if(h3) h3.textContent=s.title||'';
-      var d=c.querySelector('.cf-desc'); if(d) d.textContent=s.descr||'';
-      var tg=c.querySelector('.cf-tags');
-      if(tg) tg.innerHTML=(s.tags||[]).map(function(t){return '<span>'+esc(t)+'</span>';}).join('');
-      /* 카드 자체가 <a class="cf-s"> 이므로 자기 자신 또는 조상에서 찾는다.
-         링크를 바꿀 땐 href 뿐 아니라 호버 미리보기가 쓰는 data-url·data-shot 도 같이 맞춰야
-         카드 링크와 미리보기가 서로 다른 곳을 가리키지 않는다. */
-      var a=(c.tagName==='A')?c:(c.closest('a[href]')||c.querySelector('a[href]'));
-      /* '#' 이나 빈 값은 '연결 안 된 카드'다. 링크로 취급하면 has-link 가 붙어서
-         호버 화살표와 미리보기가 되살아난다(어드민 시드값이 '#'). 실제 주소일 때만 링크로 본다. */
+    /* 어드민 행 수만큼 카드를 새로 생성(하드코딩 개수 넘어도 전부 표시).
+       이미지 없으면 원래 그라데이션(.cf-g1~g6)을 순환 배정 → 새 서비스도 자동으로 색이 입혀진다. */
+    var grid=document.querySelector('.cf-grid');
+    if(!grid||!rows||!rows.length) return;
+    var GRAD=['cf-g1','cf-g2','cf-g3','cf-g4','cf-g5','cf-g6'];
+    var ARROW='<span class="cf-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>';
+    var html=rows.map(function(s,i){
       var u=(s.url==null?'':String(s.url)).trim();
-      var real=!!u && u!=='#';
-      if(a){
-        if(real){
-          a.setAttribute('href', u);
-          var bare=u.split('://').pop(); if(bare.slice(-1)==='/') bare=bare.slice(0,-1);
-          a.setAttribute('data-url', bare);
-          a.setAttribute('data-shot', 'https://s.wordpress.com/mshots/v1/'+encodeURIComponent(u)+'?w=680');
-          a.classList.add('has-link');
-        }else{
-          a.classList.remove('has-link');            // .cf-arrow 화살표 · 호버 미리보기 둘 다 꺼진다
-          a.removeAttribute('target'); a.removeAttribute('rel');
-        }
+      var real=!!u && u!=='#';                // '#'·빈값 = 연결 안 된 카드(화살표·호버미리보기 꺼짐)
+      var cls='cf-s '+GRAD[i%GRAD.length]+(real?' has-link':'')+(s.soon?' soon':'');
+      var attrs='';
+      if(real){
+        var bare=u.split('://').pop(); if(bare.slice(-1)==='/') bare=bare.slice(0,-1);
+        attrs=' href="'+esc(u)+'" target="_blank" rel="noopener" data-url="'+esc(bare)+'" data-shot="https://s.wordpress.com/mshots/v1/'+encodeURIComponent(u)+'?w=680"';
       }
-      /* 서비스 카드 이미지는 <img>가 아니라 .cf-shot::before 의 배경(--g 변수)이다.
-         어드민에서 이미지 주소를 넣으면 그 사진을, 비우면 원래 그라데이션(.cf-g1~g6)을 쓴다. */
-      var shot=c.querySelector('.cf-shot');
-      if(shot){
-        if(s.image) shot.style.setProperty('--g', 'url("'+String(s.image).replace(/"/g,'%22')+'") center/cover no-repeat');
-        else shot.style.removeProperty('--g');
-      }
-      c.classList.toggle('soon',!!s.soon);
+      var tags=(s.tags||[]).map(function(t){return '<span>'+esc(t)+'</span>';}).join('');
+      return '<a class="'+cls+'"'+attrs+'>'+
+        '<div class="cf-shot">'+ARROW+'</div>'+
+        '<div class="cf-body"><div class="cf-s-top"><h3>'+esc(s.title||'')+'</h3></div>'+
+          '<p class="cf-desc">'+esc(s.descr||'')+'</p>'+
+          '<div class="cf-tags">'+tags+'</div></div>'+
+      '</a>';
+    }).join('');
+    grid.innerHTML=html;
+    /* 이미지 있는 카드만 --g 를 사진 배경으로 덮어씀(인라인 style 이스케이프 회피). 없으면 cf-gN 그라데이션 유지 */
+    var cards=grid.querySelectorAll('.cf-s');
+    rows.forEach(function(s,i){
+      if(s.image && cards[i]){ var shot=cards[i].querySelector('.cf-shot'); if(shot) shot.style.setProperty('--g','url("'+String(s.image).replace(/"/g,'%22')+'") center/cover no-repeat'); }
     });
     if(typeof window.__svcHeight==='function') window.__svcHeight();   // 카드 수 바뀌면 섹션 높이 재계산
   }

@@ -114,6 +114,8 @@
   .topbar-l h1{font-size:20px;font-weight:800;letter-spacing:-.02em}
   .topbar-l p{font-size:13px;color:var(--muted);margin-top:2px}
   .topbar-r{display:flex;align-items:center;gap:12px}
+  .undo-group{display:flex;gap:6px}
+  .undo-group .btn[disabled]{opacity:.4;cursor:not-allowed}
   .dirty-badge{display:none;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#ffcf5a;
     background:rgba(255,207,90,.12);border:1px solid rgba(255,207,90,.28);padding:6px 12px;border-radius:999px}
   .dirty-badge.show{display:inline-flex}
@@ -205,7 +207,9 @@
   .ref-item.dragging{opacity:.4}
   .ref-item.drop-before{box-shadow:-3px 0 0 0 var(--green)}
   .ref-item.drop-after{box-shadow:3px 0 0 0 var(--green)}
-  .ref-item .drag-handle{cursor:grab;user-select:none;color:var(--faint);font-size:15px;padding:0 4px;line-height:1}
+  .ref-item .drag-handle{cursor:grab;user-select:none;color:var(--muted);font-size:22px;padding:0 12px;line-height:1;
+    display:inline-flex;align-items:center;border:1px solid var(--line-2);border-radius:8px;background:var(--bg-2);min-height:32px}
+  .ref-item .drag-handle:hover{color:var(--green);border-color:var(--green);background:var(--green-dim)}
   .ref-item .drag-handle:active{cursor:grabbing}
 
   /* 이미지 조정기(자르기·확대·위치) 모달 */
@@ -227,11 +231,32 @@
   .modal-card.ie-card{max-width:600px;width:100%}
   #imgEditor{z-index:200}   /* 미리보기 모달 위에 겹쳐 열리므로 더 높게 */
 
-  /* 레퍼 미리보기(사이트 카드 모습) */
-  .rp-card{background:var(--bg-3);border:1px solid var(--line-2);border-radius:12px;overflow:hidden;margin-top:14px}
-  .rp-card .rp-img{width:100%;display:block;background:#242c27}
-  .rp-card .rp-cap{padding:12px 14px;font-size:14px;color:var(--ink)}
+  /* 레퍼 미리보기: 실제 사이트 카드(.rcard)와 동일 디자인 */
+  #rpBody{margin-top:14px}
+  #rpBody .rcard{position:static;transform:none;opacity:1;width:100%;max-width:420px;margin:0 auto;border-radius:0;
+    padding:18px 19px 19px;display:flex;flex-direction:column;gap:13px;box-shadow:0 20px 44px rgba(0,0,0,.4)}
+  #rpBody .rcard.c-white{background:#F4F4F2;color:#111111}
+  #rpBody .rcard.c-green{background:#55E85C;color:#0d2116}
+  #rpBody .rcard.c-lime{background:#E8F58C;color:#111111}
+  #rpBody .rcard.c-mint{background:#C3EFCE;color:#111111}
+  #rpBody .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  #rpBody .rc-no{font-size:11px;font-weight:700;letter-spacing:1.4px;opacity:.6;padding-top:5px}
+  #rpBody .rico{width:44px;height:44px;background:#141414;flex:0 0 auto;display:grid;place-items:center}
+  #rpBody .rico svg{width:44px;height:44px}
+  #rpBody .rico circle{fill:#e9e9e9}
+  #rpBody .rico circle.g{fill:#55E85C}
+  #rpBody .rc-body img{width:100%;display:block}
+  #rpBody .rc-foot{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:800;letter-spacing:-.01em}
+  #rpBody .rc-foot .d{width:9px;height:9px;border-radius:50%;background:currentColor;flex:0 0 auto}
   .rp-empty{padding:40px;text-align:center;color:var(--faint);font-size:13px}
+
+  /* 미리보기 모달: 네이티브 스크롤바 숨기고, 카드에서 완전히 떨어진 회색 알약을 공중에 띄움 */
+  #refPreview .modal-card{scrollbar-width:none;-ms-overflow-style:none}
+  #refPreview .modal-card::-webkit-scrollbar{width:0;height:0;display:none}
+  .rp-pill{position:fixed;width:6px;border-radius:999px;background:rgba(150,150,150,.55);z-index:160;display:none;
+    pointer-events:auto;cursor:grab;transition:background .15s}
+  .rp-pill:hover,.rp-pill.drag{background:rgba(180,180,180,.85)}
+  .rp-pill.drag{cursor:grabbing}
 
   /* 서비스: 4칸 카드 그리드(미리보기형) + ⚙설정 + DnD */
   .svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
@@ -269,6 +294,13 @@
   .svc-modal-thumb .ph{color:var(--faint);font-size:12px}
   .svc-modal-thumb::after{content:"사진 조정/교체";position:absolute;inset:0;display:grid;place-items:center;background:rgba(10,14,12,.5);color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .16s}
   .svc-modal-thumb:hover::after{opacity:1}
+  /* 이미지 없을 때 = 실제 홈페이지 서비스 카드 그라데이션(cf-g1~g6) 동일 적용 */
+  .svc-grad1{background:radial-gradient(120% 130% at 22% 12%,#8dffab,transparent 55%),radial-gradient(120% 120% at 90% 92%,#1f9b4e,transparent 60%),#0e2418 !important}
+  .svc-grad2{background:radial-gradient(120% 130% at 80% 15%,#6ef0e6,transparent 55%),radial-gradient(120% 120% at 10% 90%,#1f9b9e,transparent 60%),#0a1f22 !important}
+  .svc-grad3{background:radial-gradient(120% 130% at 26% 18%,#93baff,transparent 55%),radial-gradient(120% 120% at 88% 85%,#2b5fd0,transparent 60%),#0d1428 !important}
+  .svc-grad4{background:radial-gradient(120% 130% at 78% 16%,#c6a0ff,transparent 55%),radial-gradient(120% 120% at 12% 88%,#6b3fd0,transparent 60%),#160f28 !important}
+  .svc-grad5{background:radial-gradient(120% 130% at 20% 14%,#ffd692,transparent 55%),radial-gradient(120% 120% at 90% 90%,#d98a2b,transparent 60%),#241a0d !important}
+  .svc-grad6{background:radial-gradient(120% 130% at 84% 20%,#ff9fce,transparent 55%),radial-gradient(120% 120% at 10% 86%,#d03f8a,transparent 60%),#260e1a !important}
 
   /* 담당자 카드: 사이트형 미리보기 + 사진조정 + 순서 화살표 */
   .member-photo{cursor:pointer}
@@ -287,6 +319,32 @@
   .hd-to{color:var(--ink);font-weight:600}
   .hd-arrow{color:var(--green);font-weight:800}
   .hd-ch{color:var(--green-3);font-weight:700}
+
+  /* 담당자: 실제 사이트 모습(밝은 카드)에서 사진·멘트 직접 인라인 편집 */
+  .tw-card{display:block;background:#f1f1f1;border-radius:8px;padding:18px 20px;margin-bottom:12px;color:#252525}   /* display:block = 옛 member-row grid 무효화 */
+  .tw-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .tw-titles{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .tw-name{font-size:20px;font-weight:700;color:#111;background:transparent;border:0;border-bottom:1px dashed transparent;padding:2px 0;width:100%;letter-spacing:-.01em}
+  .tw-role{font-size:13px;font-weight:600;color:#7a7a7a;background:transparent;border:0;border-bottom:1px dashed transparent;padding:2px 0;width:100%}
+  .tw-name:hover,.tw-role:hover,.tw-bio:hover{border-bottom-color:#c9c9c9}
+  .tw-name:focus,.tw-role:focus{outline:none;border-bottom-color:var(--green);background:#fff}
+  .tw-admin{display:flex;align-items:center;gap:6px;flex-shrink:0}
+  .tw-admin .dept-sel{font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #d5d5d5;background:#fff;color:#333}
+  .tw-admin .member-del{width:28px;height:28px;border-radius:7px;border:1px solid #d5d5d5;background:#fff;color:#a33;font-size:16px;cursor:pointer;line-height:1}
+  .tw-admin .member-del:hover{background:#fde8e8;border-color:#e0a3a3}
+  .tw-admin .btn{background:#fff;border-color:#d5d5d5;color:#444}
+  .tw-admin .btn:hover{border-color:var(--green);color:var(--green-3)}
+  .tw-body{display:flex;gap:18px}
+  .tw-photo{flex:0 0 auto;width:150px;aspect-ratio:4/5;border-radius:6px;overflow:hidden;background:#e4e4e4;position:relative;cursor:pointer;display:grid;place-items:center}
+  .tw-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .tw-photo .ph{color:#999;font-size:11px;text-align:center;line-height:1.4;padding:6px}
+  .tw-photo::after{content:"사진 조정";position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.42);color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .16s}
+  .tw-photo:hover::after{opacity:1}
+  .tw-bio{flex:1;min-height:130px;font-size:14px;line-height:1.7;color:#333;background:transparent;border:1px dashed transparent;border-radius:6px;padding:7px 9px;resize:vertical;font-family:inherit}
+  .tw-bio:hover{border-color:#c9c9c9}
+  .tw-bio:focus{outline:none;border-color:var(--green);background:#fff}
+  .tw-edit-hint{font-size:11.5px;color:#999;margin-top:4px}
+  @media(max-width:560px){ .tw-body{flex-direction:column} .tw-photo{width:132px} }
   .svc-flags{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
   .check{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;user-select:none}
   .check input{width:17px;height:17px;accent-color:var(--green);cursor:pointer}
@@ -526,6 +584,10 @@
         <p id="tbDesc">팀원 사진·이름·직책·소개를 관리합니다</p>
       </div>
       <div class="topbar-r">
+        <div class="undo-group">
+          <button class="btn btn-ghost btn-sm" id="undoBtn" title="실행취소 (Ctrl+Z)" disabled>↶ 취소</button>
+          <button class="btn btn-ghost btn-sm" id="redoBtn" title="다시실행 (Ctrl+Shift+Z)" disabled>↷ 다시</button>
+        </div>
         <span class="dirty-badge" id="dirtyBadge"><span class="d"></span>저장 안 된 변경사항</span>
       </div>
     </div>
@@ -651,6 +713,7 @@
       <button class="btn btn-primary" id="rpAdjust">사진 조정(자르기·확대·위치)</button>
     </div>
   </div>
+  <div class="rp-pill" id="rpPill"></div>
 </div>
 
 <div class="modal" id="svcModal" aria-hidden="true">
@@ -686,6 +749,18 @@
   <div class="modal-card">
     <button class="modal-close" data-hist-close aria-label="닫기">✕</button>
     <div id="histModalBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="saveConfirm" aria-hidden="true">
+  <div class="modal-back" data-save-cancel></div>
+  <div class="modal-card">
+    <button class="modal-close" data-save-cancel aria-label="닫기">✕</button>
+    <div id="saveConfirmBody"></div>
+    <div class="ie-actions">
+      <button class="btn btn-ghost" data-save-cancel>취소</button>
+      <button class="btn btn-primary" id="saveConfirmBtn">저장하기</button>
+    </div>
   </div>
 </div>
 
@@ -911,10 +986,45 @@ function toast(msg, isErr){
 function setDirty(tab, v){
   state.dirty[tab] = v;
   updateDirtyBadge();
+  if (v && !_restoring) ehSchedule();   // 변경 감지 → 실행취소 스냅샷 예약
 }
 function updateDirtyBadge(){
   var any = Object.keys(state.dirty).some(function(k){ return state.dirty[k]; });
   $('#dirtyBadge').classList.toggle('show', any);
+}
+
+/* ---------------- 실행취소 / 다시실행 (담당자·멘트·레퍼·서비스 전체 편집 히스토리) ---------------- */
+var editHist = [], editPtr = -1, _restoring = false, _ehTimer = null, EH_MAX = 20;
+function ehSnap(){ return {
+  team: JSON.parse(JSON.stringify(state.team)), copy: JSON.parse(JSON.stringify(state.copy)),
+  refs: JSON.parse(JSON.stringify(state.refs)), svc: JSON.parse(JSON.stringify(state.svc)) }; }
+function ehInit(){ editHist = [ehSnap()]; editPtr = 0; updateUndoUI(); }
+function ehCollectAll(){ try { collectTeam(); collectCopy(); collectRefs(); collectSvc(); } catch(e){} }   // 입력창 값을 state로(텍스트 편집 캡처)
+function ehCommit(){
+  _ehTimer = null;
+  if (!_restoring) ehCollectAll();   // 스냅샷 전 최신 입력값 반영
+  editHist = editHist.slice(0, editPtr + 1);   // 미래(다시실행) 가지 제거
+  editHist.push(ehSnap());
+  if (editHist.length > EH_MAX) editHist = editHist.slice(editHist.length - EH_MAX);
+  editPtr = editHist.length - 1;
+  updateUndoUI();
+}
+function ehSchedule(){ clearTimeout(_ehTimer); _ehTimer = setTimeout(ehCommit, 450); }   // 연속 타이핑 = 한 단계
+function ehFlush(){ if (_ehTimer){ clearTimeout(_ehTimer); ehCommit(); } }
+function ehRestore(snap){
+  _restoring = true;
+  state.team = JSON.parse(JSON.stringify(snap.team)); state.copy = JSON.parse(JSON.stringify(snap.copy));
+  state.refs = JSON.parse(JSON.stringify(snap.refs)); state.svc  = JSON.parse(JSON.stringify(snap.svc));
+  renderTeam(); renderCopy(); renderRefs(); renderSvc();
+  state.dirty = { team:true, copy:true, refs:true, svc:true }; updateDirtyBadge();
+  _restoring = false; updateUndoUI();
+}
+function undoEdit(){ ehFlush(); if (editPtr > 0){ editPtr--; ehRestore(editHist[editPtr]); toast('실행취소'); } }
+function redoEdit(){ if (editPtr < editHist.length - 1){ editPtr++; ehRestore(editHist[editPtr]); toast('다시실행'); } }
+function updateUndoUI(){
+  var u = $('#undoBtn'), r = $('#redoBtn');
+  if (u) u.disabled = !(editPtr > 0);
+  if (r) r.disabled = !(editPtr < editHist.length - 1);
 }
 
 /* ================================================================
@@ -1077,34 +1187,27 @@ function deptOptions(sel){
 }
 function memberRowHtml(m){
   var imgHtml = m.photo
-    ? '<img src="' + esc(m.photo) + '" alt="' + esc(m.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
-      + '<div class="ph" style="display:none">이미지 없음<br>(업로드하세요)</div>'
-    : '<div class="ph">이미지 없음<br>(업로드하세요)</div>';
+    ? '<img src="' + esc(m.photo) + '" alt="' + esc(m.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'"><div class="ph" style="display:none">이미지 없음</div>'
+    : '<div class="ph">이미지 없음<br>클릭해 추가</div>';
   return '' +
-  '<div class="member-row" data-id="' + esc(m.id) + '">' +
-    '<div>' +
-      '<div class="member-photo" data-drop="team" data-drop-id="' + esc(m.id) + '">' + imgHtml + '</div>' +
-      '<div class="photo-btn">' +
-        '<label class="btn btn-ghost btn-sm">사진 변경' +
-          '<input type="file" accept="image/*" class="file-hidden" data-photo-input="' + esc(m.id) + '">' +
-        '</label>' +
+  '<div class="member-row tw-card" data-id="' + esc(m.id) + '">' +
+    '<div class="tw-head">' +
+      '<div class="tw-titles">' +
+        '<input class="tw-name" data-f="name" value="' + esc(m.name) + '" placeholder="이름">' +
+        '<input class="tw-role" data-f="role" value="' + esc(m.role) + '" placeholder="직책">' +
       '</div>' +
-    '</div>' +
-    '<div class="member-fields">' +
-      '<div class="member-ctrl">' +
-        '<span class="sel-wrap"><label class="mini">부서</label>' +
-          '<select class="dept-sel" data-mdept="' + esc(m.id) + '">' + deptOptions(m.dept) + '</select></span>' +
-        '<span class="member-order">' +
-          '<button class="btn btn-ghost btn-sm" data-team-move="' + esc(m.id) + '" data-dir="-1" title="위로">▲</button>' +
-          '<button class="btn btn-ghost btn-sm" data-team-move="' + esc(m.id) + '" data-dir="1" title="아래로">▼</button>' +
-        '</span>' +
+      '<div class="tw-admin">' +
+        '<select class="dept-sel" data-mdept="' + esc(m.id) + '" title="부서 이동">' + deptOptions(m.dept) + '</select>' +
+        '<button class="btn btn-ghost btn-sm" data-team-move="' + esc(m.id) + '" data-dir="-1" title="위로">▲</button>' +
+        '<button class="btn btn-ghost btn-sm" data-team-move="' + esc(m.id) + '" data-dir="1" title="아래로">▼</button>' +
         '<button class="member-del" data-member-del="' + esc(m.id) + '" title="팀원 삭제" aria-label="팀원 삭제">×</button>' +
       '</div>' +
-      '<div class="grid2">' +
-        '<div class="field"><label>이름</label><input type="text" data-f="name" value="' + esc(m.name) + '"></div>' +
-        '<div class="field"><label>직책</label><input type="text" data-f="role" value="' + esc(m.role) + '"></div>' +
+    '</div>' +
+    '<div class="tw-body">' +
+      '<div class="tw-photo" data-drop="team" data-drop-id="' + esc(m.id) + '">' + imgHtml +
+        '<input type="file" accept="image/*" class="file-hidden" data-photo-input="' + esc(m.id) + '">' +
       '</div>' +
-      '<div class="field"><label>소개</label><textarea data-f="bio">' + esc(m.bio) + '</textarea></div>' +
+      '<textarea class="tw-bio" data-f="bio" placeholder="소개글을 입력하세요">' + esc(m.bio) + '</textarea>' +
     '</div>' +
   '</div>';
 }
@@ -1180,8 +1283,6 @@ function renderRefs(){
       '<div class="ref-meta"><input type="text" data-ref-caption placeholder="캡션(설명)" value="' + esc(r.caption||'') + '"></div>' +
       '<div class="ref-actions">' +
         '<span class="drag-handle" draggable="true" data-ref-drag="' + esc(r.id) + '" title="드래그로 순서 변경">⠿</span>' +
-        '<button class="btn btn-ghost btn-sm" data-ref-move="' + esc(r.id) + '" data-dir="-1" title="앞으로">▲</button>' +
-        '<button class="btn btn-ghost btn-sm" data-ref-move="' + esc(r.id) + '" data-dir="1" title="뒤로">▼</button>' +
         '<button class="btn btn-ghost btn-sm" data-ref-preview="' + esc(r.id) + '" style="flex:1">미리보기</button>' +
         '<button class="btn btn-danger btn-sm" data-ref-del="' + esc(r.id) + '">삭제</button>' +
       '</div>' +
@@ -1206,12 +1307,13 @@ function renderSvc(){
   if (!state.svc.length){ wrap.innerHTML = '<div class="empty">서비스가 없습니다. 아래 버튼으로 추가하세요.</div>'; return; }
   wrap.innerHTML = '<div class="svc-grid" id="svcGrid">' + state.svc.map(svcCardHtml).join('') + '</div>';
 }
-function svcCardHtml(s){
-  var imgHtml = s.image ? '<img src="' + esc(s.image) + '" alt="">' : '<span class="ph">이미지 없음<br>⚙ 설정에서 추가</span>';
+function svcCardHtml(s, i){
+  var imgHtml = s.image ? '<img src="' + esc(s.image) + '" alt="">' : '';
+  var thumbCls = 'svc-cd-thumb' + (s.image ? '' : ' svc-grad' + ((i % 6) + 1));   // 이미지 없으면 홈페이지 그라데이션
   var tags = (s.tags||[]).join(' · ');
   return '' +
   '<div class="svc-card' + (s.soon?' is-soon':'') + '" data-id="' + esc(s.id) + '">' +
-    '<div class="svc-cd-thumb" data-svc-img="' + esc(s.id) + '" data-drop="svc" data-drop-id="' + esc(s.id) + '">' + imgHtml +
+    '<div class="' + thumbCls + '" data-svc-img="' + esc(s.id) + '" data-drop="svc" data-drop-id="' + esc(s.id) + '">' + imgHtml +
       '<span class="svc-drag" draggable="true" data-svc-drag="' + esc(s.id) + '" title="드래그로 순서 변경">⠿</span>' +
       '<button class="svc-gear" data-svc-cfg="' + esc(s.id) + '" title="설정">⚙</button>' +
     '</div>' +
@@ -1238,7 +1340,11 @@ function openSvcModal(id){
   $('#svcModal').classList.add('open');
 }
 function renderSvcModalThumb(s){
-  $('#svcModalThumb').innerHTML = s.image ? '<img src="' + esc(s.image) + '" alt="">' : '<span class="ph">이미지 없음 — 클릭해서 추가</span>';
+  var t = $('#svcModalThumb');
+  if (s.image){ t.className = 'svc-modal-thumb'; t.innerHTML = '<img src="' + esc(s.image) + '" alt="">'; return; }
+  var i = 0; for (var k = 0; k < state.svc.length; k++){ if (state.svc[k].id === s.id){ i = k; break; } }
+  t.className = 'svc-modal-thumb svc-grad' + ((i % 6) + 1);   // 이미지 없으면 홈페이지 그라데이션
+  t.innerHTML = '';
 }
 function closeSvcModal(){ $('#svcModal').classList.remove('open'); SVCM.id = null; }
 function applySvcModal(){
@@ -1561,30 +1667,61 @@ function collectSvc(){
    저장
    ================================================================ */
 var _saving = false;   // 저장 진행중 플래그(겹침=DELETE/POST 레이스로 인한 중복삽입 방지)
+var _pendingSaveTab = null;
+var SAVE_LABEL = { team:'담당자', copy:'멘트', refs:'레퍼런스', svc:'서비스' };
+
+// 1) 저장 버튼 → 현재 입력 수집 → 변경 내역 팝업(한 번 더 확인)
 function doSave(tab){
-  if (_saving) return;   // 이미 저장 중이면 무시(빠른 재클릭 차단 — 중복 저장의 원인이었음)
+  if (_saving) return;
+  if (tab==='team') collectTeam();
+  else if (tab==='copy') collectCopy();
+  else if (tab==='refs') collectRefs();
+  else if (tab==='svc') collectSvc();
+  else return;
+  var last = (state.history && state.history[0]) ? state.history[0] : null;   // 마지막 저장 스냅샷
+  var curr = { data: { team:state.team, copy:state.copy, refs:state.refs, svc:state.svc } };
+  var label = SAVE_LABEL[tab] || tab;
+  var diffs = diffSnapshots(last, curr).filter(function(d){ return d.t === label; });
+  _pendingSaveTab = tab;
+  var head = '<h3>변경사항 저장</h3><div class="card-note" style="margin-bottom:0">' + esc(label) + ' — 아래 내용을 저장할까요?</div>';
+  var body;
+  if (!last){ body = '<div class="rp-empty">최초 저장입니다. 현재 ' + esc(label) + ' 내용을 저장합니다.</div>'; }
+  else if (!diffs.length){ body = '<div class="rp-empty">마지막 저장 이후 바뀐 내용이 없습니다.<br>그래도 저장하시겠습니까?</div>'; }
+  else {
+    body = '<div class="hd-list">' + diffs.map(function(dd){
+      var tag = '<span class="hd-tag">' + esc(dd.t) + '</span>';
+      var sub = dd.s ? ('<b>' + esc(dd.s) + '</b>') : '';
+      if (dd.change) return '<div class="hd-row">' + tag + sub + '<span class="hd-ch">' + esc(dd.change) + '</span></div>';
+      var ff = dd.ff ? (esc(dd.ff) + ' ') : '';
+      return '<div class="hd-row">' + tag + sub + ' ' + ff +
+        '<span class="hd-from">' + esc(dd.from) + '</span> <span class="hd-arrow">→</span> <span class="hd-to">' + esc(dd.to) + '</span></div>';
+    }).join('') + '</div>';
+  }
+  $('#saveConfirmBody').innerHTML = head + body;
+  $('#saveConfirm').classList.add('open');
+}
+function closeSaveConfirm(){ $('#saveConfirm').classList.remove('open'); _pendingSaveTab = null; }
+
+// 2) 팝업에서 '저장하기' → 실제 저장(DB 기준 성패 + 저장중 잠금)
+function commitSave(){
+  var tab = _pendingSaveTab; if (!tab || _saving) return;
+  $('#saveConfirm').classList.remove('open'); _pendingSaveTab = null;
   var p = null;
-  if (tab==='team'){ collectTeam(); p = saveData(LS_KEYS.team, state.team); }
-  else if (tab==='copy'){ collectCopy(); p = saveData(LS_KEYS.copy, state.copy); }
-  else if (tab==='refs'){ collectRefs(); p = saveData(LS_KEYS.refs, state.refs); }
-  else if (tab==='svc'){ collectSvc(); p = saveData(LS_KEYS.svc, state.svc); }
+  if (tab==='team') p = saveData(LS_KEYS.team, state.team);
+  else if (tab==='copy') p = saveData(LS_KEYS.copy, state.copy);
+  else if (tab==='refs') p = saveData(LS_KEYS.refs, state.refs);
+  else if (tab==='svc') p = saveData(LS_KEYS.svc, state.svc);
   else return;
   _saving = true;
-  var btns = $all('[data-save]'); btns.forEach(function(b){ b.disabled = true; });   // 저장 끝날 때까지 버튼 잠금
+  var btns = $all('[data-save]'); btns.forEach(function(b){ b.disabled = true; });
   toast('저장 중...');
-  // 성패는 DB(원본) 기준. localStorage 용량초과는 저장 실패 아님(캐시·DB가 원본).
   Promise.resolve(p).then(function(dbOk){
-    if (dbOk){
-      setDirty(tab, false);
-      pushSnapshot(tab);          // 저장 시마다 스냅샷 기록
-      toast('저장되었습니다.');
-    } else {
-      toast('저장 실패 — DB 저장에 실패했습니다. 잠시 후 다시 시도하세요.', true);
-    }
+    if (dbOk){ setDirty(tab, false); pushSnapshot(tab); toast('저장되었습니다.'); }
+    else { toast('저장 실패 — DB 저장에 실패했습니다. 잠시 후 다시 시도하세요.', true); }
   }).catch(function(e){
     console.error('저장 오류', e); toast('저장 실패 — 오류가 발생했습니다.', true);
   }).then(function(){
-    _saving = false; btns.forEach(function(b){ b.disabled = false; });   // 잠금 해제
+    _saving = false; btns.forEach(function(b){ b.disabled = false; });
   });
 }
 
@@ -1600,6 +1737,19 @@ function bindEvents(){
   // 저장 버튼
   $all('[data-save]').forEach(function(btn){
     btn.addEventListener('click', function(){ doSave(btn.getAttribute('data-save')); });
+  });
+  // 저장 확인 팝업
+  $all('[data-save-cancel]').forEach(function(b){ b.addEventListener('click', closeSaveConfirm); });
+  $('#saveConfirmBtn').addEventListener('click', commitSave);
+  // 실행취소 / 다시실행
+  $('#undoBtn').addEventListener('click', undoEdit);
+  $('#redoBtn').addEventListener('click', redoEdit);
+  document.addEventListener('keydown', function(e){
+    if (!(e.ctrlKey || e.metaKey)) return;
+    var k = e.key.toLowerCase();
+    if (e.target.closest && e.target.closest('input,textarea')) return;   // 텍스트 입력 중엔 네이티브 실행취소 사용
+    if (k === 'z' && !e.shiftKey){ e.preventDefault(); undoEdit(); }
+    else if ((k === 'z' && e.shiftKey) || k === 'y'){ e.preventDefault(); redoEdit(); }
   });
 
   // 입력 변경 → dirty 표시(위임)
@@ -1663,14 +1813,6 @@ function bindEvents(){
   $('#refGrid').addEventListener('click', function(e){
     var pv = e.target.closest('[data-ref-preview]');
     if (pv){ openRefPreview(pv.getAttribute('data-ref-preview')); return; }
-    var mv = e.target.closest('[data-ref-move]');
-    if (mv){
-      collectRefs();
-      if (swapById(state.refs, mv.getAttribute('data-ref-move'), +mv.getAttribute('data-dir'))){
-        renderRefs(); setDirty('refs', true); toast('순서 변경 — 저장을 눌러 반영하세요.');
-      }
-      return;
-    }
     var del = e.target.closest('[data-ref-del]');
     if (del){
       var id = del.getAttribute('data-ref-del');
@@ -1791,7 +1933,23 @@ function bindEvents(){
     var f = e.target.files[0]; e.target.value = '';
     if (f) handleImageUpload(f, function(u){ openImgEditor(u, { title:'새 사진 조정' }, refImgApply); });
   });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ closeRefPreview(); closeImgEditor(); closeSvcModal(); closeHistModal(); } });
+  // 미리보기 스크롤 알약(공중에 뜬 회색 알약)
+  $('#refPreview .modal-card').addEventListener('scroll', updateRpPill);
+  window.addEventListener('resize', function(){ if ($('#refPreview').classList.contains('open')) updateRpPill(); });
+  (function(){
+    var pill = $('#rpPill'), card = $('#refPreview .modal-card'), drag = null;
+    pill.addEventListener('pointerdown', function(e){ drag = { y:e.clientY, top:card.scrollTop }; pill.classList.add('drag'); try{ pill.setPointerCapture(e.pointerId); }catch(_){}; e.preventDefault(); });
+    pill.addEventListener('pointermove', function(e){
+      if (!drag) return;
+      var rect = card.getBoundingClientRect(), trackH = rect.height - 20, sh = card.scrollHeight, ch = card.clientHeight;
+      var pillH = Math.max(30, trackH * ch / sh);
+      card.scrollTop = drag.top + (e.clientY - drag.y) * (sh - ch) / (trackH - pillH);
+      updateRpPill();
+    });
+    pill.addEventListener('pointerup', function(){ drag = null; pill.classList.remove('drag'); });
+    pill.addEventListener('pointercancel', function(){ drag = null; pill.classList.remove('drag'); });
+  })();
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ closeRefPreview(); closeImgEditor(); closeSvcModal(); closeHistModal(); closeSaveConfirm(); } });
 
   // ---- 레퍼런스: 드래그앤드랍 순서 변경 ----
   (function(){
@@ -1982,18 +2140,42 @@ function reorderById(arr, dragId, targetId, before){
 
 /* ================= 레퍼런스 미리보기(사이트 카드 모습) ================= */
 var RP = { id:null };
+var RP_PAL = ['c-white','c-green','c-lime','c-white','c-mint'];   // 사이트 applyRefs와 동일 색 순환
+var RP_RICO = '<svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg>';
 function openRefPreview(id){
   collectRefs();
-  var r = state.refs.filter(function(x){ return x.id === id; })[0]; if (!r) return;
-  RP.id = id;
-  var img = r.image ? '<img class="rp-img" src="' + esc(r.image) + '" alt="">'
-                    : '<div class="rp-empty">이미지 없음 — 아래 ‘사진 교체’로 넣으세요.</div>';
-  var cap = esc(r.caption || '') || '<span style="color:var(--faint)">캡션 없음</span>';
-  $('#rpBody').innerHTML = '<div class="rp-card">' + img + '<div class="rp-cap">' + cap + '</div></div>';
+  var idx = -1; for (var i=0;i<state.refs.length;i++){ if (state.refs[i].id===id){ idx=i; break; } }
+  if (idx < 0) return;
+  var r = state.refs[idx]; RP.id = id;
+  var no = (idx+1<10?'0':'') + (idx+1);
+  var tag = String(r.tag || r.type || 'RESULT').toUpperCase();
+  var body = r.image ? '<div class="rc-body"><img src="' + esc(r.image) + '" alt=""></div>'
+                     : '<div class="rp-empty">이미지 없음 — 아래 ‘사진 교체’로 넣으세요.</div>';
+  var foot = r.caption ? '<div class="rc-foot"><span class="d"></span>' + esc(r.caption) + '</div>' : '';
+  $('#rpBody').innerHTML =
+    '<article class="rcard ' + RP_PAL[idx % RP_PAL.length] + '">' +
+      '<div class="rc-top"><span class="rc-no">/' + no + ' &nbsp;' + esc(tag) + '</span><span class="rico">' + RP_RICO + '</span></div>' +
+      body + foot +
+    '</article>';
   $('#rpAdjust').disabled = !r.image;
   $('#refPreview').classList.add('open');
+  requestAnimationFrame(function(){ $('#refPreview .modal-card').scrollTop = 0; updateRpPill(); });
 }
-function closeRefPreview(){ $('#refPreview').classList.remove('open'); RP.id = null; }
+function closeRefPreview(){ $('#refPreview').classList.remove('open'); RP.id = null; var p = $('#rpPill'); if (p) p.style.display = 'none'; }
+// 미리보기 모달 스크롤 표시: 카드에서 완전히 떨어진 회색 알약을 공중에 띄우고, 스크롤 위치에 따라 내려온다
+function updateRpPill(){
+  var card = $('#refPreview .modal-card'), pill = $('#rpPill');
+  if (!card || !pill || !$('#refPreview').classList.contains('open')){ if (pill) pill.style.display = 'none'; return; }
+  var sh = card.scrollHeight, ch = card.clientHeight;
+  if (sh <= ch + 2){ pill.style.display = 'none'; return; }   // 스크롤 필요 없으면 숨김
+  var rect = card.getBoundingClientRect(), pad = 10, trackH = rect.height - pad*2;
+  var pillH = Math.max(30, trackH * ch / sh);
+  var ratio = card.scrollTop / (sh - ch);
+  pill.style.display = 'block';
+  pill.style.left = (rect.right + 14) + 'px';
+  pill.style.top = (rect.top + pad + ratio * (trackH - pillH)) + 'px';
+  pill.style.height = pillH + 'px';
+}
 function refImgApply(out){
   var r = state.refs.filter(function(x){ return x.id === RP.id; })[0]; if (!r) return;
   r.image = out; renderRefs(); setDirty('refs', true);
@@ -2028,7 +2210,8 @@ function setupDnD(){
 
     // 담당자 사진 클릭 → 조정기(사진 있으면 조정, 없으면 파일선택). 레퍼/서비스는 각자 모달로 처리.
     panel.addEventListener('click', function(e){
-      var mp = e.target.closest('.member-photo');
+      if (e.target.closest('input,textarea,select,button,.tw-admin')) return;   // 편집 컨트롤 클릭은 제외
+      var mp = e.target.closest('.tw-photo');
       if (mp){ openTeamPhotoEdit(mp.getAttribute('data-drop-id')); return; }
     });
   });
@@ -2070,6 +2253,7 @@ function boot(){
 }
 function bootRender(){
   initState();
+  ehInit();   // 로드된 상태를 실행취소 기준점으로
   renderTeam();
   renderCopy();
   renderRefs();
