@@ -995,10 +995,12 @@ function updateDirtyBadge(){
 
 /* ---------------- 실행취소 / 다시실행 (담당자·멘트·레퍼·서비스 전체 편집 히스토리) ---------------- */
 var editHist = [], editPtr = -1, _restoring = false, _ehTimer = null, EH_MAX = 20;
+var savedBaseline = null;   // 마지막으로 DB에 저장된(=로드된) 상태. 저장 확인 팝업의 변경내역 기준.
+function ehStripArr(a){ return (a||[]).map(function(o){ var c={}; for(var k in o){ if(o.hasOwnProperty(k) && k!=='_editSrc') c[k]=o[k]; } return c; }); }   // 무거운 편집소스 제외
 function ehSnap(){ return {
-  team: JSON.parse(JSON.stringify(state.team)), copy: JSON.parse(JSON.stringify(state.copy)),
-  refs: JSON.parse(JSON.stringify(state.refs)), svc: JSON.parse(JSON.stringify(state.svc)) }; }
-function ehInit(){ editHist = [ehSnap()]; editPtr = 0; updateUndoUI(); }
+  team: JSON.parse(JSON.stringify(ehStripArr(state.team))), copy: JSON.parse(JSON.stringify(state.copy)),
+  refs: JSON.parse(JSON.stringify(ehStripArr(state.refs))), svc: JSON.parse(JSON.stringify(ehStripArr(state.svc))) }; }
+function ehInit(){ editHist = [ehSnap()]; editPtr = 0; savedBaseline = ehSnap(); updateUndoUI(); }   // 로드 상태를 저장 기준선으로
 function ehCollectAll(){ try { collectTeam(); collectCopy(); collectRefs(); collectSvc(); } catch(e){} }   // 입력창 값을 state로(텍스트 편집 캡처)
 function ehCommit(){
   _ehTimer = null;
@@ -1216,13 +1218,10 @@ function memberRowHtml(m){
 function openTeamPhotoEdit(id){
   collectTeam();
   var m = state.team.filter(function(x){ return x.id === id; })[0]; if (!m) return;
-  if (m.photo){
-    openImgEditor(m.photo, { title:'담당자 사진 조정' }, function(out){
-      m.photo = out; renderTeam(); setDirty('team', true); toast('사진 적용 — 저장을 눌러 반영하세요.');
-    });
-  } else {
-    var inp = $('[data-photo-input="' + id + '"]'); if (inp) inp.click();
-  }
+  var apply = function(out, meta){ m.photo = out; if(meta){ m._editSrc=meta.src; m._crop=meta.crop; } renderTeam(); setDirty('team', true); toast('사진 적용 — 저장을 눌러 반영하세요.'); };
+  if (m._editSrc && m._crop) openImgEditor(m._editSrc, { title:'담당자 사진 조정', restore:m._crop }, apply);   // 이전 확대·위치 복원
+  else if (m.photo) openImgEditor(m.photo, { title:'담당자 사진 조정' }, apply);
+  else { var inp = $('[data-photo-input="' + id + '"]'); if (inp) inp.click(); }
 }
 // 담당자 순서: 같은 부서 안에서 인접 팀원과 위치 교환
 function teamMove(id, dir){
@@ -1363,16 +1362,18 @@ function delSvcModal(){
   state.svc = state.svc.filter(function(x){ return x.id !== SVCM.id; });
   renderSvc(); setDirty('svc', true); closeSvcModal(); toast('삭제됨 — 저장을 눌러 반영하세요.');
 }
-function svcImgApply(out){
+function svcImgApply(out, meta){
   var s = state.svc.filter(function(x){ return x.id === SVCM.id; })[0]; if (!s) return;
-  s.image = out; renderSvc(); setDirty('svc', true);
+  s.image = out; if(meta){ s._editSrc=meta.src; s._crop=meta.crop; }
+  renderSvc(); setDirty('svc', true);
   if ($('#svcModal').classList.contains('open')) renderSvcModalThumb(s);
   toast('사진 적용 — 저장을 눌러 반영하세요.');
 }
-// 서비스 모달 썸네일 클릭: 사진 있으면 조정, 없으면 파일 선택
+// 서비스 모달 썸네일 클릭: 사진 있으면 조정(이전 확대·위치 복원), 없으면 파일 선택
 function svcModalImg(){
   var s = state.svc.filter(function(x){ return x.id === SVCM.id; })[0]; if (!s) return;
-  if (s.image) openImgEditor(s.image, { title:'서비스 사진 조정' }, svcImgApply);
+  if (s._editSrc && s._crop) openImgEditor(s._editSrc, { title:'서비스 사진 조정', restore:s._crop }, svcImgApply);
+  else if (s.image) openImgEditor(s.image, { title:'서비스 사진 조정' }, svcImgApply);
   else { var inp = $('#svcfImgInput'); if (inp) inp.click(); }
 }
 
@@ -1678,7 +1679,7 @@ function doSave(tab){
   else if (tab==='refs') collectRefs();
   else if (tab==='svc') collectSvc();
   else return;
-  var last = (state.history && state.history[0]) ? state.history[0] : null;   // 마지막 저장 스냅샷
+  var last = savedBaseline ? { data: savedBaseline } : null;   // 로드/직전 저장 상태 기준(오래된 히스토리 아님)
   var curr = { data: { team:state.team, copy:state.copy, refs:state.refs, svc:state.svc } };
   var label = SAVE_LABEL[tab] || tab;
   var diffs = diffSnapshots(last, curr).filter(function(d){ return d.t === label; });
@@ -1716,7 +1717,11 @@ function commitSave(){
   var btns = $all('[data-save]'); btns.forEach(function(b){ b.disabled = true; });
   toast('저장 중...');
   Promise.resolve(p).then(function(dbOk){
-    if (dbOk){ setDirty(tab, false); pushSnapshot(tab); toast('저장되었습니다.'); }
+    if (dbOk){
+      setDirty(tab, false); pushSnapshot(tab);
+      if (savedBaseline) savedBaseline[tab] = JSON.parse(JSON.stringify(state[tab]));   // 저장된 섹션 기준선 갱신
+      toast('저장되었습니다.');
+    }
     else { toast('저장 실패 — DB 저장에 실패했습니다. 잠시 후 다시 시도하세요.', true); }
   }).catch(function(e){
     console.error('저장 오류', e); toast('저장 실패 — 오류가 발생했습니다.', true);
@@ -1836,7 +1841,7 @@ function bindEvents(){
   $('#svcModalThumb').addEventListener('click', svcModalImg);
   $('#svcfImgInput').addEventListener('change', function(e){
     var f = e.target.files[0]; e.target.value = '';
-    if (f) handleImageUpload(f, function(u){ openImgEditor(u, { title:'서비스 사진 조정' }, svcImgApply); });
+    if (f) handleImageUpload(f, function(u){ downscaleImage(u, 1600, function(src){ openImgEditor(src, { title:'서비스 사진 조정' }, svcImgApply); }); });
   });
   // ---- 서비스: 드래그앤드랍 순서 변경 ----
   (function(){
@@ -1927,11 +1932,13 @@ function bindEvents(){
   $all('[data-rp-close]').forEach(function(b){ b.addEventListener('click', closeRefPreview); });
   $('#rpAdjust').addEventListener('click', function(){
     var r = state.refs.filter(function(x){ return x.id === RP.id; })[0];
-    if (r && r.image) openImgEditor(r.image, { title:'사진 조정' }, refImgApply);
+    if (!r) return;
+    if (r._editSrc && r._crop) openImgEditor(r._editSrc, { title:'사진 조정', restore:r._crop }, refImgApply);   // 이전 확대·위치·비율 복원
+    else if (r.image) openImgEditor(r.image, { title:'사진 조정' }, refImgApply);
   });
   $('#rpReplace').addEventListener('change', function(e){
     var f = e.target.files[0]; e.target.value = '';
-    if (f) handleImageUpload(f, function(u){ openImgEditor(u, { title:'새 사진 조정' }, refImgApply); });
+    if (f) handleImageUpload(f, function(u){ downscaleImage(u, 1600, function(src){ openImgEditor(src, { title:'새 사진 조정' }, refImgApply); }); });
   });
   // 미리보기 스크롤 알약(공중에 뜬 회색 알약)
   $('#refPreview .modal-card').addEventListener('scroll', updateRpPill);
@@ -2008,25 +2015,33 @@ function applyImageTo(type, id, file){
   if (!file) return;
   handleImageUpload(file, function(url){
     if (type === 'team'){
-      openImgEditor(url, { title:'담당자 사진 조정' }, function(out){
-        collectTeam();
-        var m = state.team.filter(function(x){return x.id===id;})[0];
-        if (m){ m.photo = out; renderTeam(); setDirty('team', true); toast('사진 적용 — 저장을 눌러 반영하세요.'); }
+      downscaleImage(url, 1600, function(src){
+        openImgEditor(src, { title:'담당자 사진 조정' }, function(out, meta){
+          collectTeam();
+          var m = state.team.filter(function(x){return x.id===id;})[0];
+          if (m){ m.photo = out; if(meta){ m._editSrc=meta.src; m._crop=meta.crop; } renderTeam(); setDirty('team', true); toast('사진 적용 — 저장을 눌러 반영하세요.'); }
+        });
       });
     } else if (type === 'svc'){
       SVCM.id = id;
-      openImgEditor(url, { title:'서비스 사진 조정' }, svcImgApply);
+      downscaleImage(url, 1600, function(src){ openImgEditor(src, { title:'서비스 사진 조정' }, svcImgApply); });
     } else if (type === 'ref'){
-      openImgEditor(url, { title:'사진 조정' }, function(out){
-        collectRefs();
-        var r = state.refs.filter(function(x){return x.id===id;})[0];
-        if (r){ r.image = out; renderRefs(); setDirty('refs', true); toast('이미지 적용 — 저장을 눌러 반영하세요.'); }
+      downscaleImage(url, 1600, function(src){
+        openImgEditor(src, { title:'사진 조정' }, function(out, meta){
+          collectRefs();
+          var r = state.refs.filter(function(x){return x.id===id;})[0];
+          if (r){ r.image = out; if(meta){ r._editSrc=meta.src; r._crop=meta.crop; } renderRefs(); setDirty('refs', true); toast('이미지 적용 — 저장을 눌러 반영하세요.'); }
+        });
       });
     } else if (type === 'ref-add'){
-      openImgEditor(url, { title:'새 레퍼런스 사진 조정' }, function(out){
-        collectRefs();
-        state.refs.push({ id: uid('r'), image:out, caption:'' });
-        renderRefs(); setDirty('refs', true); toast('사진 추가됨 — 저장을 눌러 반영하세요.');
+      downscaleImage(url, 1600, function(src){
+        openImgEditor(src, { title:'새 레퍼런스 사진 조정' }, function(out, meta){
+          collectRefs();
+          var nr = { id: uid('r'), image:out, caption:'' };
+          if(meta){ nr._editSrc=meta.src; nr._crop=meta.crop; }
+          state.refs.push(nr);
+          renderRefs(); setDirty('refs', true); toast('사진 추가됨 — 저장을 눌러 반영하세요.');
+        });
       });
     }
   });
@@ -2041,23 +2056,42 @@ var IE_MAXOUT = 1280;   // 출력 긴 변 상한(px) — 압축
 
 function openImgEditor(dataUrl, opts, onApply){
   opts = opts || {};
-  IE.onApply = onApply;
+  IE.onApply = onApply; IE.srcUrl = dataUrl;
   ieBind();
   var im = new Image();
   im.onload = function(){
     IE.img = im; IE.nw = im.naturalWidth; IE.nh = im.naturalHeight;
-    var defAsp = (opts.aspect !== undefined) ? opts.aspect : null;   // null = 원본 비율
+    var rs = opts.restore;   // 이전 편집(확대·위치·비율) 복원값
+    var defAsp = rs ? rs.aspect : ((opts.aspect !== undefined) ? opts.aspect : null);   // null = 원본 비율
+    var isOrig = (defAsp == null) || (rs && Math.abs(defAsp - IE.nw / IE.nh) < 0.002);
     $('#ieAsp').innerHTML = IE_ASPECTS.map(function(a){
       var val = (a[1] == null) ? 'orig' : a[1];
-      var on = (a[1] == null && defAsp == null) || (a[1] != null && defAsp === a[1]);
+      var on = (a[1] == null && isOrig) || (a[1] != null && !isOrig && Math.abs(a[1] - defAsp) < 0.002);
       return '<button data-ie-asp="' + val + '"' + (on ? ' class="on"' : '') + '>' + a[0] + '</button>';
     }).join('');
     $('#ieTitle').textContent = opts.title || '사진 조정';
-    $('#ieZoom').value = 1; IE.zoom = 1;
-    ieSetAspect(defAsp == null ? (IE.nw / IE.nh) : defAsp);
+    IE.zoom = rs ? rs.zoom : 1; $('#ieZoom').value = IE.zoom;
+    ieSetAspect(defAsp == null ? (IE.nw / IE.nh) : defAsp);   // base·중앙정렬·transform 적용(현재 zoom 반영)
+    if (rs){ IE.tx = rs.tx; IE.ty = rs.ty; ieClamp(false); ieApplyTransform(); }   // 이전 위치 복원
     $('#imgEditor').classList.add('open');
   };
   im.onerror = function(){ toast('이미지를 불러오지 못했습니다.', true); };
+  im.src = dataUrl;
+}
+// data URL을 긴 변 maxDim 이하로 축소(편집용 소스 — 재편집 품질 유지 + 용량 절감)
+function downscaleImage(dataUrl, maxDim, cb){
+  var im = new Image();
+  im.onload = function(){
+    var w = im.naturalWidth, h = im.naturalHeight, m = Math.max(w, h);
+    if (m <= maxDim){ cb(dataUrl); return; }
+    var k = maxDim / m, ow = Math.round(w*k), oh = Math.round(h*k);
+    var c = document.createElement('canvas'); c.width = ow; c.height = oh;
+    var ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(im, 0, 0, ow, oh);
+    var out; try { out = c.toDataURL('image/webp', 0.85); if (out.indexOf('image/webp') < 0) throw 0; } catch(e){ out = c.toDataURL('image/jpeg', 0.88); }
+    cb(out);
+  };
+  im.onerror = function(){ cb(dataUrl); };
   im.src = dataUrl;
 }
 function ieStageSize(){
@@ -2121,7 +2155,11 @@ function ieBind(){
   $('#ieAsp').addEventListener('click', function(e){ var b = e.target.closest('[data-ie-asp]'); if (!b) return;
     $all('#ieAsp button').forEach(function(x){ x.classList.toggle('on', x === b); });
     var v = b.getAttribute('data-ie-asp'); ieSetAspect(v === 'orig' ? (IE.nw / IE.nh) : parseFloat(v)); });
-  $('#ieApply').addEventListener('click', function(){ var out = ieOutput(); var cb = IE.onApply; closeImgEditor(); if (cb) cb(out); });
+  $('#ieApply').addEventListener('click', function(){
+    var out = ieOutput();
+    var meta = { crop:{ zoom:IE.zoom, tx:IE.tx, ty:IE.ty, aspect:IE.aspect }, src:IE.srcUrl };   // 재편집 복원용
+    var cb = IE.onApply; closeImgEditor(); if (cb) cb(out, meta);
+  });
   $all('[data-ie-cancel]').forEach(function(b){ b.addEventListener('click', closeImgEditor); });
 }
 
@@ -2176,9 +2214,10 @@ function updateRpPill(){
   pill.style.top = (rect.top + pad + ratio * (trackH - pillH)) + 'px';
   pill.style.height = pillH + 'px';
 }
-function refImgApply(out){
+function refImgApply(out, meta){
   var r = state.refs.filter(function(x){ return x.id === RP.id; })[0]; if (!r) return;
-  r.image = out; renderRefs(); setDirty('refs', true);
+  r.image = out; if (meta){ r._editSrc = meta.src; r._crop = meta.crop; }   // 재편집 복원용(확대·위치·비율)
+  renderRefs(); setDirty('refs', true);
   openRefPreview(RP.id);   // 미리보기 갱신(모달 유지)
   toast('사진 적용 — 저장을 눌러 반영하세요.');
 }

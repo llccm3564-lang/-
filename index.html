@@ -2916,7 +2916,15 @@
     function fx(){
       var vh=window.__VH||window.innerHeight,vw=window.innerWidth,range=sec.offsetHeight-vh,r=sec.getBoundingClientRect();
       var _sy=window.__scrollY(), _at=window.__absTop(sec);   // 문서 절대좌표 기준(주소창 전환에 안 흔들림)
-      var p=range>0?cl((_sy-_at)/range):0;
+      var scrolled=_sy-_at;
+      /* 십자가 시네마틱(패널·회전·부서짐)은 '기준 높이'(카드 8장 기준) 스크롤에 고정 →
+         서비스가 늘어 섹션이 길어져도 깨지는 위치가 그대로. 넘치는 줄은 초과 구간(extraP)에서만 스크럽. */
+      var baseVh=parseFloat(sec.getAttribute('data-base-vh'))||0;
+      var core=(baseVh>0)?Math.min(range,Math.max(1,baseVh*(vh/100)-vh)):range;
+      var pFull=range>0?cl(scrolled/range):0;
+      var pCine=core>0?cl(scrolled/core):0;
+      var extraP=(range>core)?cl((scrolled-core)/(range-core)):0;
+      var p=window.__NARROW?pFull:pCine;
       /* [모바일] 십자가 시네마틱(패널 확대·회전·부서짐) 전부 생략 → 다크 패널이 올라오고 서비스 목록이 바로 뜬다.
          패널 크기는 CSS에서 100%로 고정(인라인 width/height 안 씀). 자석 스냅도 여기서 빠져나가므로 실행 안 됨. */
       if(window.__NARROW){
@@ -2963,7 +2971,7 @@
         svc.classList.toggle('scrub', many);
         if(sh>0.85){
           svc.classList.add('show','live');                     // 서비스 보이면 바로 호버 가능(이미지 미리보기)
-          if(many){ var need=svcNeed(); svcSetY(need>0 ? -need*cl((p-0.90)/0.10) : 0); }  // 서비스 유지 구간(p0.90~1.0, 줄 수만큼 늘어난 스크롤)에서 넘치는 줄을 훑음
+          if(many){ var need=svcNeed(); svcSetY(need>0 ? -need*extraP : 0); }  // 넘치는 줄은 기준 높이를 넘는 '초과 스크롤' 구간(extraP 0→1)에서 훑음
           else svcSetY(0);
         } else { svc.classList.remove('show','live'); svcSetY(0); }
       }
@@ -2971,13 +2979,13 @@
       var down=p>lastP;
       if(!settling && !window.__navMoving && window.__lenis && Math.abs(window.__lenis.velocity||0)<60){   // 네비 이동 중엔 자석 스킵(A3)
         if(down && !svcSnapped && p>0.70 && p<0.94){                 // 아래로: 부서짐 → 서비스 유지 구간까지 자동
-          if(window.__snapTo(window.scrollY+r.top+0.92*range,{duration:1.2,lock:true,easing:function(x){return 1-Math.pow(1-x,3);},onComplete:function(){settling=false;}})){ svcSnapped=true; settling=true; }   // 차단됐으면 svcSnapped도 소모하지 않음(재장전 유지)
+          if(window.__snapTo(window.scrollY+r.top+0.92*core,{duration:1.2,lock:true,easing:function(x){return 1-Math.pow(1-x,3);},onComplete:function(){settling=false;}})){ svcSnapped=true; settling=true; }   // 기준 높이(core) 기준 → 카드 수와 무관하게 같은 지점에서 안착
         } else if(!down && !crossSnapped && p>0.66 && p<0.90){        // 위로: 서비스에서 올리면 → 조각 재결합→십자가 복원까지 자동(내릴 때 역방향, 끝까지 부드럽게 되감아 멈춤 없음)
           /* 목표 0.60 → 0.67. 0.60은 회전 구간(0.26~0.66) 한복판이라 십자가가 270°에서
              229.5°까지 40°만 되감기고 멈췄고, lock 이 풀릴 때까지 300ms 입력이 막혀
              '조금 돌다 멈췄다 다시 도는' 것으로 보였다. 0.67은 회전 시작 직전이라
              자석은 조각 재결합(0.82~0.70)까지만 끝내주고, 회전 270°→0°는 스크롤이 끊김 없이 몬다. */
-          if(window.__snapTo(window.scrollY+r.top+0.67*range,{duration:1.5,lock:true,easing:function(x){return 1-Math.pow(1-x,3);},onComplete:function(){settling=false;}})){ crossSnapped=true; settling=true; }   // 차단됐으면 crossSnapped도 소모하지 않음
+          if(window.__snapTo(window.scrollY+r.top+0.67*core,{duration:1.5,lock:true,easing:function(x){return 1-Math.pow(1-x,3);},onComplete:function(){settling=false;}})){ crossSnapped=true; settling=true; }   // 기준 높이(core) 기준
         }
       }
       if(p<0.68) svcSnapped=false;   // 회전 구간 전 재장전(아래 자석)
@@ -3158,6 +3166,7 @@
     var vh = baseVh + extraRows * perRowVh;
     sec.style.height = 'calc(' + vh + ' * var(--vhpx))';
     sec.setAttribute('data-cards', cards.length);
+    sec.setAttribute('data-base-vh', baseVh);   // 드라이버가 '기준 높이'로 시네마틱(십자가 깨짐) 위치를 고정
   }
   window.__svcHeight = apply;                      // DB 반영 후 다시 호출됨
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
