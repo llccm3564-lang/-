@@ -369,6 +369,10 @@
   .cf-svc{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;justify-content:center;align-items:center;
     padding:4vh 5vw;pointer-events:none;transform:translateY(-15px)}   /* 십자가 패널 안 오버레이 — 부서지면 그 자리에서 교차등장. 전체(헤더+카드) 15px 위로 */
   .cf-svc.live{pointer-events:auto}
+  /* [서비스 3줄+] 8개 초과(데스크탑 3행 이상)면 가운데정렬 대신 위 기준+내부 스크럽으로 전 줄을 훑는다.
+     8개(2행) 이하는 .scrub 안 붙어 지금과 동일(가운데정렬). */
+  .cf-svc.scrub{justify-content:flex-start;padding:calc(11 * var(--vhpx)) 0 calc(6 * var(--vhpx))}
+  .cf-svc.scrub>.cf-svc-head,.cf-svc.scrub>.cf-grid{transform:translateY(var(--svcY,0px))}
   .cf-svc-head{text-align:left;width:min(1140px,89vw);margin-bottom:53px;transform:translateY(30px)}   /* 폭=카드 그리드와 동일 → 왼쪽 시작점 정확 정렬 / 아래 30px */
   .cf-svc-head .eyebrow{color:#98C6A8;font-size:13.5px}   /* 연한 네온그레이 / 크기=문의 라벨과 통일(13.5px) */
   .cf-svc-head .eyebrow::before{display:none}   /* SERVICES 앞 대시 제거 */
@@ -2955,7 +2959,13 @@
         t.el.style.opacity=String(cl(1-sh*1.15));
       }
       if(svc){                                                  // 부서짐 거의 끝나면 → 같은 패널(다크 화면)에 서비스 교차등장(카드 페이드인·글자). 되감으면 리셋 → 십자가 다시.
-        if(sh>0.85){ svc.classList.add('show','live'); } else { svc.classList.remove('show','live'); }   // 서비스 보이면 바로 호버 가능(이미지 미리보기)
+        var many = svc.querySelectorAll('.cf-s').length > 8;    // 8개(2행) 초과 = 3행 이상 → 위 기준+스크럽
+        svc.classList.toggle('scrub', many);
+        if(sh>0.85){
+          svc.classList.add('show','live');                     // 서비스 보이면 바로 호버 가능(이미지 미리보기)
+          if(many){ var need=svcNeed(); svcSetY(need>0 ? -need*cl((p-0.90)/0.10) : 0); }  // 서비스 유지 구간(p0.90~1.0, 줄 수만큼 늘어난 스크롤)에서 넘치는 줄을 훑음
+          else svcSetY(0);
+        } else { svc.classList.remove('show','live'); svcSetY(0); }
       }
       // 부서지기 시작하면 스크롤 안 해도 자동으로 → 서비스 유지 구간까지(양방향). 전부 crossFx sticky 안이라 섹션이 위아래로 안 움직임.
       var down=p>lastP;
