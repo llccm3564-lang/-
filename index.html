@@ -2444,7 +2444,7 @@
         var vis= (yc > -h*0.6) && (yc < vh + h*0.6);   // 화면 안일 때만 표시
         var cw = cards[i].offsetWidth;
         var xFull = vw/2 - 44 - cw/2;             // 오른쪽 정렬 기준
-        var xh = NAR ? 0 : xFull*0.60;            // 전 카드 동일 x(한 줄) → 좌우 안 튐
+        var xh = NAR ? 0 : ((i%2===0) ? xFull*0.3 : xFull);   // 지그재그(좌우 교차) 복원 — 세로 간격 144px 균일은 유지. 모바일은 중앙
         cards[i].style.transform='translate(calc(-50% + '+xh+'px), calc(-50% + '+Math.round(y)+'px))';
         cards[i].style.opacity = vis ? '1' : '0';
         cards[i].style.zIndex  = String(10+i);
