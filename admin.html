@@ -199,6 +199,39 @@
   .svc-thumb::after{content:"변경";position:absolute;inset:0;display:grid;place-items:center;
     background:rgba(10,14,12,.55);color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .16s var(--ease)}
   .svc-thumb:hover::after{opacity:1}
+
+  /* 레퍼 카드: 미리보기 오버레이(교체 대신) + DnD 순서변경 */
+  .ref-thumb::after{content:"미리보기 · 사진 조정"}
+  .ref-item.dragging{opacity:.4}
+  .ref-item.drop-before{box-shadow:-3px 0 0 0 var(--green)}
+  .ref-item.drop-after{box-shadow:3px 0 0 0 var(--green)}
+  .ref-item .drag-handle{cursor:grab;user-select:none;color:var(--faint);font-size:15px;padding:0 4px;line-height:1}
+  .ref-item .drag-handle:active{cursor:grabbing}
+
+  /* 이미지 조정기(자르기·확대·위치) 모달 */
+  .ie-stage{position:relative;margin:14px auto 0;background:#11150f;border:1px solid var(--line-2);border-radius:10px;
+    overflow:hidden;touch-action:none;max-width:100%}
+  .ie-img{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;user-select:none;-webkit-user-drag:none;pointer-events:none}
+  .ie-frame-mask{position:absolute;inset:0;box-shadow:0 0 0 100vmax rgba(10,14,12,.55) inset;pointer-events:none;
+    outline:1px solid rgba(255,255,255,.5)}
+  .ie-grid-l{position:absolute;background:rgba(255,255,255,.25);pointer-events:none}
+  .ie-row{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  .ie-row label{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+  .ie-row input[type=range]{flex:1;min-width:140px;accent-color:var(--green)}
+  .ie-asp{display:flex;gap:6px;flex-wrap:wrap}
+  .ie-asp button{padding:5px 10px;font-size:12px;font-weight:700;border-radius:7px;border:1px solid var(--line-2);
+    background:var(--bg-3);color:var(--muted);cursor:pointer}
+  .ie-asp button.on{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+  .ie-hint{font-size:12px;color:var(--faint);margin-top:8px}
+  .ie-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+  .modal-card.ie-card{max-width:600px;width:100%}
+  #imgEditor{z-index:200}   /* 미리보기 모달 위에 겹쳐 열리므로 더 높게 */
+
+  /* 레퍼 미리보기(사이트 카드 모습) */
+  .rp-card{background:var(--bg-3);border:1px solid var(--line-2);border-radius:12px;overflow:hidden;margin-top:14px}
+  .rp-card .rp-img{width:100%;display:block;background:#242c27}
+  .rp-card .rp-cap{padding:12px 14px;font-size:14px;color:var(--ink)}
+  .rp-empty{padding:40px;text-align:center;color:var(--faint);font-size:13px}
   .svc-flags{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
   .check{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;user-select:none}
   .check input{width:17px;height:17px;accent-color:var(--green);cursor:pointer}
@@ -531,6 +564,37 @@
   <div class="modal-card">
     <button class="modal-close" data-modal-close aria-label="닫기">✕</button>
     <div id="inqModalBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="imgEditor" aria-hidden="true">
+  <div class="modal-back" data-ie-cancel></div>
+  <div class="modal-card ie-card">
+    <button class="modal-close" data-ie-cancel aria-label="닫기">✕</button>
+    <h3 id="ieTitle">사진 조정</h3>
+    <div class="card-note" style="margin-bottom:0">확대/축소 슬라이더 · 드래그로 위치 · 비율 선택 후 <b style="color:var(--ink)">적용</b>. 저장 시 자동으로 압축·축소됩니다.</div>
+    <div id="ieStage" class="ie-stage"><img id="ieImg" class="ie-img" alt=""><div class="ie-frame-mask"></div></div>
+    <div class="ie-row"><label>확대</label><input type="range" id="ieZoom" min="1" max="4" step="0.01" value="1"></div>
+    <div class="ie-row"><label>비율</label><div class="ie-asp" id="ieAsp"></div></div>
+    <div class="ie-hint">마우스 휠로도 확대/축소돼요. 사진을 끌어 위치를 맞추세요.</div>
+    <div class="ie-actions">
+      <button class="btn btn-ghost" data-ie-cancel>취소</button>
+      <button class="btn btn-primary" id="ieApply">적용</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="refPreview" aria-hidden="true">
+  <div class="modal-back" data-rp-close></div>
+  <div class="modal-card">
+    <button class="modal-close" data-rp-close aria-label="닫기">✕</button>
+    <h3>레퍼런스 미리보기</h3>
+    <div class="card-note">실제 사이트 카드에 이렇게 보입니다.</div>
+    <div id="rpBody"></div>
+    <div class="ie-actions">
+      <label class="btn btn-ghost">사진 교체<input type="file" accept="image/*" class="file-hidden" id="rpReplace"></label>
+      <button class="btn btn-primary" id="rpAdjust">사진 조정(자르기·확대·위치)</button>
+    </div>
   </div>
 </div>
 
@@ -994,12 +1058,13 @@ function renderRefs(){
       : '<span class="ph">이미지 없음</span>';
     html += '' +
     '<div class="ref-item" data-id="' + esc(r.id) + '">' +
-      '<div class="ref-thumb" data-drop="ref" data-drop-id="' + esc(r.id) + '">' + thumb + '</div>' +
+      '<div class="ref-thumb" data-ref-preview="' + esc(r.id) + '" data-drop="ref" data-drop-id="' + esc(r.id) + '">' + thumb + '</div>' +
       '<div class="ref-meta"><input type="text" data-ref-caption placeholder="캡션(설명)" value="' + esc(r.caption||'') + '"></div>' +
       '<div class="ref-actions">' +
+        '<span class="drag-handle" draggable="true" data-ref-drag="' + esc(r.id) + '" title="드래그로 순서 변경">⠿</span>' +
         '<button class="btn btn-ghost btn-sm" data-ref-move="' + esc(r.id) + '" data-dir="-1" title="앞으로">▲</button>' +
         '<button class="btn btn-ghost btn-sm" data-ref-move="' + esc(r.id) + '" data-dir="1" title="뒤로">▼</button>' +
-        '<label class="btn btn-ghost btn-sm" style="flex:1">교체<input type="file" accept="image/*" class="file-hidden" data-ref-input="' + esc(r.id) + '"></label>' +
+        '<button class="btn btn-ghost btn-sm" data-ref-preview="' + esc(r.id) + '" style="flex:1">미리보기</button>' +
         '<button class="btn btn-danger btn-sm" data-ref-del="' + esc(r.id) + '">삭제</button>' +
       '</div>' +
     '</div>';
@@ -1368,6 +1433,8 @@ function bindEvents(){
     }
   });
   $('#refGrid').addEventListener('click', function(e){
+    var pv = e.target.closest('[data-ref-preview]');
+    if (pv){ openRefPreview(pv.getAttribute('data-ref-preview')); return; }
     var mv = e.target.closest('[data-ref-move]');
     if (mv){
       collectRefs();
@@ -1458,6 +1525,55 @@ function bindEvents(){
     location.reload();
   });
 
+  // ---- 레퍼런스: 미리보기 모달(사진 조정 / 사진 교체) ----
+  $all('[data-rp-close]').forEach(function(b){ b.addEventListener('click', closeRefPreview); });
+  $('#rpAdjust').addEventListener('click', function(){
+    var r = state.refs.filter(function(x){ return x.id === RP.id; })[0];
+    if (r && r.image) openImgEditor(r.image, { title:'사진 조정' }, refImgApply);
+  });
+  $('#rpReplace').addEventListener('change', function(e){
+    var f = e.target.files[0]; e.target.value = '';
+    if (f) handleImageUpload(f, function(u){ openImgEditor(u, { title:'새 사진 조정' }, refImgApply); });
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ closeRefPreview(); closeImgEditor(); } });
+
+  // ---- 레퍼런스: 드래그앤드랍 순서 변경 ----
+  (function(){
+    var grid = $('#refGrid'); var dragId = null;
+    grid.addEventListener('dragstart', function(e){
+      var h = e.target.closest('[data-ref-drag]'); if (!h) return;
+      dragId = h.getAttribute('data-ref-drag');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('application/x-reorder', dragId); } catch(_){}
+      var item = h.closest('.ref-item'); if (item) item.classList.add('dragging');
+    });
+    grid.addEventListener('dragend', function(){ dragId = null;
+      $all('#refGrid .ref-item').forEach(function(x){ x.classList.remove('dragging','drop-before','drop-after'); });
+    });
+    grid.addEventListener('dragover', function(e){
+      if (!dragId) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      var item = e.target.closest('.ref-item');
+      $all('#refGrid .ref-item').forEach(function(x){ x.classList.remove('drop-before','drop-after'); });
+      if (item && item.getAttribute('data-id') !== dragId){
+        var rc = item.getBoundingClientRect();
+        item.classList.add((e.clientX < rc.left + rc.width/2) ? 'drop-before' : 'drop-after');
+      }
+    });
+    grid.addEventListener('drop', function(e){
+      if (!dragId) return; e.preventDefault();
+      var item = e.target.closest('.ref-item');
+      if (item && item.getAttribute('data-id') !== dragId){
+        var rc = item.getBoundingClientRect();
+        var before = (e.clientX < rc.left + rc.width/2);
+        collectRefs();
+        if (reorderById(state.refs, dragId, item.getAttribute('data-id'), before)){
+          renderRefs(); setDirty('refs', true); toast('순서 변경 — 저장을 눌러 반영하세요.');
+        }
+      }
+      dragId = null;
+    });
+  })();
+
   // 새로고침/이탈 경고(미저장 변경)
   window.addEventListener('beforeunload', function(e){
     var any = Object.keys(state.dirty).some(function(k){ return state.dirty[k]; });
@@ -1485,15 +1601,146 @@ function applyImageTo(type, id, file){
       var s = state.svc.filter(function(x){return x.id===id;})[0];
       if (s){ s.image = url; renderSvc(); setDirty('svc', true); toast('이미지 적용 — 저장을 눌러 반영하세요.'); }
     } else if (type === 'ref'){
-      collectRefs();
-      var r = state.refs.filter(function(x){return x.id===id;})[0];
-      if (r){ r.image = url; renderRefs(); setDirty('refs', true); toast('이미지 교체됨 — 저장을 눌러 반영하세요.'); }
+      openImgEditor(url, { title:'사진 조정' }, function(out){
+        collectRefs();
+        var r = state.refs.filter(function(x){return x.id===id;})[0];
+        if (r){ r.image = out; renderRefs(); setDirty('refs', true); toast('이미지 적용 — 저장을 눌러 반영하세요.'); }
+      });
     } else if (type === 'ref-add'){
-      collectRefs();
-      state.refs.push({ id: uid('r'), image:url, caption:'' });
-      renderRefs(); setDirty('refs', true); toast('사진 추가됨 — 저장을 눌러 반영하세요.');
+      openImgEditor(url, { title:'새 레퍼런스 사진 조정' }, function(out){
+        collectRefs();
+        state.refs.push({ id: uid('r'), image:out, caption:'' });
+        renderRefs(); setDirty('refs', true); toast('사진 추가됨 — 저장을 눌러 반영하세요.');
+      });
     }
   });
+}
+
+/* ================================================================
+   이미지 조정기(자르기·확대·위치) + 자동 압축·축소  — 레퍼·담당자 공용
+   ================================================================ */
+var IE = { img:null, nw:0, nh:0, aspect:1, zoom:1, base:1, tx:0, ty:0, fw:0, fh:0, onApply:null, drag:null, bound:false };
+var IE_ASPECTS = [ ['원본', null], ['16:10', 16/10], ['4:3', 4/3], ['1:1', 1], ['3:4', 3/4] ];
+var IE_MAXOUT = 1280;   // 출력 긴 변 상한(px) — 압축
+
+function openImgEditor(dataUrl, opts, onApply){
+  opts = opts || {};
+  IE.onApply = onApply;
+  ieBind();
+  var im = new Image();
+  im.onload = function(){
+    IE.img = im; IE.nw = im.naturalWidth; IE.nh = im.naturalHeight;
+    var defAsp = (opts.aspect !== undefined) ? opts.aspect : null;   // null = 원본 비율
+    $('#ieAsp').innerHTML = IE_ASPECTS.map(function(a){
+      var val = (a[1] == null) ? 'orig' : a[1];
+      var on = (a[1] == null && defAsp == null) || (a[1] != null && defAsp === a[1]);
+      return '<button data-ie-asp="' + val + '"' + (on ? ' class="on"' : '') + '>' + a[0] + '</button>';
+    }).join('');
+    $('#ieTitle').textContent = opts.title || '사진 조정';
+    $('#ieZoom').value = 1; IE.zoom = 1;
+    ieSetAspect(defAsp == null ? (IE.nw / IE.nh) : defAsp);
+    $('#imgEditor').classList.add('open');
+  };
+  im.onerror = function(){ toast('이미지를 불러오지 못했습니다.', true); };
+  im.src = dataUrl;
+}
+function ieStageSize(){
+  var maxW = 480, maxH = 340, a = IE.aspect;
+  var fw = maxW, fh = fw / a; if (fh > maxH){ fh = maxH; fw = fh * a; }
+  IE.fw = Math.round(fw); IE.fh = Math.round(fh);
+  var st = $('#ieStage'); st.style.width = IE.fw + 'px'; st.style.height = IE.fh + 'px';
+}
+function ieSetAspect(a){
+  IE.aspect = a; ieStageSize();
+  IE.base = Math.max(IE.fw / IE.nw, IE.fh / IE.nh);   // cover
+  ieClamp(true); ieApplyTransform();
+}
+function ieScale(){ return IE.base * IE.zoom; }
+function ieClamp(center){
+  var s = ieScale(), iw = IE.nw * s, ih = IE.nh * s;
+  if (center){ IE.tx = (IE.fw - iw) / 2; IE.ty = (IE.fh - ih) / 2; }
+  IE.tx = Math.min(0, Math.max(IE.fw - iw, IE.tx));
+  IE.ty = Math.min(0, Math.max(IE.fh - ih, IE.ty));
+}
+function ieApplyTransform(){
+  var s = ieScale(), el = $('#ieImg');
+  el.style.width = IE.nw + 'px'; el.style.height = IE.nh + 'px';
+  el.style.transform = 'translate(' + IE.tx + 'px,' + IE.ty + 'px) scale(' + s + ')';
+  if (el.src !== IE.img.src) el.src = IE.img.src;
+}
+function ieSetZoom(z){
+  z = Math.min(4, Math.max(1, z));
+  var oldS = ieScale(), cx = IE.fw / 2, cy = IE.fh / 2;
+  var sx = (cx - IE.tx) / oldS, sy = (cy - IE.ty) / oldS;
+  IE.zoom = z; $('#ieZoom').value = z;
+  var newS = ieScale();
+  IE.tx = cx - sx * newS; IE.ty = cy - sy * newS;
+  ieClamp(false); ieApplyTransform();
+}
+function ieOutput(){
+  var s = ieScale();
+  var srcX = (-IE.tx) / s, srcY = (-IE.ty) / s, srcW = IE.fw / s, srcH = IE.fh / s;
+  var outW = srcW, outH = srcH, m = Math.max(outW, outH);
+  if (m > IE_MAXOUT){ var k = IE_MAXOUT / m; outW *= k; outH *= k; }
+  outW = Math.max(1, Math.round(outW)); outH = Math.max(1, Math.round(outH));
+  var c = document.createElement('canvas'); c.width = outW; c.height = outH;
+  var ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(IE.img, srcX, srcY, srcW, srcH, 0, 0, outW, outH);
+  var out;
+  try { out = c.toDataURL('image/webp', 0.82); if (out.indexOf('image/webp') < 0) throw 0; }
+  catch(e){ out = c.toDataURL('image/jpeg', 0.85); }
+  return out;
+}
+function closeImgEditor(){ $('#imgEditor').classList.remove('open'); IE.onApply = null; }
+function ieBind(){
+  if (IE.bound) return; IE.bound = true;
+  var st = $('#ieStage');
+  st.addEventListener('pointerdown', function(e){ IE.drag = { x:e.clientX, y:e.clientY, tx:IE.tx, ty:IE.ty }; try{ st.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  st.addEventListener('pointermove', function(e){ if (!IE.drag) return; IE.tx = IE.drag.tx + (e.clientX - IE.drag.x); IE.ty = IE.drag.ty + (e.clientY - IE.drag.y); ieClamp(false); ieApplyTransform(); });
+  st.addEventListener('pointerup', function(){ IE.drag = null; });
+  st.addEventListener('pointercancel', function(){ IE.drag = null; });
+  st.addEventListener('wheel', function(e){ e.preventDefault(); ieSetZoom(IE.zoom * (e.deltaY < 0 ? 1.08 : 0.926)); }, { passive:false });
+  $('#ieZoom').addEventListener('input', function(){ ieSetZoom(parseFloat(this.value)); });
+  $('#ieAsp').addEventListener('click', function(e){ var b = e.target.closest('[data-ie-asp]'); if (!b) return;
+    $all('#ieAsp button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    var v = b.getAttribute('data-ie-asp'); ieSetAspect(v === 'orig' ? (IE.nw / IE.nh) : parseFloat(v)); });
+  $('#ieApply').addEventListener('click', function(){ var out = ieOutput(); var cb = IE.onApply; closeImgEditor(); if (cb) cb(out); });
+  $all('[data-ie-cancel]').forEach(function(b){ b.addEventListener('click', closeImgEditor); });
+}
+
+/* 순서 재배치: dragId를 targetId의 앞/뒤로 이동 */
+function reorderById(arr, dragId, targetId, before){
+  if (String(dragId) === String(targetId)) return false;   // 자기 자신엔 이동 없음
+  var from = -1, to = -1, i;
+  for (i = 0; i < arr.length; i++){ if (String(arr[i].id) === String(dragId)) from = i; }
+  if (from < 0) return false;
+  var item = arr.splice(from, 1)[0];
+  for (i = 0; i < arr.length; i++){ if (String(arr[i].id) === String(targetId)) to = i; }
+  if (to < 0){ arr.push(item); return true; }
+  arr.splice(before ? to : to + 1, 0, item);
+  return true;
+}
+
+/* ================= 레퍼런스 미리보기(사이트 카드 모습) ================= */
+var RP = { id:null };
+function openRefPreview(id){
+  collectRefs();
+  var r = state.refs.filter(function(x){ return x.id === id; })[0]; if (!r) return;
+  RP.id = id;
+  var img = r.image ? '<img class="rp-img" src="' + esc(r.image) + '" alt="">'
+                    : '<div class="rp-empty">이미지 없음 — 아래 ‘사진 교체’로 넣으세요.</div>';
+  var cap = esc(r.caption || '') || '<span style="color:var(--faint)">캡션 없음</span>';
+  $('#rpBody').innerHTML = '<div class="rp-card">' + img + '<div class="rp-cap">' + cap + '</div></div>';
+  $('#rpAdjust').disabled = !r.image;
+  $('#refPreview').classList.add('open');
+}
+function closeRefPreview(){ $('#refPreview').classList.remove('open'); RP.id = null; }
+function refImgApply(out){
+  var r = state.refs.filter(function(x){ return x.id === RP.id; })[0]; if (!r) return;
+  r.image = out; renderRefs(); setDirty('refs', true);
+  openRefPreview(RP.id);   // 미리보기 갱신(모달 유지)
+  toast('사진 적용 — 저장을 눌러 반영하세요.');
 }
 
 // 드래그&드롭 + 썸네일 클릭 업로드
@@ -1503,6 +1750,7 @@ function setupDnD(){
     if (!panel) return;
 
     panel.addEventListener('dragover', function(e){
+      if (e.dataTransfer && e.dataTransfer.types && Array.prototype.indexOf.call(e.dataTransfer.types,'Files')<0) return;   // 순서변경 드래그는 무시(파일 드롭만)
       var zone = e.target.closest ? e.target.closest('[data-drop]') : null;
       $all('.drop-over', panel).forEach(function(z){ if (z!==zone) z.classList.remove('drop-over'); });
       if (zone){ e.preventDefault(); e.dataTransfer.dropEffect='copy'; zone.classList.add('drop-over'); }
@@ -1511,6 +1759,7 @@ function setupDnD(){
       if (!panel.contains(e.relatedTarget)) $all('.drop-over', panel).forEach(function(z){ z.classList.remove('drop-over'); });
     });
     panel.addEventListener('drop', function(e){
+      if (e.dataTransfer && e.dataTransfer.types && Array.prototype.indexOf.call(e.dataTransfer.types,'Files')<0) return;   // 순서변경 드래그는 무시
       var zone = e.target.closest ? e.target.closest('[data-drop]') : null;
       $all('.drop-over', panel).forEach(function(z){ z.classList.remove('drop-over'); });
       if (!zone) return;
@@ -1519,11 +1768,10 @@ function setupDnD(){
       applyImageTo(zone.getAttribute('data-drop'), zone.getAttribute('data-drop-id'), file);
     });
 
-    // 썸네일 클릭 → 숨은 파일 입력 열기
+    // 썸네일 클릭 → 숨은 파일 입력 열기 (레퍼 썸네일은 미리보기 모달을 열므로 제외)
     panel.addEventListener('click', function(e){
       var mp = e.target.closest('.member-photo'); if (mp){ var i1 = $('[data-photo-input="'+mp.getAttribute('data-drop-id')+'"]'); if(i1) i1.click(); return; }
       var st = e.target.closest('.svc-thumb');    if (st){ var i2 = $('[data-svc-input="'+st.getAttribute('data-drop-id')+'"]'); if(i2) i2.click(); return; }
-      var rt = e.target.closest('.ref-thumb');     if (rt){ var i3 = $('[data-ref-input="'+rt.getAttribute('data-drop-id')+'"]'); if(i3) i3.click(); return; }
     });
   });
   // 문서 밖으로 파일이 떨어지면 브라우저가 열리는 것 방지(패널 외)
