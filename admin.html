@@ -1275,13 +1275,17 @@ function collectSvc(){
 /* ================================================================
    저장
    ================================================================ */
+var _saving = false;   // 저장 진행중 플래그(겹침=DELETE/POST 레이스로 인한 중복삽입 방지)
 function doSave(tab){
+  if (_saving) return;   // 이미 저장 중이면 무시(빠른 재클릭 차단 — 중복 저장의 원인이었음)
   var p = null;
   if (tab==='team'){ collectTeam(); p = saveData(LS_KEYS.team, state.team); }
   else if (tab==='copy'){ collectCopy(); p = saveData(LS_KEYS.copy, state.copy); }
   else if (tab==='refs'){ collectRefs(); p = saveData(LS_KEYS.refs, state.refs); }
   else if (tab==='svc'){ collectSvc(); p = saveData(LS_KEYS.svc, state.svc); }
   else return;
+  _saving = true;
+  var btns = $all('[data-save]'); btns.forEach(function(b){ b.disabled = true; });   // 저장 끝날 때까지 버튼 잠금
   toast('저장 중...');
   // 성패는 DB(원본) 기준. localStorage 용량초과는 저장 실패 아님(캐시·DB가 원본).
   Promise.resolve(p).then(function(dbOk){
@@ -1292,6 +1296,10 @@ function doSave(tab){
     } else {
       toast('저장 실패 — DB 저장에 실패했습니다. 잠시 후 다시 시도하세요.', true);
     }
+  }).catch(function(e){
+    console.error('저장 오류', e); toast('저장 실패 — 오류가 발생했습니다.', true);
+  }).then(function(){
+    _saving = false; btns.forEach(function(b){ b.disabled = false; });   // 잠금 해제
   });
 }
 
