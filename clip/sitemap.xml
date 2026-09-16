@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 공개 페이지는 랜딩 1개뿐이다.
+     한글 도메인은 XML 규격상 ASCII(Punycode)로 적는다 — 같은 사이트다.
+       클립.실행연구소.com → xn--5y2bj92b.xn--2e0br59ap3af3foy0a.com -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://xn--5y2bj92b.xn--2e0br59ap3af3foy0a.com/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

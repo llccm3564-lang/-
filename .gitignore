@@ -40,3 +40,4 @@ assets/클립_랜딩페이지/*.mov
 # 로컬 실험·임시
 _roll_demo.html
 _del_ids.txt
+clip/_serve.mjs

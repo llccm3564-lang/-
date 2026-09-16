@@ -1,22 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 공개 페이지 2개: 본진 원페이지 + 클립 상위노출 랜딩(서브도메인).
-     admin.html·preview.html·supabase/·clip.html(구판) 은 제외.
-     lastmod 는 각 파일의 실제 마지막 커밋 날짜. 임의의 오늘 날짜를 넣지 않는다.
-     한글 도메인은 XML 규격상 ASCII(Punycode)로 적는다 — 같은 사이트다.
-       실행연구소.com       → xn--2e0br59ap3af3foy0a.com
-       클립.실행연구소.com  → xn--5y2bj92b.xn--2e0br59ap3af3foy0a.com
-     서브도메인은 별도 호스트라 서치콘솔에 각각 등록해야 이 항목이 인정된다. -->
+<!-- 공개 페이지는 본진 원페이지 1개. admin.html·preview.html·supabase/·clip.html 은 제외.
+     클립 랜딩(클립.실행연구소.com)은 별개 호스트라 clip/sitemap.xml 을 따로 둔다.
+     lastmod 는 실제 마지막 커밋 날짜. 임의의 오늘 날짜를 넣지 않는다.
+     한글 도메인은 XML 규격상 ASCII(Punycode)로 적는다 — 같은 사이트다. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://xn--2e0br59ap3af3foy0a.com/</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://xn--5y2bj92b.xn--2e0br59ap3af3foy0a.com/</loc>
-    <lastmod>2026-09-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
   </url>
 </urlset>

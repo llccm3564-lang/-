@@ -1,17 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "source": "/",
-      "has": [{ "type": "host", "value": "xn--5y2bj92b.xn--2e0br59ap3af3foy0a.com" }],
-      "destination": "/clip2.html"
-    },
-    {
-      "source": "/",
-      "has": [{ "type": "host", "value": "클립.실행연구소.com" }],
-      "destination": "/clip2.html"
-    }
-  ],
+  "_comment": "클립 랜딩(클립.실행연구소.com)은 같은 저장소의 clip/ 폴더를 Root Directory 로 쓰는 별도 Vercel 프로젝트다. 여기 리라이트는 필요 없다.",
   "headers": [
     {
       "source": "/admin.html",

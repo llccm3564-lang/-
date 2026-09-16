@@ -1,0 +1,9 @@
+# 클립.실행연구소.com — 네이버 클립 상위노출 랜딩
+# 서브도메인은 별개 호스트라 본진과 따로 robots.txt 를 둔다.
+User-agent: *
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+Sitemap: https://xn--5y2bj92b.xn--2e0br59ap3af3foy0a.com/sitemap.xml

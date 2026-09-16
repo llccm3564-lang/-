@@ -236,11 +236,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
    배경에 글로우·궤도카드가 깔려 있어 "배경색 칸으로 덮는" 방식은 검은 네모가 보인다.
    원본 방식대로 같은 글자를 칸마다 깔고 칸 단위로 노출/은폐한다. */
 .roll{position:relative;display:inline-block;vertical-align:bottom;color:var(--green);line-height:1.02}
-.roll .rw{display:block;visibility:hidden;white-space:pre}   /* 폭·높이만 잡는 자리표 */
+/* 진짜 글자는 이 하나뿐 — 검색엔진·스크린리더가 읽는 것.
+   칸 48개에 글자를 그대로 넣으면 h1 안에 같은 단어가 49번 들어가 키워드 도배로 보인다.
+   그래서 칸은 CSS content 로 그려 DOM 텍스트로 남기지 않는다. */
+.roll .rw{display:block;white-space:pre;color:transparent}
 .roll .px{position:absolute;inset:0;display:block;pointer-events:none}
 .roll .px .c{position:absolute;overflow:hidden;opacity:0}
 .roll .px .c.on{opacity:1}
 .roll .px .c span{position:absolute;white-space:pre;line-height:1.02}
+.roll .px .c span::before{content:var(--w,"")}
 
 .hero-sub{margin:28px auto 0;max-width:620px;font-size:clamp(14px,1.4vw,17px);line-height:1.82;
   color:var(--muted);letter-spacing:-.012em}
@@ -651,7 +655,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     <span class="hero-eb t-eyebrow"><span class="goo"><i></i><i></i><i></i></span>Naver Clip</span>
     <h1 class="h-hero">
       <span class="l"><span>검색하는 순간,</span></span>
-      <span class="l"><span>가장 먼저 <span class="roll" id="roll" aria-label="보입니다"></span></span></span>
+      <span class="l"><span>가장 먼저 <span class="roll" id="roll"></span></span></span>
     </h1>
     <p class="hero-sub">목표 키워드 클립 상위노출로<br />통합검색과 클립 탭에서 <b style="color:var(--white);font-weight:600">잠재고객과 새로운 접점</b>을 만듭니다.</p>
     <div class="hero-cta">
@@ -999,23 +1003,29 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     var WORDS = ['보입니다','닿습니다','남습니다'];
     var COLS = 12, ROWS = 4, N = COLS*ROWS;
 
-    // 가장 넓은 단어로 상자를 고정해야 바뀔 때 줄이 흔들리지 않는다
-    var widest = WORDS[0];
     host.innerHTML = '<span class="rw"></span><span class="px" aria-hidden="true"></span>';
     var rw = $('.rw', host), px = $('.px', host);
-    (function(){
-      var max = 0;
-      WORDS.forEach(function(w){ rw.textContent = w;
-        var x = rw.getBoundingClientRect().width; if(x > max){ max = x; widest = w; } });
-      rw.textContent = widest;
-    })();
 
     var html = '';
     for(var i=0;i<N;i++) html += '<span class="c"><span></span></span>';
     px.innerHTML = html;
     var cells = $$('.c', px), inner = $$('.c span', px);
 
+    // CSS content:var() 를 못 쓰는 브라우저에서는 어쩔 수 없이 DOM 텍스트로 채운다
+    var CSSVAR = !!(window.CSS && CSS.supports && CSS.supports('content','var(--x)'));
+
+    // 가장 넓은 단어로 최소폭을 잡아야 단어가 바뀔 때 줄이 흔들리지 않는다
+    function lockWidth(){
+      var keep = rw.textContent, max = 0;
+      rw.style.minWidth = '0';
+      WORDS.forEach(function(w){ rw.textContent = w;
+        var x = rw.getBoundingClientRect().width; if(x > max) max = x; });
+      rw.textContent = keep;
+      rw.style.minWidth = max.toFixed(2)+'px';
+    }
+
     function place(){
+      lockWidth();
       var W = rw.getBoundingClientRect().width, H = rw.getBoundingClientRect().height;
       var cw = W/COLS, ch = H/ROWS;
       for(var i=0;i<N;i++){
@@ -1027,7 +1037,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
         t.left = (-c*cw).toFixed(2)+'px'; t.top = (-r*ch).toFixed(2)+'px';
       }
     }
-    function say(w){ inner.forEach(function(e){ e.textContent = w; }); host.setAttribute('aria-label', w); }
+    function say(w){
+      rw.textContent = w;                                  // 진짜 글자 — 이것만 DOM에 남는다
+      if(CSSVAR) px.style.setProperty('--w', JSON.stringify(w));
+      else inner.forEach(function(e){ e.textContent = w; });
+    }
 
     say(WORDS[0]); place();
     var rt=null; addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(place,150); });
@@ -1099,16 +1113,16 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
      히어로 궤도 클립 카드
      ──────────────────────────────────────────────────────────────────
      ▶ 영상 추가는 아래 CLIPS 에 한 줄 넣으면 끝. 카드 수 = 목록 수.
-       파일은 assets/클립_랜딩페이지/ 에 두고 9:16 세로 영상을 권장한다.
+       파일은 clip/assets/clips/ 에 두고 9:16 세로 영상을 권장한다.
        목록이 비어 있으면 빈 카드 4장(지금 모습)으로 뜬다.
      ══════════════════════════════════════════════════════════════════ */
   var CLIPS = [
-    'assets/클립_랜딩페이지/web/남이섬_클립.mp4',
-    'assets/클립_랜딩페이지/web/클립.mp4',
-    'assets/클립_랜딩페이지/web/KakaoTalk_20260617_095219498.mp4',
-    'assets/클립_랜딩페이지/web/KakaoTalk_20260807_154354796.mp4',
-    'assets/클립_랜딩페이지/web/직화장인 교대점.mp4',
-    'assets/클립_랜딩페이지/web/직화장인 의정부점.mp4',
+    'assets/clips/남이섬_클립.mp4',
+    'assets/clips/클립.mp4',
+    'assets/clips/KakaoTalk_20260617_095219498.mp4',
+    'assets/clips/KakaoTalk_20260807_154354796.mp4',
+    'assets/clips/직화장인 교대점.mp4',
+    'assets/clips/직화장인 의정부점.mp4',
   ];
   var ORBIT_MAX = 8;          // 이보다 많으면 히어로가 복잡해진다
 
