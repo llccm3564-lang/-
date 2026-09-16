@@ -319,6 +319,7 @@
   .hd-to{color:var(--ink);font-weight:600}
   .hd-arrow{color:var(--green);font-weight:800}
   .hd-ch{color:var(--green-3);font-weight:700}
+  .hd-sep{color:var(--faint);margin:0 7px;opacity:.7}
 
   /* 담당자: 실제 사이트 모습(밝은 카드)에서 사진·멘트 직접 인라인 편집 */
   .tw-card{display:block;background:#f1f1f1;border-radius:8px;padding:18px 20px;margin-bottom:12px;color:#252525}   /* display:block = 옛 member-row grid 무효화 */
@@ -1612,6 +1613,27 @@ function diffSnapshots(prev, curr){
   });
   return out;
 }
+// 변경점 하나를 조각으로(태그·이름 제외)
+function diffFrag(dd){
+  if (dd.change) return '<span class="hd-ch">' + esc(dd.change) + '</span>';
+  var ff = dd.ff ? (esc(dd.ff) + ' ') : '';
+  return ff + '<span class="hd-from">' + esc(dd.from) + '</span> <span class="hd-arrow">→</span> <span class="hd-to">' + esc(dd.to) + '</span>';
+}
+// 같은 (종류+요소)의 변경점은 한 줄로 합쳐서 렌더
+function diffRowsHtml(diffs){
+  var order = [], groups = {};
+  diffs.forEach(function(dd){
+    var key = dd.t + '|' + (dd.s || '');
+    if (!groups[key]){ groups[key] = { t:dd.t, s:dd.s, frags:[] }; order.push(key); }
+    groups[key].frags.push(diffFrag(dd));
+  });
+  return '<div class="hd-list">' + order.map(function(k){
+    var g = groups[k];
+    var tag = '<span class="hd-tag">' + esc(g.t) + '</span>';
+    var sub = g.s ? ('<b>' + esc(g.s) + '</b> ') : '';
+    return '<div class="hd-row">' + tag + sub + g.frags.join('<span class="hd-sep">·</span>') + '</div>';
+  }).join('') + '</div>';
+}
 function openHistDetail(id){
   var list = state.history || [], idx = -1;
   for (var i=0;i<list.length;i++){ if (list[i].id===id){ idx=i; break; } }
@@ -1623,14 +1645,7 @@ function openHistDetail(id){
   if (!diffs.length){
     bodyHtml = '<div class="rp-empty">' + (prev ? '이전 저장과 비교해 바뀐 내용이 없습니다.' : '비교할 이전 스냅샷이 없습니다.') + '</div>';
   } else {
-    bodyHtml = '<div class="hd-list">' + diffs.map(function(dd){
-      var tag = '<span class="hd-tag">' + esc(dd.t) + '</span>';
-      var sub = dd.s ? ('<b>' + esc(dd.s) + '</b>') : '';
-      if (dd.change) return '<div class="hd-row">' + tag + sub + '<span class="hd-ch">' + esc(dd.change) + '</span></div>';
-      var ff = dd.ff ? (esc(dd.ff) + ' ') : '';
-      return '<div class="hd-row">' + tag + sub + ' ' + ff +
-        '<span class="hd-from">' + esc(dd.from) + '</span> <span class="hd-arrow">→</span> <span class="hd-to">' + esc(dd.to) + '</span></div>';
-    }).join('') + '</div>';
+    bodyHtml = diffRowsHtml(diffs);   // 같은 요소의 여러 변경점은 한 줄로 합침
   }
   $('#histModalBody').innerHTML = head + bodyHtml;
   $('#histModal').classList.add('open');
@@ -1702,14 +1717,7 @@ function doSave(tab){
   if (!last){ body = '<div class="rp-empty">최초 저장입니다. 현재 ' + esc(label) + ' 내용을 저장합니다.</div>'; }
   else if (!diffs.length){ body = '<div class="rp-empty">마지막 저장 이후 바뀐 내용이 없습니다.<br>그래도 저장하시겠습니까?</div>'; }
   else {
-    body = '<div class="hd-list">' + diffs.map(function(dd){
-      var tag = '<span class="hd-tag">' + esc(dd.t) + '</span>';
-      var sub = dd.s ? ('<b>' + esc(dd.s) + '</b>') : '';
-      if (dd.change) return '<div class="hd-row">' + tag + sub + '<span class="hd-ch">' + esc(dd.change) + '</span></div>';
-      var ff = dd.ff ? (esc(dd.ff) + ' ') : '';
-      return '<div class="hd-row">' + tag + sub + ' ' + ff +
-        '<span class="hd-from">' + esc(dd.from) + '</span> <span class="hd-arrow">→</span> <span class="hd-to">' + esc(dd.to) + '</span></div>';
-    }).join('') + '</div>';
+    body = diffRowsHtml(diffs);   // 같은 요소의 여러 변경점은 한 줄로 합침
   }
   $('#saveConfirmBody').innerHTML = head + body;
   $('#saveConfirm').classList.add('open');

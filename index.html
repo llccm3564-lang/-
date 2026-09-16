@@ -373,7 +373,7 @@
      8개(2행) 이하는 .scrub 안 붙어 지금과 동일(가운데정렬). */
   .cf-svc.scrub{justify-content:flex-start;padding:calc(11 * var(--vhpx)) 0 calc(6 * var(--vhpx))}
   .cf-svc.scrub>.cf-svc-head,.cf-svc.scrub>.cf-grid{transform:translateY(var(--svcY,0px))}
-  .cf-svc-head{text-align:left;width:min(1140px,89vw);margin-bottom:32px;transform:translateY(30px)}   /* 폭=카드 그리드와 동일 / 헤드↔카드 여백 53→32px(60%) */
+  .cf-svc-head{text-align:left;width:min(1140px,89vw);margin:-20px 0 25px;transform:translateY(30px)}   /* 헤드↔카드 여백 25px + 전체 블록 위로 20px */
   .cf-svc-head .eyebrow{color:#98C6A8;font-size:13.5px}   /* 연한 네온그레이 / 크기=문의 라벨과 통일(13.5px) */
   .cf-svc-head .eyebrow::before{display:none}   /* SERVICES 앞 대시 제거 */
   .cf-svc-head h2{color:#fff;font-size:clamp(23.4px,2.88vw,34.2px);letter-spacing:-.035em;margin-top:3px;line-height:1.12;font-weight:900}   /* 크기 유지 / 굵기·자간·줄간격 임팩트↑ */
@@ -944,7 +944,7 @@
        브라우저마다 동작이 갈리고(터치 스크롤 체이닝·앵커링) 매 프레임 scrollHeight를 읽느라 강제 레이아웃도 났다.
        → 스크롤은 아예 건드리지 않고 --svcY로 내용만 transform 이동시킨다(합성만 하면 됨). 데스크톱 경로는 이 변수를 안 쓴다. */
     .cf-svc>.cf-svc-head,.cf-svc>.cf-grid{transform:translateY(var(--svcY,0px))}
-    .cf-svc-head{width:100%;margin-bottom:26px;transform:none}
+    .cf-svc-head{width:100%;margin:0 0 26px;transform:none}   /* 모바일은 위로20px 미적용(별도 레이아웃) */
     .cf-svc-head h2{font-size:clamp(21px,5.8vw,29px)}
     .cf-svc-head p{font-size:15px;line-height:1.55;margin-top:5px}   /* h2와의 줄 간격 10→5px(절반) */
     .cf-grid{width:100%;gap:11.4px}   /* 카드 사이 간격 12→11.4px(95%) — 아래 .cf-s 폭 계산과 한 세트 */
