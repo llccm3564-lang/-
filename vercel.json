@@ -1,5 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "xn--5y2bj92b.xn--2e0br59ap3af3foy0a.com" }],
+      "destination": "/clip2.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "클립.실행연구소.com" }],
+      "destination": "/clip2.html"
+    }
+  ],
   "headers": [
     {
       "source": "/admin.html",
@@ -8,6 +20,11 @@
     {
       "source": "/preview.html",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
+    },
+    {
+      "_comment": "clip.html 은 클립 랜딩 구판. 신판(clip2)과 내용이 겹쳐 중복으로 잡히지 않게 색인 제외.",
+      "source": "/clip.html",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },
     {
       "source": "/supabase/(.*)",
