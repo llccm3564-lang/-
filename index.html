@@ -450,7 +450,11 @@
   #cfPreview .bar{display:flex;align-items:center;gap:6px;padding:9px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
   #cfPreview .bar i{width:9px;height:9px;border-radius:50%;background:var(--gray-300);display:inline-block}
   #cfPreview .bar .u{margin-left:8px;font-size:11.5px;color:var(--faint);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  #cfPreview img{width:100%;height:190px;object-fit:cover;object-position:top;background:var(--gray-100);display:block}
+  #cfPreview .cfp-view{position:relative;width:100%;height:190px;overflow:hidden;background:var(--gray-100)}
+  #cfPreview .cfp-view img{width:100%;height:190px;object-fit:cover;object-position:top;display:block}
+  #cfPreview .cfp-frame{position:absolute;top:0;left:0;width:1200px;height:671px;border:0;background:#fff;
+    transform:scale(0.2833);transform-origin:0 0;opacity:0;transition:opacity .35s var(--ease);pointer-events:none}
+  #cfPreview .cfp-frame.on{opacity:1}
   #cfPreview .cap{padding:11px 14px;font-size:13px;font-weight:600;color:var(--muted);line-height:1.55}
   @media(hover:none){#cfPreview{display:none}}
   @media(max-width:860px){.cf-grid{grid-template-columns:repeat(2,1fr)}}
@@ -1279,7 +1283,7 @@
   </div>
 </section>
 <!-- 홈페이지 미리보기 창(커서 따라 팝업) — 패널 밖(transform·overflow 영향 없게) -->
-<div id="cfPreview"><div class="bar"><i></i><i></i><i></i><span class="u"></span></div><img alt="" /><div class="cap"></div></div>
+<div id="cfPreview"><div class="bar"><i></i><i></i><i></i><span class="u"></span></div><div class="cfp-view"><img alt="" /><iframe class="cfp-frame" title="사이트 미리보기" scrolling="no" tabindex="-1" aria-hidden="true"></iframe></div><div class="cap"></div></div>
 <!-- ===== 서비스 앵커/여백(다크→흰색 부드러운 전환, 애플식 멀티스톱 그라데이션) ===== -->
 <section id="services" style="height:56vh;background:linear-gradient(180deg,#111111 0%,#111111 40%,#1c1c1c 52%,#333333 63%,#5e5e5e 73%,#8f8f8f 82%,#bcbcbc 90%,#e2e2e2 96%,#ffffff 100%)"></section>
 
@@ -3043,8 +3047,17 @@
   (function(){
     var pv=document.getElementById('cfPreview'); if(!pv)return;
     if(pv.parentNode!==document.body) document.body.appendChild(pv);   // transform 조상 밖(body 직속)으로 → position:fixed 뷰포트 기준(안 그러면 화면 밖으로 튐)
-    var pvImg=pv.querySelector('img'), pvCap=pv.querySelector('.cap'), pvU=pv.querySelector('.u');
-    var cur=null;
+    var pvImg=pv.querySelector('img'), pvCap=pv.querySelector('.cap'), pvU=pv.querySelector('.u'), pvFrame=pv.querySelector('.cfp-frame');
+    var cur=null, frameT=null;
+    function loadFrame(href){   // 실제 사이트를 iframe으로 로드 → 뜨면 스크린샷 위로 페이드인(모션 실시간 구동)
+      if(!pvFrame||!href||href==='#')return;
+      clearTimeout(frameT);
+      frameT=setTimeout(function(){   // 살짝 지연 → 빠르게 지나가면 로드 안 함(무거움 완화)
+        pvFrame.onload=function(){ if(cur) pvFrame.classList.add('on'); };
+        pvFrame.src=href;
+      },260);
+    }
+    function clearFrame(){ clearTimeout(frameT); if(pvFrame){ pvFrame.classList.remove('on'); pvFrame.onload=null; if(pvFrame.getAttribute('src') && pvFrame.getAttribute('src')!=='about:blank') pvFrame.src='about:blank'; } }
     function bind(){   // 카드가 새로 만들어질 때마다(applySvc) 다시 호출 — 새 요소라 중복 리스너 없음
       document.querySelectorAll('#cfSvc .cf-s').forEach(function(card){
         if(card.__pvBound)return; card.__pvBound=true;   // 혹시 남아있는 카드 재바인딩 방지
@@ -3053,12 +3066,14 @@
           shot.addEventListener('mouseenter',function(){
             if(!card.classList.contains('has-link'))return;   // 링크(사이트) 연결된 서비스만 미리보기 창
             cur=card;
-            pvImg.src=card.getAttribute('data-shot')||'';
+            clearFrame();
+            pvImg.src=card.getAttribute('data-shot')||'';   // 스크린샷 먼저(즉시 표시)
             pvCap.textContent=card.getAttribute('data-desc')||'';
             pvU.textContent=card.getAttribute('data-url')||'#';
             pv.classList.add('on');
+            loadFrame(card.getAttribute('href'));   // 그 위로 실제 사이트(실시간 모션) 지연 로드
           });
-          shot.addEventListener('mouseleave',function(){ cur=null; pv.classList.remove('on'); });
+          shot.addEventListener('mouseleave',function(){ cur=null; pv.classList.remove('on'); clearFrame(); });
         }
         card.addEventListener('click',function(e){
           var url=card.getAttribute('data-url');
@@ -3284,11 +3299,14 @@
       '</a>';
     }).join('');
     grid.innerHTML=html;
-    /* 이미지 있는 카드만 --g 를 사진 배경으로 덮어씀(인라인 style 이스케이프 회피). 없으면 cf-gN 그라데이션 유지 */
+    /* 카드 배경 우선순위: 커스텀 이미지 > (링크 있으면) 사이트 스크린샷 > cf-gN 그라데이션 */
     var cards=grid.querySelectorAll('.cf-s');
     rows.forEach(function(s,i){
+      var c=cards[i]; if(!c) return;
+      var shot=c.querySelector('.cf-shot'); if(!shot) return;
       var simg=unpackImg(s.image).img;
-      if(simg && cards[i]){ var shot=cards[i].querySelector('.cf-shot'); if(shot) shot.style.setProperty('--g','url("'+String(simg).replace(/"/g,'%22')+'") center/cover no-repeat'); }
+      if(simg){ shot.style.setProperty('--g','url("'+String(simg).replace(/"/g,'%22')+'") center/cover no-repeat'); }
+      else if(c.classList.contains('has-link')){ var sh=c.getAttribute('data-shot'); if(sh) shot.style.setProperty('--g','url("'+sh.replace(/"/g,'%22')+'") center/cover no-repeat'); }   // 사이트 있는 서비스 = 실제 사이트 스크린샷
     });
     if(typeof window.__svcHeight==='function') window.__svcHeight();   // 카드 수 바뀌면 섹션 높이 재계산
     if(typeof window.__svcSquircle==='function') window.__svcSquircle();   // 둥근 모서리(스쿼클) 재적용
