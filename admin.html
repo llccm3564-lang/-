@@ -214,11 +214,19 @@
 
   /* 이미지 조정기(자르기·확대·위치) 모달 */
   .ie-stage{position:relative;margin:14px auto 0;background:#11150f;border:1px solid var(--line-2);border-radius:10px;
-    overflow:hidden;touch-action:none;max-width:100%}
-  .ie-img{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;user-select:none;-webkit-user-drag:none;pointer-events:none}
-  .ie-frame-mask{position:absolute;inset:0;box-shadow:0 0 0 100vmax rgba(10,14,12,.55) inset;pointer-events:none;
-    outline:1px solid rgba(255,255,255,.5)}
-  .ie-grid-l{position:absolute;background:rgba(255,255,255,.25);pointer-events:none}
+    overflow:hidden;touch-action:none;max-width:100%;box-sizing:content-box;padding:18px;width:max-content}
+  .ie-canvas{position:relative;line-height:0}
+  .ie-img{display:block;width:100%;height:100%;user-select:none;-webkit-user-drag:none;pointer-events:none}
+  /* 크롭 박스: 사진 위에 얹혀 바깥은 어둡게(box-shadow), 모서리 핸들로 폭·높이 자유조절 + 안쪽 드래그 이동 */
+  .ie-crop{position:absolute;box-sizing:border-box;outline:1.5px solid #fff;box-shadow:0 0 0 9999px rgba(10,14,12,.58);cursor:move;touch-action:none}
+  .ie-crop::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(rgba(255,255,255,.25),rgba(255,255,255,.25)) center/100% 1px no-repeat,
+      linear-gradient(rgba(255,255,255,.25),rgba(255,255,255,.25)) center/1px 100% no-repeat}
+  .ie-h{position:absolute;width:14px;height:14px;background:#fff;border:1px solid rgba(0,0,0,.35);border-radius:3px;z-index:2}
+  .ie-nw{left:-8px;top:-8px;cursor:nwse-resize}   .ie-ne{right:-8px;top:-8px;cursor:nesw-resize}
+  .ie-sw{left:-8px;bottom:-8px;cursor:nesw-resize} .ie-se{right:-8px;bottom:-8px;cursor:nwse-resize}
+  .ie-n{left:50%;top:-8px;transform:translateX(-50%);cursor:ns-resize}  .ie-s{left:50%;bottom:-8px;transform:translateX(-50%);cursor:ns-resize}
+  .ie-w{top:50%;left:-8px;transform:translateY(-50%);cursor:ew-resize}  .ie-e{top:50%;right:-8px;transform:translateY(-50%);cursor:ew-resize}
   .ie-row{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
   .ie-row label{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
   .ie-row input[type=range]{flex:1;min-width:140px;accent-color:var(--green)}
@@ -696,11 +704,17 @@
   <div class="modal-card ie-card">
     <button class="modal-close" data-ie-cancel aria-label="닫기">✕</button>
     <h3 id="ieTitle">사진 조정</h3>
-    <div class="card-note" style="margin-bottom:0">확대/축소 슬라이더 · 드래그로 위치 · 비율 선택 후 <b style="color:var(--ink)">적용</b>. 저장 시 자동으로 압축·축소됩니다.</div>
-    <div id="ieStage" class="ie-stage"><img id="ieImg" class="ie-img" alt=""><div class="ie-frame-mask"></div></div>
-    <div class="ie-row"><label>확대</label><input type="range" id="ieZoom" min="1" max="4" step="0.01" value="1"></div>
-    <div class="ie-row"><label>비율</label><div class="ie-asp" id="ieAsp"></div></div>
-    <div class="ie-hint">마우스 휠로도 확대/축소돼요. 사진을 끌어 위치를 맞추세요.</div>
+    <div class="card-note" style="margin-bottom:0">박스 모서리를 끌어 크기 조절 · 안쪽을 끌어 위치 이동 · 휠로 확대/축소 후 <b style="color:var(--ink)">적용</b>. 저장 시 자동 압축·축소.</div>
+    <div id="ieStage" class="ie-stage"><div id="ieCanvas" class="ie-canvas"><img id="ieImg" class="ie-img" alt="">
+      <div id="ieCrop" class="ie-crop">
+        <span class="ie-h ie-nw" data-h="nw"></span><span class="ie-h ie-ne" data-h="ne"></span>
+        <span class="ie-h ie-sw" data-h="sw"></span><span class="ie-h ie-se" data-h="se"></span>
+        <span class="ie-h ie-n" data-h="n"></span><span class="ie-h ie-s" data-h="s"></span>
+        <span class="ie-h ie-w" data-h="w"></span><span class="ie-h ie-e" data-h="e"></span>
+      </div>
+    </div></div>
+    <div class="ie-row"><label>빠른 비율</label><div class="ie-asp" id="ieAsp"></div></div>
+    <div class="ie-hint">모서리=크기 조절 · 박스 안=위치 이동 · 휠=확대/축소. 밝은 사각형이 잘릴 영역입니다.</div>
     <div class="ie-actions">
       <button class="btn btn-ghost" data-ie-cancel>취소</button>
       <button class="btn btn-primary" id="ieApply">적용</button>
@@ -2097,7 +2111,7 @@ function applyImageTo(type, id, file){
 /* ================================================================
    이미지 조정기(자르기·확대·위치) + 자동 압축·축소  — 레퍼·담당자 공용
    ================================================================ */
-var IE = { img:null, nw:0, nh:0, aspect:1, zoom:1, base:1, tx:0, ty:0, fw:0, fh:0, onApply:null, drag:null, bound:false };
+var IE = { img:null, nw:0, nh:0, dw:0, dh:0, scale:1, box:{x:0,y:0,w:0,h:0}, srcUrl:null, onApply:null, bound:false, drag:null };
 var IE_ASPECTS = [ ['원본', null], ['16:10', 16/10], ['4:3', 4/3], ['1:1', 1], ['3:4', 3/4] ];
 var IE_MAXOUT = 1280;   // 출력 긴 변 상한(px) — 압축
 
@@ -2108,18 +2122,21 @@ function openImgEditor(dataUrl, opts, onApply){
   var im = new Image();
   im.onload = function(){
     IE.img = im; IE.nw = im.naturalWidth; IE.nh = im.naturalHeight;
-    var rs = opts.restore;   // 이전 편집(확대·위치·비율) 복원값
-    var defAsp = rs ? rs.aspect : ((opts.aspect !== undefined) ? opts.aspect : null);   // null = 원본 비율
-    var isOrig = (defAsp == null) || (rs && Math.abs(defAsp - IE.nw / IE.nh) < 0.002);
-    $('#ieAsp').innerHTML = IE_ASPECTS.map(function(a){
-      var val = (a[1] == null) ? 'orig' : a[1];
-      var on = (a[1] == null && isOrig) || (a[1] != null && !isOrig && Math.abs(a[1] - defAsp) < 0.002);
-      return '<button data-ie-asp="' + val + '"' + (on ? ' class="on"' : '') + '>' + a[0] + '</button>';
-    }).join('');
+    var maxW = 480, maxH = 340;
+    IE.scale = Math.min(maxW / IE.nw, maxH / IE.nh); if (IE.scale > 3) IE.scale = 3;   // 사진 전체를 보이게(contain)
+    IE.dw = Math.round(IE.nw * IE.scale); IE.dh = Math.round(IE.nh * IE.scale);
+    var cv = $('#ieCanvas'); cv.style.width = IE.dw + 'px'; cv.style.height = IE.dh + 'px';   // 이미지 둘레 여백(패딩)으로 핸들이 안 잘림
+    $('#ieImg').src = IE.img.src;
+    $('#ieAsp').innerHTML = IE_ASPECTS.map(function(a){ var v = (a[1] == null) ? 'orig' : a[1]; return '<button data-ie-asp="' + v + '">' + a[0] + '</button>'; }).join('');
     $('#ieTitle').textContent = opts.title || '사진 조정';
-    IE.zoom = rs ? rs.zoom : 1; $('#ieZoom').value = IE.zoom;
-    ieSetAspect(defAsp == null ? (IE.nw / IE.nh) : defAsp);   // base·중앙정렬·transform 적용(현재 zoom 반영)
-    if (rs){ IE.tx = rs.tx; IE.ty = rs.ty; ieClamp(false); ieApplyTransform(); }   // 이전 위치 복원
+    var rs = opts.restore;
+    if (rs && rs.sw != null && rs.sx != null){   // 이전 크롭 영역(원본 px)을 박스로 복원
+      IE.box = { x: rs.sx * IE.scale, y: rs.sy * IE.scale, w: rs.sw * IE.scale, h: rs.sh * IE.scale };
+      ieClampBox();
+    } else {
+      IE.box = { x:0, y:0, w:IE.dw, h:IE.dh };   // 기본 = 전체(원본)
+    }
+    ieLayout();
     $('#imgEditor').classList.add('open');
   };
   im.onerror = function(){ toast('이미지를 불러오지 못했습니다.', true); };
@@ -2141,71 +2158,76 @@ function downscaleImage(dataUrl, maxDim, cb){
   im.onerror = function(){ cb(dataUrl); };
   im.src = dataUrl;
 }
-function ieStageSize(){
-  var maxW = 480, maxH = 340, a = IE.aspect;
-  var fw = maxW, fh = fw / a; if (fh > maxH){ fh = maxH; fw = fh * a; }
-  IE.fw = Math.round(fw); IE.fh = Math.round(fh);
-  var st = $('#ieStage'); st.style.width = IE.fw + 'px'; st.style.height = IE.fh + 'px';
+function ieLayout(){ var c = $('#ieCrop'); if (!c) return; c.style.left = IE.box.x + 'px'; c.style.top = IE.box.y + 'px'; c.style.width = IE.box.w + 'px'; c.style.height = IE.box.h + 'px'; }
+function ieClampBox(){ var b = IE.box, MIN = 24;
+  b.w = Math.max(MIN, Math.min(b.w, IE.dw)); b.h = Math.max(MIN, Math.min(b.h, IE.dh));
+  b.x = Math.max(0, Math.min(b.x, IE.dw - b.w)); b.y = Math.max(0, Math.min(b.y, IE.dh - b.h)); }
+function iePreset(a){   // 빠른 비율: 그 비율의 최대 박스를 중앙에(원본=전체)
+  if (a == null){ IE.box = { x:0, y:0, w:IE.dw, h:IE.dh }; ieLayout(); return; }
+  var w = IE.dw, h = w / a; if (h > IE.dh){ h = IE.dh; w = h * a; }
+  IE.box = { x:(IE.dw - w) / 2, y:(IE.dh - h) / 2, w:w, h:h }; ieLayout();
 }
-function ieSetAspect(a){
-  IE.aspect = a; ieStageSize();
-  IE.base = Math.max(IE.fw / IE.nw, IE.fh / IE.nh);   // cover
-  ieClamp(true); ieApplyTransform();
+function ieResize(dx, dy){   // 모서리 핸들로 폭·높이 자유 조절(이미지 밖으로 안 나감, 최소 24px)
+  var b = IE.drag.box0, h = IE.drag.h, MIN = 24;
+  var x = b.x, y = b.y, w = b.w, ht = b.h;
+  if (h.indexOf('e') >= 0) w = b.w + dx;
+  if (h.indexOf('w') >= 0){ x = b.x + dx; w = b.w - dx; }
+  if (h.indexOf('s') >= 0) ht = b.h + dy;
+  if (h.indexOf('n') >= 0){ y = b.y + dy; ht = b.h - dy; }
+  if (w < MIN){ if (h.indexOf('w') >= 0) x = b.x + b.w - MIN; w = MIN; }
+  if (ht < MIN){ if (h.indexOf('n') >= 0) y = b.y + b.h - MIN; ht = MIN; }
+  if (x < 0){ w += x; x = 0; }
+  if (y < 0){ ht += y; y = 0; }
+  if (x + w > IE.dw) w = IE.dw - x;
+  if (y + ht > IE.dh) ht = IE.dh - y;
+  IE.box = { x:x, y:y, w:Math.max(MIN, w), h:Math.max(MIN, ht) }; ieLayout();
 }
-function ieScale(){ return IE.base * IE.zoom; }
-function ieClamp(center){
-  var s = ieScale(), iw = IE.nw * s, ih = IE.nh * s;
-  if (center){ IE.tx = (IE.fw - iw) / 2; IE.ty = (IE.fh - ih) / 2; }
-  IE.tx = Math.min(0, Math.max(IE.fw - iw, IE.tx));
-  IE.ty = Math.min(0, Math.max(IE.fh - ih, IE.ty));
-}
-function ieApplyTransform(){
-  var s = ieScale(), el = $('#ieImg');
-  el.style.width = IE.nw + 'px'; el.style.height = IE.nh + 'px';
-  el.style.transform = 'translate(' + IE.tx + 'px,' + IE.ty + 'px) scale(' + s + ')';
-  if (el.src !== IE.img.src) el.src = IE.img.src;
-}
-function ieSetZoom(z){
-  z = Math.min(4, Math.max(1, z));
-  var oldS = ieScale(), cx = IE.fw / 2, cy = IE.fh / 2;
-  var sx = (cx - IE.tx) / oldS, sy = (cy - IE.ty) / oldS;
-  IE.zoom = z; $('#ieZoom').value = z;
-  var newS = ieScale();
-  IE.tx = cx - sx * newS; IE.ty = cy - sy * newS;
-  ieClamp(false); ieApplyTransform();
+function ieMove(dx, dy){ var b = IE.drag.box0; IE.box = { x:b.x + dx, y:b.y + dy, w:b.w, h:b.h }; ieClampBox(); ieLayout(); }
+function ieWheelZoom(f, cx, cy){   // 커서 기준으로 박스 크기 스케일(작아지면 더 확대된 결과)
+  var b = IE.box;
+  IE.box = { x: cx - (cx - b.x) * f, y: cy - (cy - b.y) * f, w: b.w * f, h: b.h * f };
+  ieClampBox(); ieLayout();
 }
 function ieOutput(){
-  var s = ieScale();
-  var srcX = (-IE.tx) / s, srcY = (-IE.ty) / s, srcW = IE.fw / s, srcH = IE.fh / s;
-  var outW = srcW, outH = srcH, m = Math.max(outW, outH);
+  var s = IE.scale;
+  var sx = IE.box.x / s, sy = IE.box.y / s, sw = IE.box.w / s, sh = IE.box.h / s;   // 크롭 영역(원본 px)
+  var outW = sw, outH = sh, m = Math.max(outW, outH);
   if (m > IE_MAXOUT){ var k = IE_MAXOUT / m; outW *= k; outH *= k; }
   outW = Math.max(1, Math.round(outW)); outH = Math.max(1, Math.round(outH));
   var c = document.createElement('canvas'); c.width = outW; c.height = outH;
   var ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(IE.img, srcX, srcY, srcW, srcH, 0, 0, outW, outH);
+  ctx.drawImage(IE.img, sx, sy, sw, sh, 0, 0, outW, outH);
   var out;
   try { out = c.toDataURL('image/webp', 0.82); if (out.indexOf('image/webp') < 0) throw 0; }
   catch(e){ out = c.toDataURL('image/jpeg', 0.85); }
-  return out;
+  return { out: out, crop: { sx:sx, sy:sy, sw:sw, sh:sh } };   // crop=재편집 복원용(원본 px 사각형)
 }
-function closeImgEditor(){ $('#imgEditor').classList.remove('open'); IE.onApply = null; }
+function closeImgEditor(){ $('#imgEditor').classList.remove('open'); IE.onApply = null; IE.drag = null; }
 function ieBind(){
   if (IE.bound) return; IE.bound = true;
   var st = $('#ieStage');
-  st.addEventListener('pointerdown', function(e){ IE.drag = { x:e.clientX, y:e.clientY, tx:IE.tx, ty:IE.ty }; try{ st.setPointerCapture(e.pointerId); }catch(_){}
+  st.addEventListener('pointerdown', function(e){
+    var h = e.target.getAttribute && e.target.getAttribute('data-h');   // 핸들이면 resize, 박스 안이면 move
+    var crop = $('#ieCrop');
+    var mode = h ? 'resize' : ((crop && crop.contains(e.target)) ? 'move' : null);
+    if (!mode) return;
+    IE.drag = { mode:mode, h:h, x:e.clientX, y:e.clientY, box0:{ x:IE.box.x, y:IE.box.y, w:IE.box.w, h:IE.box.h } };
+    try { st.setPointerCapture(e.pointerId); } catch(_){ }
+    e.preventDefault();
   });
-  st.addEventListener('pointermove', function(e){ if (!IE.drag) return; IE.tx = IE.drag.tx + (e.clientX - IE.drag.x); IE.ty = IE.drag.ty + (e.clientY - IE.drag.y); ieClamp(false); ieApplyTransform(); });
+  st.addEventListener('pointermove', function(e){
+    if (!IE.drag) return;
+    var dx = e.clientX - IE.drag.x, dy = e.clientY - IE.drag.y;
+    if (IE.drag.mode === 'resize') ieResize(dx, dy); else ieMove(dx, dy);
+  });
   st.addEventListener('pointerup', function(){ IE.drag = null; });
   st.addEventListener('pointercancel', function(){ IE.drag = null; });
-  st.addEventListener('wheel', function(e){ e.preventDefault(); ieSetZoom(IE.zoom * (e.deltaY < 0 ? 1.08 : 0.926)); }, { passive:false });
-  $('#ieZoom').addEventListener('input', function(){ ieSetZoom(parseFloat(this.value)); });
-  $('#ieAsp').addEventListener('click', function(e){ var b = e.target.closest('[data-ie-asp]'); if (!b) return;
-    $all('#ieAsp button').forEach(function(x){ x.classList.toggle('on', x === b); });
-    var v = b.getAttribute('data-ie-asp'); ieSetAspect(v === 'orig' ? (IE.nw / IE.nh) : parseFloat(v)); });
+  st.addEventListener('wheel', function(e){ e.preventDefault(); var r = $('#ieCanvas').getBoundingClientRect(); ieWheelZoom(e.deltaY < 0 ? 0.92 : 1.08, e.clientX - r.left, e.clientY - r.top); }, { passive:false });
+  $('#ieAsp').addEventListener('click', function(e){ var b = e.target.closest('[data-ie-asp]'); if (!b) return; var v = b.getAttribute('data-ie-asp'); iePreset(v === 'orig' ? null : parseFloat(v)); });
   $('#ieApply').addEventListener('click', function(){
-    var out = ieOutput();
-    var meta = { crop:{ zoom:IE.zoom, tx:IE.tx, ty:IE.ty, aspect:IE.aspect }, src:IE.srcUrl };   // 재편집 복원용
-    var cb = IE.onApply; closeImgEditor(); if (cb) cb(out, meta);
+    var o = ieOutput();
+    var meta = { crop:o.crop, src:IE.srcUrl };   // 재편집 복원용(원본 px 크롭 사각형)
+    var cb = IE.onApply; closeImgEditor(); if (cb) cb(o.out, meta);
   });
   $all('[data-ie-cancel]').forEach(function(b){ b.addEventListener('click', closeImgEditor); });
 }
