@@ -3036,6 +3036,7 @@
     if('ResizeObserver' in window){ var ro=new ResizeObserver(function(){run();}); document.querySelectorAll('#cfSvc .cf-s,#cfSvc .cf-shot').forEach(function(el){ro.observe(el);}); }
     window.addEventListener('resize',run);
     if(document.fonts&&document.fonts.ready) document.fonts.ready.then(run);
+    window.__svcSquircle=function(){ run(); setTimeout(run,120); setTimeout(run,400); };   // applySvc가 카드 새로 만든 뒤 스쿼클 재적용
   })();
 
   /* [X1] 십자가 회색화면 서비스 — hover 시 홈페이지 미리보기 창 팝업(커서 따라감) */
@@ -3044,24 +3045,29 @@
     if(pv.parentNode!==document.body) document.body.appendChild(pv);   // transform 조상 밖(body 직속)으로 → position:fixed 뷰포트 기준(안 그러면 화면 밖으로 튐)
     var pvImg=pv.querySelector('img'), pvCap=pv.querySelector('.cap'), pvU=pv.querySelector('.u');
     var cur=null;
-    document.querySelectorAll('#cfSvc .cf-s').forEach(function(card){
-      var shot=card.querySelector('.cf-shot');   // 미리보기는 이미지(.cf-shot) 위에서만
-      if(shot){
-        shot.addEventListener('mouseenter',function(){
-          if(!card.classList.contains('has-link'))return;   // 링크(사이트) 연결된 서비스만 미리보기 창
-          cur=card;
-          pvImg.src=card.getAttribute('data-shot')||'';
-          pvCap.textContent=card.getAttribute('data-desc')||'';
-          pvU.textContent=card.getAttribute('data-url')||'#';
-          pv.classList.add('on');
+    function bind(){   // 카드가 새로 만들어질 때마다(applySvc) 다시 호출 — 새 요소라 중복 리스너 없음
+      document.querySelectorAll('#cfSvc .cf-s').forEach(function(card){
+        if(card.__pvBound)return; card.__pvBound=true;   // 혹시 남아있는 카드 재바인딩 방지
+        var shot=card.querySelector('.cf-shot');   // 미리보기는 이미지(.cf-shot) 위에서만
+        if(shot){
+          shot.addEventListener('mouseenter',function(){
+            if(!card.classList.contains('has-link'))return;   // 링크(사이트) 연결된 서비스만 미리보기 창
+            cur=card;
+            pvImg.src=card.getAttribute('data-shot')||'';
+            pvCap.textContent=card.getAttribute('data-desc')||'';
+            pvU.textContent=card.getAttribute('data-url')||'#';
+            pv.classList.add('on');
+          });
+          shot.addEventListener('mouseleave',function(){ cur=null; pv.classList.remove('on'); });
+        }
+        card.addEventListener('click',function(e){
+          var url=card.getAttribute('data-url');
+          if(!url||url==='#'){ e.preventDefault(); }   // 링크 없는 카드: 아무 반응 없음(멘트·이동 X)
         });
-        shot.addEventListener('mouseleave',function(){ cur=null; pv.classList.remove('on'); });
-      }
-      card.addEventListener('click',function(e){
-        var url=card.getAttribute('data-url');
-        if(!url||url==='#'){ e.preventDefault(); }   // 링크 없는 카드: 아무 반응 없음(멘트·이동 X)
       });
-    });
+    }
+    bind();
+    window.__cfPreviewBind=bind;   // applySvc가 카드 재생성 후 호출
     window.addEventListener('mousemove',function(e){
       if(!cur)return;
       var w=pv.offsetWidth,h=pv.offsetHeight,pad=18;
@@ -3267,7 +3273,7 @@
       var attrs='';
       if(real){
         var bare=u.split('://').pop(); if(bare.slice(-1)==='/') bare=bare.slice(0,-1);
-        attrs=' href="'+esc(u)+'" target="_blank" rel="noopener" data-url="'+esc(bare)+'" data-shot="https://s.wordpress.com/mshots/v1/'+encodeURIComponent(u)+'?w=680"';
+        attrs=' href="'+esc(u)+'" target="_blank" rel="noopener" data-url="'+esc(bare)+'" data-shot="https://s.wordpress.com/mshots/v1/'+encodeURIComponent(u)+'?w=680" data-desc="'+esc(s.descr||'')+'"';
       }
       var tags=(s.tags||[]).map(function(t){return '<span>'+esc(t)+'</span>';}).join('');
       return '<a class="'+cls+'"'+attrs+'>'+
@@ -3285,6 +3291,8 @@
       if(simg && cards[i]){ var shot=cards[i].querySelector('.cf-shot'); if(shot) shot.style.setProperty('--g','url("'+String(simg).replace(/"/g,'%22')+'") center/cover no-repeat'); }
     });
     if(typeof window.__svcHeight==='function') window.__svcHeight();   // 카드 수 바뀌면 섹션 높이 재계산
+    if(typeof window.__svcSquircle==='function') window.__svcSquircle();   // 둥근 모서리(스쿼클) 재적용
+    if(typeof window.__cfPreviewBind==='function') window.__cfPreviewBind();   // 호버 미리보기 재바인딩
   }
 
   /* ---- 레퍼런스: 어드민 행 수만큼 카드를 새로 생성(6개 넘어도 전부 표시) ---- */
