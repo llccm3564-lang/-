@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "_comment": "클립 랜딩(클립.실행연구소.com)은 같은 저장소의 clip/ 폴더를 Root Directory 로 쓰는 별도 Vercel 프로젝트다. 여기 리라이트는 필요 없다.",
   "headers": [
     {
       "source": "/admin.html",
@@ -11,7 +10,6 @@
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
-      "_comment": "clip.html 은 클립 랜딩 구판. 신판(clip2)과 내용이 겹쳐 중복으로 잡히지 않게 색인 제외.",
       "source": "/clip.html",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },
