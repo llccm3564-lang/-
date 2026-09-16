@@ -32,3 +32,11 @@ _editor_state.json
 
 # 모자이크 전 원본 — 공개되면 안 됨(위치·계정·업체명 노출). 로컬에만 둔다.
 assets/클립 상위노출.png
+
+# 클립 랜딩 영상 원본 — 배포에는 web/ 변환본(5.7MB)만 쓴다. 원본 101MB는 로컬에만.
+assets/클립_랜딩페이지/*.mp4
+assets/클립_랜딩페이지/*.mov
+
+# 로컬 실험·임시
+_roll_demo.html
+_del_ids.txt
