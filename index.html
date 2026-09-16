@@ -408,7 +408,7 @@
   .cf-shot{position:relative;z-index:1;aspect-ratio:4/3;overflow:hidden;border-radius:16px}   /* 레퍼런스 종횡비 4:3, 여백은 카드 padding으로 균일. border-radius=폴백, 진짜 스쿼클은 JS clip-path */
   .cf-shot::before{content:"";position:absolute;inset:0;z-index:0;background:var(--g,#0e2418);transition:transform .5s var(--ease)}
   .cf-shot::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.20))}
-  .cf-s:hover .cf-shot::before{transform:scale(1.06)}   /* 이미지 아주 살짝 확대 */
+  /* hover 시 카드 이미지 확대 없음(요청) */
   .cf-arrow{position:absolute;top:8px;right:8px;z-index:2;width:29px;height:29px;border-radius:50%;background:rgba(0,0,0,.42);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:grid;place-items:center;color:#fff;opacity:0;transform:translateY(-4px) scale(.9);transition:opacity .3s var(--ease),transform .3s var(--ease);pointer-events:none}
   .cf-arrow svg{width:14px;height:14px}
   .cf-s:hover .cf-arrow{opacity:1;transform:translateY(0) scale(1)}

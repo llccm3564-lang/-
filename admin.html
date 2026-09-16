@@ -1394,8 +1394,10 @@ function genSvcDesc(){
 function renderSvcModalThumb(s){
   var t = $('#svcModalThumb');
   if (s.image){ t.className = 'svc-modal-thumb'; t.innerHTML = '<img src="' + esc(s.image) + '" alt="">'; return; }
+  var real = s.url && s.url.trim() && s.url.trim() !== '#';
+  if (real){ t.className = 'svc-modal-thumb'; t.innerHTML = '<img src="https://s.wordpress.com/mshots/v1/' + encodeURIComponent(s.url.trim()) + '?w=680" alt="사이트 스크린샷">'; return; }   // 링크 있으면 사이트 스크린샷
   var i = 0; for (var k = 0; k < state.svc.length; k++){ if (state.svc[k].id === s.id){ i = k; break; } }
-  t.className = 'svc-modal-thumb svc-grad' + ((i % 12) + 1);   // 이미지 없으면 홈페이지 그라데이션(12색)
+  t.className = 'svc-modal-thumb svc-grad' + ((i % 12) + 1);   // 이미지·링크 없으면 홈페이지 그라데이션(12색)
   t.innerHTML = '';
 }
 function closeSvcModal(){ $('#svcModal').classList.remove('open'); SVCM.id = null; }
@@ -1425,9 +1427,19 @@ function svcImgApply(out, meta){
 // 서비스 모달 썸네일 클릭: 사진 있으면 조정(이전 확대·위치 복원), 없으면 파일 선택
 function svcModalImg(){
   var s = state.svc.filter(function(x){ return x.id === SVCM.id; })[0]; if (!s) return;
-  if (s._editSrc && s._crop) openImgEditor(s._editSrc, { title:'서비스 사진 조정', restore:s._crop }, svcImgApply);
-  else if (s.image) openImgEditor(s.image, { title:'서비스 사진 조정' }, svcImgApply);
-  else { var inp = $('#svcfImgInput'); if (inp) inp.click(); }
+  if (s._editSrc && s._crop){ openImgEditor(s._editSrc, { title:'서비스 사진 조정', restore:s._crop }, svcImgApply); return; }
+  if (s.image){ openImgEditor(s.image, { title:'서비스 사진 조정' }, svcImgApply); return; }
+  var real = s.url && s.url.trim() && s.url.trim() !== '#';
+  if (real){   // 사이트 스크린샷을 같은출처 프록시로 불러와 레퍼처럼 크롭·조정
+    toast('사이트 스크린샷 불러오는 중...');
+    fetch('/api/shot?url=' + encodeURIComponent(s.url.trim()))
+      .then(function(r){ return r.ok ? r.blob() : Promise.reject(); })
+      .then(function(blob){ return new Promise(function(res){ var fr = new FileReader(); fr.onload = function(){ res(fr.result); }; fr.readAsDataURL(blob); }); })
+      .then(function(dataUrl){ downscaleImage(dataUrl, 1600, function(src){ openImgEditor(src, { title:'사이트 스크린샷 조정' }, svcImgApply); }); })
+      .catch(function(){ toast('스크린샷을 못 불러왔어요. 파일로 올려주세요.', true); var inp = $('#svcfImgInput'); if (inp) inp.click(); });
+    return;
+  }
+  var inp = $('#svcfImgInput'); if (inp) inp.click();
 }
 
 /* ================================================================
