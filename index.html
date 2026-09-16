@@ -373,7 +373,7 @@
      8개(2행) 이하는 .scrub 안 붙어 지금과 동일(가운데정렬). */
   .cf-svc.scrub{justify-content:flex-start;padding:calc(11 * var(--vhpx)) 0 calc(6 * var(--vhpx))}
   .cf-svc.scrub>.cf-svc-head,.cf-svc.scrub>.cf-grid{transform:translateY(var(--svcY,0px))}
-  .cf-svc-head{text-align:left;width:min(1140px,89vw);margin:-20px 0 25px;transform:translateY(30px)}   /* 헤드↔카드 여백 25px + 전체 블록 위로 20px */
+  .cf-svc-head{text-align:left;width:min(1140px,89vw);margin:-20px 0 15px;transform:translateY(30px)}   /* 헤드↔카드 여백 15px + 전체 블록 위로 20px */
   .cf-svc-head .eyebrow{color:#98C6A8;font-size:13.5px}   /* 연한 네온그레이 / 크기=문의 라벨과 통일(13.5px) */
   .cf-svc-head .eyebrow::before{display:none}   /* SERVICES 앞 대시 제거 */
   .cf-svc-head h2{color:#fff;font-size:clamp(23.4px,2.88vw,34.2px);letter-spacing:-.035em;margin-top:3px;line-height:1.12;font-weight:900}   /* 크기 유지 / 굵기·자간·줄간격 임팩트↑ */
@@ -425,6 +425,12 @@
   .cf-g4{--g:radial-gradient(120% 130% at 78% 16%,#c6a0ff,transparent 55%),radial-gradient(120% 120% at 12% 88%,#6b3fd0,transparent 60%),#160f28}   /* 바이올렛 */
   .cf-g5{--g:radial-gradient(120% 130% at 20% 14%,#ffd692,transparent 55%),radial-gradient(120% 120% at 90% 90%,#d98a2b,transparent 60%),#241a0d}   /* 앰버 */
   .cf-g6{--g:radial-gradient(120% 130% at 84% 20%,#ff9fce,transparent 55%),radial-gradient(120% 120% at 10% 86%,#d03f8a,transparent 60%),#260e1a}   /* 핑크 */
+  .cf-g7{--g:radial-gradient(120% 130% at 24% 14%,#7fe0ff,transparent 55%),radial-gradient(120% 120% at 88% 88%,#2b8fd0,transparent 60%),#0a1a26}   /* 사이언 */
+  .cf-g8{--g:radial-gradient(120% 130% at 80% 16%,#a6b0ff,transparent 55%),radial-gradient(120% 120% at 12% 90%,#4b3fd0,transparent 60%),#0f1030}   /* 인디고 */
+  .cf-g9{--g:radial-gradient(120% 130% at 22% 14%,#ffb0a0,transparent 55%),radial-gradient(120% 120% at 90% 88%,#d04b3f,transparent 60%),#260f0d}   /* 코럴레드 */
+  .cf-g10{--g:radial-gradient(120% 130% at 26% 16%,#d6ff92,transparent 55%),radial-gradient(120% 120% at 88% 90%,#7ba52b,transparent 60%),#1a240d}   /* 라임 */
+  .cf-g11{--g:radial-gradient(120% 130% at 82% 16%,#e0a0ff,transparent 55%),radial-gradient(120% 120% at 10% 88%,#9b2bd0,transparent 60%),#1f0f28}   /* 마젠타 */
+  .cf-g12{--g:radial-gradient(120% 130% at 20% 14%,#ffc892,transparent 55%),radial-gradient(120% 120% at 90% 90%,#d0762b,transparent 60%),#241408}   /* 오렌지 */
   .cf-s.soon{--g:radial-gradient(120% 130% at 30% 20%,#8a9a90,transparent 62%),#171b18}   /* 딤(.55)은 리빌 애니 종료값으로. 기본은 .cf-grid .cf-s{opacity:0}로 숨김 */
   .cf-s.soon::before{opacity:.22}
   .cf-s.soon .cf-shot{filter:saturate(.55)}
@@ -3252,7 +3258,7 @@
        이미지 없으면 원래 그라데이션(.cf-g1~g6)을 순환 배정 → 새 서비스도 자동으로 색이 입혀진다. */
     var grid=document.querySelector('.cf-grid');
     if(!grid||!rows||!rows.length) return;
-    var GRAD=['cf-g1','cf-g2','cf-g3','cf-g4','cf-g5','cf-g6'];
+    var GRAD=['cf-g1','cf-g2','cf-g3','cf-g4','cf-g5','cf-g6','cf-g7','cf-g8','cf-g9','cf-g10','cf-g11','cf-g12'];
     var ARROW='<span class="cf-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>';
     var html=rows.map(function(s,i){
       var u=(s.url==null?'':String(s.url)).trim();

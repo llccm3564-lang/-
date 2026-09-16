@@ -301,6 +301,12 @@
   .svc-grad4{background:radial-gradient(120% 130% at 78% 16%,#c6a0ff,transparent 55%),radial-gradient(120% 120% at 12% 88%,#6b3fd0,transparent 60%),#160f28 !important}
   .svc-grad5{background:radial-gradient(120% 130% at 20% 14%,#ffd692,transparent 55%),radial-gradient(120% 120% at 90% 90%,#d98a2b,transparent 60%),#241a0d !important}
   .svc-grad6{background:radial-gradient(120% 130% at 84% 20%,#ff9fce,transparent 55%),radial-gradient(120% 120% at 10% 86%,#d03f8a,transparent 60%),#260e1a !important}
+  .svc-grad7{background:radial-gradient(120% 130% at 24% 14%,#7fe0ff,transparent 55%),radial-gradient(120% 120% at 88% 88%,#2b8fd0,transparent 60%),#0a1a26 !important}
+  .svc-grad8{background:radial-gradient(120% 130% at 80% 16%,#a6b0ff,transparent 55%),radial-gradient(120% 120% at 12% 90%,#4b3fd0,transparent 60%),#0f1030 !important}
+  .svc-grad9{background:radial-gradient(120% 130% at 22% 14%,#ffb0a0,transparent 55%),radial-gradient(120% 120% at 90% 88%,#d04b3f,transparent 60%),#260f0d !important}
+  .svc-grad10{background:radial-gradient(120% 130% at 26% 16%,#d6ff92,transparent 55%),radial-gradient(120% 120% at 88% 90%,#7ba52b,transparent 60%),#1a240d !important}
+  .svc-grad11{background:radial-gradient(120% 130% at 82% 16%,#e0a0ff,transparent 55%),radial-gradient(120% 120% at 10% 88%,#9b2bd0,transparent 60%),#1f0f28 !important}
+  .svc-grad12{background:radial-gradient(120% 130% at 20% 14%,#ffc892,transparent 55%),radial-gradient(120% 120% at 90% 90%,#d0762b,transparent 60%),#241408 !important}
 
   /* 담당자 카드: 사이트형 미리보기 + 사진조정 + 순서 화살표 */
   .member-photo{cursor:pointer}
@@ -1322,7 +1328,7 @@ function renderSvc(){
 }
 function svcCardHtml(s, i){
   var imgHtml = s.image ? '<img src="' + esc(s.image) + '" alt="">' : '';
-  var thumbCls = 'svc-cd-thumb' + (s.image ? '' : ' svc-grad' + ((i % 6) + 1));   // 이미지 없으면 홈페이지 그라데이션
+  var thumbCls = 'svc-cd-thumb' + (s.image ? '' : ' svc-grad' + ((i % 12) + 1));   // 이미지 없으면 홈페이지 그라데이션(12색 순환)
   var tags = (s.tags||[]).join(' · ');
   return '' +
   '<div class="svc-card' + (s.soon?' is-soon':'') + '" data-id="' + esc(s.id) + '">' +
@@ -1351,12 +1357,31 @@ function openSvcModal(id){
   $('#svcfSoon').checked = !!s.soon;
   renderSvcModalThumb(s);
   $('#svcModal').classList.add('open');
+  setTimeout(genSvcDesc, 60);   // 설명칸 비었으면 AI로 자동 생성(버튼 없이)
+}
+/* 설명칸이 비어 있고 제목이 있으면 /api/gen-desc 로 한 줄 설명 자동 생성.
+   함수 없거나(로컬·키미설정) 실패하면 조용히 넘어간다(빈칸 유지). */
+function genSvcDesc(){
+  var t = $('#svcfTitle'), d = $('#svcfDesc'); if (!t || !d) return;
+  var title = t.value.trim();
+  if (d.value.trim() || !title || title === '새 서비스') return;
+  var tags = $('#svcfTags') ? $('#svcfTags').value.split(',').map(function(x){ return x.trim(); }).filter(Boolean) : [];
+  var id = SVCM.id, prev = d.getAttribute('placeholder') || '';
+  d.setAttribute('placeholder', 'AI가 설명 생성 중...');
+  fetch('/api/gen-desc', { method:'POST', headers:{ 'content-type':'application/json' }, body: JSON.stringify({ title:title, tags:tags }) })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){
+      var dd = $('#svcfDesc');
+      if (j && j.desc && SVCM.id === id && dd && !dd.value.trim()) dd.value = j.desc;
+      if (dd) dd.setAttribute('placeholder', prev);
+    })
+    .catch(function(){ var dd = $('#svcfDesc'); if (dd) dd.setAttribute('placeholder', prev); });
 }
 function renderSvcModalThumb(s){
   var t = $('#svcModalThumb');
   if (s.image){ t.className = 'svc-modal-thumb'; t.innerHTML = '<img src="' + esc(s.image) + '" alt="">'; return; }
   var i = 0; for (var k = 0; k < state.svc.length; k++){ if (state.svc[k].id === s.id){ i = k; break; } }
-  t.className = 'svc-modal-thumb svc-grad' + ((i % 6) + 1);   // 이미지 없으면 홈페이지 그라데이션
+  t.className = 'svc-modal-thumb svc-grad' + ((i % 12) + 1);   // 이미지 없으면 홈페이지 그라데이션(12색)
   t.innerHTML = '';
 }
 function closeSvcModal(){ $('#svcModal').classList.remove('open'); SVCM.id = null; }
@@ -1859,6 +1884,7 @@ function bindEvents(){
   $all('[data-svc-close]').forEach(function(b){ b.addEventListener('click', closeSvcModal); });
   $('#svcfApply').addEventListener('click', applySvcModal);
   $('#svcfDel').addEventListener('click', delSvcModal);
+  $('#svcfTitle').addEventListener('change', genSvcDesc);   // 제목 입력 후 설명 비었으면 자동 생성
   $('#svcModalThumb').addEventListener('click', svcModalImg);
   $('#svcfImgInput').addEventListener('change', function(e){
     var f = e.target.files[0]; e.target.value = '';
