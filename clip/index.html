@@ -217,10 +217,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .orbit b.has-vid::before{display:none}          /* 영상이 들어가면 재생 삼각형은 숨긴다 */
 @media(max-width:1100px){.orbit b{opacity:.45}
   .orbit b[data-deep="1"]{display:none}}        /* 좁아지면 뒤쪽(흐린) 카드부터 뺀다 */
-@media(max-width:760px){                          /* 모바일: 숨기지 않고 4장을 상·하단 코너에 (JS가 배치) */
+@media(max-width:760px){                          /* 모바일: 웹처럼 블러+깊이 카드를 화면 전체에 골고루 (JS가 배치·클램프) */
   .orbit{display:block}
-  .orbit b{opacity:.92;filter:none!important;box-shadow:0 10px 28px rgba(0,0,0,.55)}
-  .orbit b[data-deep="1"]{display:block}          /* 모바일은 생성 자체를 4장만 → 다 보여준다 */
+  .orbit b{opacity:.8;box-shadow:0 8px 22px rgba(0,0,0,.5)}   /* filter는 빌드/JS의 blur·brightness(깊이감) 유지 */
+  .orbit b[data-deep="1"]{display:block}
 }
 
 .hero-in{position:relative;z-index:2;text-align:center;padding:0 20px;max-width:1000px}
@@ -1198,7 +1198,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   feat(function(){
     var wrap = $('#orbit'); if(!wrap) return;
     var hidden = matchMedia('(max-width:760px)');   // 이 폭에선 궤도가 통째로 숨는다
-    var list = CLIPS.slice(0, hidden.matches ? 4 : ORBIT_MAX);   // 모바일은 4장(상·하단 코너)
+    var list = CLIPS.slice(0, hidden.matches ? 6 : ORBIT_MAX);   // 모바일은 6장(화면 전체 골고루)
     var n = list.length || 4;                       // 영상 없으면 빈 카드 4장
     var lerp = function(a,b,p){ return a + (b-a)*p; };
     var html = '';
@@ -1247,22 +1247,24 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       if(keep) keep = { l:keep.l-M, t:keep.t-M, r:keep.r+M, b:keep.b+M };
       var padT = 76, padB = 60, padX = 24;         // 내비·하단 메타 줄 피하기
 
-      if (W <= 760) {                              // ── 모바일: 4장을 글자 위·아래 밴드 코너에 (좌우로 살짝 걸치게) ──
-        var kt = keep ? keep.t : H*0.34, kb = keep ? keep.b : H*0.66;
-        var mw = Math.min(96, W*0.26), mh = mw*16/9;
-        var topH = Math.max(0, kt - padT), botH = Math.max(0, (H - padB) - kb);
-        var slots = [
-          { x:-mw*0.30,     y: padT + Math.min(Math.max(0,topH-mh), topH*0.08) },   // 상단-좌 (좌측 걸침)
-          { x: W - mw*0.70, y: padT + Math.min(Math.max(0,topH-mh), topH*0.40) },   // 상단-우 (우측 걸침)
-          { x:-mw*0.26,     y: kb  + Math.min(Math.max(0,botH-mh), botH*0.26) },    // 하단-좌
-          { x: W - mw*0.74, y: kb  + Math.min(Math.max(0,botH-mh), botH*0.58) }     // 하단-우
+      if (W <= 760) {                              // ── 모바일: 웹처럼 블러+깊이 카드를 화면 전체에 골고루 · 가로는 화면 안에 완전히(튐 0) ──
+        var mSlots = [   // [중심 xFrac, 중심 yFrac, w(px)] — 작을수록 멀리(블러↑). 정중앙(헤드라인)은 비움
+          [0.15, 0.13, 66], [0.85, 0.11, 50], [0.93, 0.41, 44],
+          [0.07, 0.47, 58], [0.24, 0.82, 70], [0.82, 0.84, 52]
         ];
         tiles.forEach(function(el,i){
-          if (i >= slots.length){ el.style.display='none'; return; }   // 리사이즈로 6장→4장 될 때 여분 숨김
-          el.style.display=''; var s = slots[i];
-          el.style.setProperty('--w', mw.toFixed(1)+'px');
-          el.style.setProperty('--x', s.x.toFixed(1)+'px');
-          el.style.setProperty('--t', s.y.toFixed(1)+'px');
+          if (i >= mSlots.length){ el.style.display='none'; return; }
+          el.style.display='';
+          var s = mSlots[i], w = s[2], h = w*16/9;
+          var x = s[0]*W - w/2, y = s[1]*H - h/2;
+          x = Math.max(6, Math.min(W - w - 6, x));            // 가로 완전 인바운드 → 가로 overflow 원천 차단
+          y = Math.max(padT - 26, Math.min(H - h - 28, y));
+          var depth = Math.max(0, Math.min(1, (72 - w) / (72 - 44)));   // 작을수록 멀리
+          el.style.setProperty('--w', w + 'px');
+          el.style.setProperty('--x', x.toFixed(1) + 'px');
+          el.style.setProperty('--t', y.toFixed(1) + 'px');
+          el.style.setProperty('--blur',  (1.5 + depth*4.5).toFixed(1) + 'px');   // 1.5~6px 깊이 블러
+          el.style.setProperty('--bright', (0.92 - depth*0.35).toFixed(2));       // 멀수록 어둡게
         });
         return;
       }
