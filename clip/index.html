@@ -619,6 +619,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
      밝은 커튼=밝게, 어두운 커튼=어둡게. (색만 바꾸면 반대편 섹션에서 또 띠가 생기던 문제 근본 해결) */
   .cur--flat, .cur--steps{background:var(--paper)}   /* ON SCREEN·PROCESS = 밝은 커튼 */
   .cur--diag, .cur--chev{background:var(--bg)}         /* 보장·FAQ = 어두운 커튼 */
+  /* 제목 단어별 마스크 리빌은 모바일 2줄 줄바꿈에서 스크롤 중 단어가 다음 줄로 밀려 겹쳐 깨짐 →
+     모바일에선 마스크 끄고 제목을 항상 정상 표시(스크롤 중에도 안 깨지게). 본문/카드 리빌은 유지. */
+  .wm{overflow:visible}
+  .wm>span{transform:none!important;transition:none!important}
   .cur{margin-top:0;clip-path:none!important}
   .cur__pinbox{height:auto}
   .cur__pin{position:static;height:auto;overflow:visible;padding:clamp(46px,10vw,80px) 0}
