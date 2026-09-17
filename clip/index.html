@@ -615,6 +615,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   /* #body 배경이 초록이라, flatten된 섹션 사이 틈(핀 패딩)에 초록이 비쳐 큰 초록 띠가 생김.
      모바일은 어둡게 → 틈이 배경과 자연스럽게 섞임(마퀴는 자체 초록이라 그대로 유지). */
   #body{margin-top:0;background:var(--bg)}
+  /* 커튼(.cur)에 "내용과 같은 배경색"을 줘서 flatten 틈(핀 패딩·pane↔sec 사이)이 아예 안 보이게 —
+     밝은 커튼=밝게, 어두운 커튼=어둡게. (색만 바꾸면 반대편 섹션에서 또 띠가 생기던 문제 근본 해결) */
+  .cur--flat, .cur--steps{background:var(--paper)}   /* ON SCREEN·PROCESS = 밝은 커튼 */
+  .cur--diag, .cur--chev{background:var(--bg)}         /* 보장·FAQ = 어두운 커튼 */
   .cur{margin-top:0;clip-path:none!important}
   .cur__pinbox{height:auto}
   .cur__pin{position:static;height:auto;overflow:visible;padding:clamp(46px,10vw,80px) 0}
