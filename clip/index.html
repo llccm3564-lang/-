@@ -615,6 +615,51 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .seam-l span{background-attachment:scroll}
   *{animation-duration:.001ms!important;transition-duration:.001ms!important}
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   FX — 오찬 6항목 (본문 생기 보강 · 원본 clip/index.html 과 비교용)
+   원본에 이미 있는 것(글자리빌·단어마스크·커튼·커서orb·롤링·궤도카드)은 손대지 않음.
+   본문에만: 구분선 드로잉 / 하이라이트 / 카드 틸트 / 자석CTA / 마퀴 반응 / 앰비언트
+   ════════════════════════════════════════════════════════════════════ */
+
+/* [1] 본문 구분선 드로잉 — 프로세스·FAQ 정지선이 좌→우로 그어진다 */
+.steps{position:relative;border-top-color:transparent}
+.steps::before{content:'';position:absolute;left:0;top:0;width:100%;height:1px;background:var(--line);
+  transform:scaleX(0);transform-origin:left;transition:transform 1.05s var(--expo)}
+.steps.fxdrawn::before{transform:scaleX(1)}
+.step{border-bottom-color:transparent}
+.step::after{content:'';position:absolute;left:0;bottom:-1px;width:100%;height:1px;background:var(--line);
+  transform:scaleX(0);transform-origin:left;transition:transform 1s var(--expo)}
+.step.fxdrawn::after{transform:scaleX(1)}
+.fitem{position:relative;border-bottom-color:transparent}
+.fitem::after{content:'';position:absolute;left:0;bottom:-1px;width:100%;height:1px;background:var(--line);
+  transform:scaleX(0);transform-origin:left;transition:transform 1s var(--expo)}
+.fitem.fxdrawn::after{transform:scaleX(1)}
+
+/* [2] 핵심어 하이라이트 스윕(밑줄 드로잉) — 토큰 --green 이 명암 따라 자동 */
+.fxhl{position:relative}
+.fxhl::after{content:'';position:absolute;left:0;right:0;bottom:-.08em;height:.1em;border-radius:2px;
+  background:var(--green);transform:scaleX(0);transform-origin:left;transition:transform .9s var(--expo) .1s}
+.fxhl.on::after{transform:scaleX(1)}
+
+/* [3] 카드 미세 3D 틸트 / 자석 CTA — JS 구동 */
+.why.fxtilt,.hzc.fxtilt{will-change:transform}
+.btn.fxmag{transition:background .3s var(--quint),color .3s var(--quint);will-change:transform}
+
+/* [3] 마퀴 스크롤 반응 — JS 구동 전환 */
+.mq-t{animation:none!important;will-change:transform}
+
+/* [6] 여백 앰비언트 — 은은한 드리프트 글로우 */
+.fx-amb{position:absolute;pointer-events:none;z-index:0;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(85,232,92,.07),transparent 72%);filter:blur(30px);
+  animation:fxdrift 26s ease-in-out infinite alternate}
+@keyframes fxdrift{from{transform:translate(-6%,-4%) scale(1)}to{transform:translate(6%,5%) scale(1.12)}}
+
+@media(prefers-reduced-motion:reduce){
+  .steps::before,.step::after,.fitem::after,.fxhl::after{transform:scaleX(1)!important}
+  .fx-amb{display:none}
+  .mq-t{transform:none!important}
+}
 </style>
 </head>
 <body>
@@ -1616,6 +1661,108 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       }).catch(function(){
         $('#ok').classList.add('on');
       });
+    });
+  });
+
+  /* ══════════════ FX — 오찬 6항목 (본문 생기) ══════════════ */
+  var RM = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var FINE = matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+  /* [1] 본문 구분선 드로잉 (프로세스·FAQ) */
+  feat(function(){
+    var els=$$('.steps, .step, .fitem'); if(!els.length)return;
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('fxdrawn'); io.unobserve(e.target); } });
+    },{threshold:0.25,rootMargin:'0px 0px -6% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  });
+
+  /* [2] 핵심어 하이라이트 스윕 */
+  feat(function(){
+    var els=[];
+    ['.hero-sub b','.slots-note b','.kv .v.hi'].forEach(function(s){ [].push.apply(els,$$(s)); });
+    if(!els.length)return;
+    els.forEach(function(el){ el.classList.add('fxhl'); });
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); } });
+    },{threshold:0.9});
+    els.forEach(function(el){ io.observe(el); });
+  });
+
+  /* [3] 카드 미세 3D 틸트(hover) — why · spec 카드 */
+  feat(function(){
+    if(RM || !FINE)return;
+    $$('.why, .hzc').forEach(function(c){
+      c.classList.add('fxtilt');
+      c.addEventListener('mouseenter',function(){ c.style.transition='transform .16s ease-out'; });
+      c.addEventListener('mousemove',function(e){
+        var r=c.getBoundingClientRect();
+        var rx=((e.clientY-(r.top+r.height/2))/r.height)*-5;
+        var ry=((e.clientX-(r.left+r.width/2))/r.width)*5;
+        c.style.transform='perspective(760px) rotateX('+rx.toFixed(2)+'deg) rotateY('+ry.toFixed(2)+'deg) translateY(-5px)';
+      });
+      c.addEventListener('mouseleave',function(){ c.style.transition=''; c.style.transform=''; });
+    });
+  });
+
+  /* [3] 자석 CTA */
+  feat(function(){
+    if(RM || !FINE)return;
+    $$('.btn-fill').forEach(function(b){
+      b.classList.add('fxmag');
+      var raf=0,tx=0,ty=0,cx=0,cy=0;
+      function render(){
+        cx+=(tx-cx)*0.2; cy+=(ty-cy)*0.2;
+        b.style.transform=(Math.abs(cx)+Math.abs(cy)>0.05)?('translate('+cx.toFixed(2)+'px,'+cy.toFixed(2)+'px)'):'';
+        if(Math.abs(tx-cx)>0.1||Math.abs(ty-cy)>0.1)raf=requestAnimationFrame(render);
+        else{ cx=tx;cy=ty; b.style.transform=(tx||ty)?('translate('+tx+'px,'+ty+'px)'):''; raf=0; }
+      }
+      b.addEventListener('mousemove',function(e){
+        var r=b.getBoundingClientRect();
+        tx=(e.clientX-(r.left+r.width/2))*0.28; ty=(e.clientY-(r.top+r.height/2))*0.34;
+        if(!raf)raf=requestAnimationFrame(render);
+      });
+      b.addEventListener('mouseleave',function(){ tx=0;ty=0; if(!raf)raf=requestAnimationFrame(render); });
+    });
+  });
+
+  /* [5] 마퀴 스크롤 반응 (빠르면 빨라지고 글자가 살짝 눕음) */
+  feat(function(){
+    if(RM)return;
+    var tracks=[
+      {el:$('#mq1'),dir:-1,base:0.36},
+      {el:$('#mq2'),dir: 1,base:0.30}
+    ].filter(function(t){return t.el;});
+    if(!tracks.length)return;
+    function measure(){ tracks.forEach(function(t){ t.half=t.el.scrollWidth/2; if(t.off===undefined)t.off=(t.dir>0?-t.half:0); }); }
+    measure(); addEventListener('resize',measure); addEventListener('load',measure);
+    var lastY=sy(),vel=0,skew=0;
+    addEventListener('scroll',function(){ var y=sy(); vel=y-lastY; lastY=y; },{passive:true});
+    (function loop(){
+      var boost=Math.min(3.0,Math.abs(vel)/28);
+      var tgt=Math.max(-6,Math.min(6,vel*0.05));
+      skew+=(tgt-skew)*0.12; vel*=0.88;
+      tracks.forEach(function(t){
+        if(!t.half){ t.half=t.el.scrollWidth/2; if(t.off===undefined)t.off=(t.dir>0?-t.half:0); }
+        t.off+=t.dir*(t.base+boost);
+        if(t.dir<0 && t.off<=-t.half)t.off+=t.half;
+        if(t.dir>0 && t.off>=0)t.off-=t.half;
+        t.el.style.transform='translateX('+t.off.toFixed(2)+'px) skewX('+skew.toFixed(2)+'deg)';
+      });
+      requestAnimationFrame(loop);
+    })();
+  });
+
+  /* [6] 여백 앰비언트 — 다크 콘텐츠 섹션에 은은한 드리프트 글로우 */
+  feat(function(){
+    if(RM)return;
+    [['#why','12%','-8%'],['#seats','8%','-6%']].forEach(function(cfg){
+      var sec=$(cfg[0]); if(!sec)return;
+      var amb=document.createElement('div'); amb.className='fx-amb';
+      amb.style.width='min(58vw,720px)'; amb.style.aspectRatio='1';
+      amb.style.top=cfg[1]; amb.style.right=cfg[2];
+      if(getComputedStyle(sec).position==='static')sec.style.position='relative';
+      sec.insertBefore(amb, sec.firstChild);
     });
   });
 
