@@ -291,6 +291,14 @@
   .svc-cd-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .svc-cd-tags{font-size:11.5px;color:var(--green-3);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .svc-cd-soon{display:inline-block;font-size:10.5px;font-weight:700;color:var(--muted);background:var(--bg-2);border:1px solid var(--line-2);border-radius:999px;padding:2px 8px;margin-top:6px}
+  /* 숨기기(홈페이지 비노출 · 어드민엔 표시) */
+  .svc-card.is-hidden{opacity:.5}
+  .svc-cd-hidden{display:inline-block;font-size:10.5px;font-weight:800;color:#fff;background:#b3402e;border-radius:999px;padding:2px 9px;margin-top:6px;margin-left:4px}
+  .svc-hide-btn{display:block;width:100%;margin-top:9px;font-size:11.5px;font-weight:700;padding:6px;border-radius:8px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--muted);cursor:pointer;transition:border-color .15s,color .15s}
+  .svc-hide-btn:hover{border-color:var(--green);color:var(--green)}
+  .svc-card.is-hidden .svc-hide-btn{border-color:#b3402e;color:#e06a55}
+  .ref-item.is-hidden{opacity:.5}
+  .ref-hidden-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:800;color:#fff;background:#b3402e;border-radius:999px;padding:2px 8px;margin-right:4px}
   .svc-card.dragging{opacity:.4}
   .svc-card.drop-before{box-shadow:-3px 0 0 0 var(--green)}
   .svc-card.drop-after{box-shadow:3px 0 0 0 var(--green)}
@@ -1090,16 +1098,19 @@ function sbReplaceAll(table, rows){
 /* state ↔ DB 행 변환. DB는 snake_case·예약어 회피(desc→descr), 화면은 기존 키를 그대로 쓴다. */
 /* 사진 재편집 유지: image/photo 칸에 baked(표시용)+편집소스(src)+크롭(crop)을 JSON으로 함께 저장.
    구버전(순수 dataURI)도 그대로 읽힘. DB 스키마 변경 없이 새로고침 후에도 재편집 복원. */
-function packImg(baked, editSrc, crop){
-  if (editSrc && crop){ try { return JSON.stringify({ v:1, img:baked||'', src:editSrc, crop:crop }); } catch(e){} }
+function packImg(baked, editSrc, crop, hidden){
+  // 이미지 재편집(src+crop) 또는 숨김 플래그가 있으면 JSON으로. 스키마 변경 없이 image/photo 칸에 함께 저장.
+  if ((editSrc && crop) || hidden){
+    try { return JSON.stringify({ v:1, img:baked||'', src:editSrc||'', crop:crop||null, hidden:!!hidden }); } catch(e){}
+  }
   return baked || '';
 }
 function unpackImg(field){
-  if (!field) return { img:'', src:'', crop:null };
+  if (!field) return { img:'', src:'', crop:null, hidden:false };
   if (typeof field === 'string' && field.charAt(0) === '{'){
-    try { var o = JSON.parse(field); if (o && o.v){ return { img:o.img||'', src:o.src||'', crop:o.crop||null }; } } catch(e){}
+    try { var o = JSON.parse(field); if (o && o.v){ return { img:o.img||'', src:o.src||'', crop:o.crop||null, hidden:!!o.hidden }; } } catch(e){}
   }
-  return { img:field, src:'', crop:null };
+  return { img:field, src:'', crop:null, hidden:false };
 }
 var SB_MAP = {
   team: {
@@ -1110,13 +1121,13 @@ var SB_MAP = {
   },
   svc: {
     toRow: function(s,i){ return { sort:i, title:s.title||'', descr:s.desc||'', tags:s.tags||[], url:s.url||'',
-                                   image:packImg(s.image, s._editSrc, s._crop), has_link:!!s.hasLink, soon:!!s.soon }; },
+                                   image:packImg(s.image, s._editSrc, s._crop, s.hidden), has_link:!!s.hasLink, soon:!!s.soon }; },
     toObj: function(r,i){ var im=unpackImg(r.image); return { id:r.id||('s'+i), title:r.title||'', desc:r.descr||'', tags:r.tags||[],
-                                   url:r.url||'', image:im.img, _editSrc:im.src, _crop:im.crop, hasLink:!!r.has_link, soon:!!r.soon }; }
+                                   url:r.url||'', image:im.img, _editSrc:im.src, _crop:im.crop, hasLink:!!r.has_link, soon:!!r.soon, hidden:!!im.hidden }; }
   },
   refs: {
-    toRow: function(r,i){ return { sort:i, caption:r.caption||'', image:packImg(r.image, r._editSrc, r._crop), url:r.url||'' }; },
-    toObj: function(r,i){ var im=unpackImg(r.image); return { id:r.id||('r'+i), caption:r.caption||'', image:im.img, _editSrc:im.src, _crop:im.crop, url:r.url||'' }; }
+    toRow: function(r,i){ return { sort:i, caption:r.caption||'', image:packImg(r.image, r._editSrc, r._crop, r.hidden), url:r.url||'' }; },
+    toObj: function(r,i){ var im=unpackImg(r.image); return { id:r.id||('r'+i), caption:r.caption||'', image:im.img, _editSrc:im.src, _crop:im.crop, url:r.url||'', hidden:!!im.hidden }; }
   }
 };
 
@@ -1311,12 +1322,13 @@ function renderRefs(){
       ? '<img src="' + esc(r.image) + '" alt="">'
       : '<span class="ph">이미지 없음</span>';
     html += '' +
-    '<div class="ref-item" data-id="' + esc(r.id) + '">' +
+    '<div class="ref-item' + (r.hidden?' is-hidden':'') + '" data-id="' + esc(r.id) + '">' +
       '<div class="ref-thumb" data-ref-preview="' + esc(r.id) + '" data-drop="ref" data-drop-id="' + esc(r.id) + '">' + thumb + '</div>' +
-      '<div class="ref-meta"><input type="text" data-ref-caption placeholder="캡션(설명)" value="' + esc(r.caption||'') + '"></div>' +
+      '<div class="ref-meta">' + (r.hidden?'<span class="ref-hidden-tag">홈 숨김</span>':'') + '<input type="text" data-ref-caption placeholder="캡션(설명)" value="' + esc(r.caption||'') + '"></div>' +
       '<div class="ref-actions">' +
         '<span class="drag-handle" draggable="true" data-ref-drag="' + esc(r.id) + '" title="드래그로 순서 변경">⠿</span>' +
         '<button class="btn btn-ghost btn-sm" data-ref-preview="' + esc(r.id) + '" style="flex:1">미리보기</button>' +
+        '<button class="btn btn-ghost btn-sm" data-ref-hide="' + esc(r.id) + '">' + (r.hidden?'보이기':'숨기기') + '</button>' +
         '<button class="btn btn-danger btn-sm" data-ref-del="' + esc(r.id) + '">삭제</button>' +
       '</div>' +
     '</div>';
@@ -1345,7 +1357,7 @@ function svcCardHtml(s, i){
   var thumbCls = 'svc-cd-thumb' + (s.image ? '' : ' svc-grad' + ((i % 12) + 1));   // 이미지 없으면 홈페이지 그라데이션(12색 순환)
   var tags = (s.tags||[]).join(' · ');
   return '' +
-  '<div class="svc-card' + (s.soon?' is-soon':'') + '" data-id="' + esc(s.id) + '">' +
+  '<div class="svc-card' + (s.soon?' is-soon':'') + (s.hidden?' is-hidden':'') + '" data-id="' + esc(s.id) + '">' +
     '<div class="' + thumbCls + '" data-svc-img="' + esc(s.id) + '" data-drop="svc" data-drop-id="' + esc(s.id) + '">' + imgHtml +
       '<span class="svc-drag" draggable="true" data-svc-drag="' + esc(s.id) + '" title="드래그로 순서 변경">⠿</span>' +
       '<button class="svc-gear" data-svc-cfg="' + esc(s.id) + '" title="설정">⚙</button>' +
@@ -1354,6 +1366,8 @@ function svcCardHtml(s, i){
       '<div class="svc-cd-title">' + esc(s.title || '(제목 없음)') + '</div>' +
       '<div class="svc-cd-tags">' + (tags ? esc(tags) : '<span style="color:var(--faint)">태그 없음</span>') + '</div>' +
       (s.soon ? '<span class="svc-cd-soon">준비 중</span>' : '') +
+      (s.hidden ? '<span class="svc-cd-hidden">홈에서 숨김</span>' : '') +
+      '<button class="svc-hide-btn" data-svc-hide="' + esc(s.id) + '">' + (s.hidden ? '홈에 다시 보이기' : '홈에서 숨기기') + '</button>' +
     '</div>' +
   '</div>';
 }
@@ -1631,6 +1645,7 @@ function teamFieldDiff(out, label, name, a, b){
 function refFieldDiff(out, label, name, a, b){
   if ((a.caption||'') !== (b.caption||'')) out.push({ t:label, s:name, ff:'캡션', from:a.caption||'(없음)', to:b.caption||'(없음)' });
   if ((a.image||'') !== (b.image||'')) out.push({ t:label, s:name, change:'사진 변경' });
+  if (!!a.hidden !== !!b.hidden) out.push({ t:label, s:name, change: b.hidden?'홈에서 숨김':'홈에 다시 표시' });
 }
 function svcFieldDiff(out, label, name, a, b){
   if ((a.title||'') !== (b.title||'')) out.push({ t:label, s:name, ff:'제목', from:a.title||'(없음)', to:b.title||'(없음)' });
@@ -1640,6 +1655,7 @@ function svcFieldDiff(out, label, name, a, b){
   if ((a.image||'') !== (b.image||'')) out.push({ t:label, s:name, change:'사진 변경' });
   if (!!a.soon !== !!b.soon) out.push({ t:label, s:name, change: b.soon?'준비중 켜짐':'준비중 꺼짐' });
   if (!!a.hasLink !== !!b.hasLink) out.push({ t:label, s:name, change: b.hasLink?'링크 켜짐':'링크 꺼짐' });
+  if (!!a.hidden !== !!b.hidden) out.push({ t:label, s:name, change: b.hidden?'홈에서 숨김':'홈에 다시 표시' });
 }
 function diffSnapshots(prev, curr){
   var out = [], P = prev ? prev.data : null, C = curr.data;
@@ -1890,6 +1906,15 @@ function bindEvents(){
   $('#refGrid').addEventListener('click', function(e){
     var pv = e.target.closest('[data-ref-preview]');
     if (pv){ openRefPreview(pv.getAttribute('data-ref-preview')); return; }
+    var hide = e.target.closest('[data-ref-hide]');
+    if (hide){
+      var hid = hide.getAttribute('data-ref-hide');
+      collectRefs();
+      var rr = state.refs.filter(function(x){ return x.id === hid; })[0];
+      if (rr){ rr.hidden = !rr.hidden; renderRefs(); setDirty('refs', true);
+        toast(rr.hidden ? '홈에서 숨김 — 저장을 눌러 반영하세요.' : '홈에 다시 표시 — 저장을 눌러 반영하세요.'); }
+      return;
+    }
     var del = e.target.closest('[data-ref-del]');
     if (del){
       var id = del.getAttribute('data-ref-del');
@@ -1901,6 +1926,14 @@ function bindEvents(){
 
   // ---- 서비스: 카드(⚙설정/썸네일) → 설정 모달 ----
   $('#svcList').addEventListener('click', function(e){
+    var hide = e.target.closest('[data-svc-hide]');
+    if (hide){
+      var hid = hide.getAttribute('data-svc-hide');
+      var ss = state.svc.filter(function(x){ return x.id === hid; })[0];
+      if (ss){ ss.hidden = !ss.hidden; renderSvc(); setDirty('svc', true);
+        toast(ss.hidden ? '홈에서 숨김 — 저장을 눌러 반영하세요.' : '홈에 다시 표시 — 저장을 눌러 반영하세요.'); }
+      return;
+    }
     var cfg = e.target.closest('[data-svc-cfg]');
     if (cfg){ openSvcModal(cfg.getAttribute('data-svc-cfg')); return; }
     var img = e.target.closest('[data-svc-img]');

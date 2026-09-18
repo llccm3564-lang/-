@@ -3226,11 +3226,11 @@
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   /* 어드민이 image/photo 칸에 JSON({v,img,src,crop})으로 저장한 경우 표시용(img)만 꺼낸다. 구버전(순수 dataURI)도 그대로. */
   function unpackImg(field){
-    if(!field) return {img:'',src:'',crop:null};
+    if(!field) return {img:'',src:'',crop:null,hidden:false};
     if(typeof field==='string' && field.charAt(0)==='{'){
-      try{ var o=JSON.parse(field); if(o&&o.v){ return {img:o.img||'',src:o.src||'',crop:o.crop||null}; } }catch(e){}
+      try{ var o=JSON.parse(field); if(o&&o.v){ return {img:o.img||'',src:o.src||'',crop:o.crop||null,hidden:!!o.hidden}; } }catch(e){}
     }
-    return {img:field,src:'',crop:null};
+    return {img:field,src:'',crop:null,hidden:false};
   }
 
   /* ---- 담당자: #teamData 를 DB 내용으로 다시 만들고 아코디언 재생성 ---- */
@@ -3279,6 +3279,7 @@
        이미지 없으면 원래 그라데이션(.cf-g1~g6)을 순환 배정 → 새 서비스도 자동으로 색이 입혀진다. */
     var grid=document.querySelector('.cf-grid');
     if(!grid||!rows||!rows.length) return;
+    rows=rows.filter(function(s){ return !unpackImg(s.image).hidden; });   // 어드민에서 '홈에서 숨김'한 서비스 제외
     var GRAD=['cf-g1','cf-g2','cf-g3','cf-g4','cf-g5','cf-g6','cf-g7','cf-g8','cf-g9','cf-g10','cf-g11','cf-g12'];
     var ARROW='<span class="cf-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>';
     var html=rows.map(function(s,i){
@@ -3317,6 +3318,7 @@
   function applyRefs(rows){
     var wrap=document.getElementById('rcards');
     if(!wrap||!rows||!rows.length) return;
+    rows=rows.filter(function(r){ return !unpackImg(r.image).hidden; });   // 어드민에서 '홈에서 숨김'한 레퍼런스 제외
     var PAL=['c-white','c-green','c-lime','c-white','c-mint'];   // 색 순환
     var RICO='<svg viewBox="0 0 54 54"><circle cx="15" cy="17" r="1.7"/><circle cx="32" cy="13" r="1.7"/><circle cx="40" cy="24" r="1.7"/><circle cx="23" cy="27" r="1.7"/><circle cx="36" cy="37" r="1.7"/><circle cx="17" cy="38" r="1.7"/><circle class="g" cx="27" cy="21" r="2.5"/></svg>';
     var html=rows.map(function(r,i){
