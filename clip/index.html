@@ -161,10 +161,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .nav.on-light.solid{background:rgba(239,241,237,.78);border-bottom-color:var(--line-d)}
 .nav.on-light{color:var(--ink)}
 .nav.tuck{transform:translateY(-104%)}
-.nav-b{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:-.01em}
+.nav-b{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:-.01em;
+  padding-block:13px;margin-block:-13px}   /* 18px → 44px 터치 영역 */
 .nav-b i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(85,232,92,.16)}
 .nav-r{display:flex;align-items:center;gap:clamp(10px,2vw,22px)}
-.back{font-size:12.5px;color:inherit;opacity:.66;transition:opacity .25s}
+.back{font-size:12.5px;color:inherit;opacity:.66;transition:opacity .25s;
+  display:inline-block;padding-block:15px;margin-block:-15px}   /* 15px → 45px 터치 영역 */
 .back:hover{opacity:1}
 @media(max-width:560px){.back{display:none}}
 
@@ -568,7 +570,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .f2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:560px){.f2{grid-template-columns:1fr}}
 .fd{display:grid;gap:7px;margin-bottom:15px}
-.fd label{font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--muted)}
+.fd label{font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--muted)}
 .fd input,.fd textarea{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-2);
   padding:11px 2px;font:inherit;font-size:14.5px;color:var(--white);letter-spacing:-.012em;
   transition:border-color .35s}
@@ -576,9 +578,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .fd input::placeholder,.fd textarea::placeholder{color:rgba(247,248,246,.3)}
 .fd input:focus,.fd textarea:focus{outline:none;border-bottom-color:var(--green)}
 .fd.bad input,.fd.bad textarea{border-bottom-color:#FF6B6B}
-.fd .err{font-size:11.5px;color:#FF8B8B;display:none}
+.fd .err{font-size:12.5px;color:#FF8B8B;display:none}
 .fd.bad .err{display:block}
-.cons{display:flex;gap:10px;align-items:flex-start;margin:6px 0 20px;font-size:11.6px;line-height:1.6;
+.cons{display:flex;gap:10px;align-items:flex-start;margin:6px 0 20px;font-size:12.5px;line-height:1.6;
   color:var(--faint);cursor:pointer}
 .cons input{flex:none;width:15px;height:15px;margin-top:1px;accent-color:var(--green)}
 .cons.bad span{color:#FF8B8B}
@@ -599,7 +601,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .ft-b{font-family:var(--disp);font-size:clamp(30px,7vw,76px);font-weight:600;line-height:.94;
   letter-spacing:-.04em;color:rgba(247,248,246,.17)}
 .ft-r{display:grid;gap:7px;text-align:right;font-size:12px;color:var(--faint);letter-spacing:-.01em}
-.ft-r a{color:var(--muted);transition:color .3s}
+.ft-r a{color:var(--muted);transition:color .3s;display:inline-block;padding-block:15px;margin-block:-15px}   /* 14px → 44px 터치 영역 */
 .ft-r a:hover{color:var(--green)}
 @media(max-width:640px){.ft-in{flex-direction:column;align-items:flex-start}.ft-r{text-align:left}}
 
@@ -689,6 +691,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .mq-t{animation:none!important;will-change:transform}
 
 /* [6] 여백 앰비언트 — 은은한 드리프트 글로우 */
+.sec:has(.fx-amb){overflow-x:clip}   /* 글로우가 우측으로 새어 문서 가로폭을 늘리던 것 */
 .fx-amb{position:absolute;pointer-events:none;z-index:0;border-radius:50%;
   background:radial-gradient(closest-side,rgba(85,232,92,.07),transparent 72%);filter:blur(30px);
   animation:fxdrift 26s ease-in-out infinite alternate}
@@ -800,8 +803,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <div class="wrap">
     <div class="sec-head">
       <span class="snum"><b>/02</b> &nbsp;THE FOUR SEATS</span>
-      <h2 class="h-sec"><span class="wm"><span>자리는</span></span> <span class="wm"><span>네</span></span> <span class="wm"><span>개입니다.</span></span></h2>
-      <p class="lead rv rv-d2">통합검색에서 클립 섹션이 뜨면 카드는 네 장만 보입니다. 다섯 번째부터는 옆으로 넘겨야 나옵니다. 그래서 다섯 번째와 백 번째는 사실상 같은 자리입니다. 고객의 시선이 닿는 구간이 좁다는 뜻이고, 그 안에 들어가는 일이 의미를 갖는 이유입니다.</p>
+      <h2 class="h-sec"><span class="wm"><span>자리는</span></span> <span class="wm"><span>네</span></span> <span class="wm"><span>개.</span></span></h2>
+      <p class="lead rv rv-d2">클립 섹션이 뜨면 카드는 네 장만 보입니다. 다섯 번째부터는 옆으로 넘겨야 나옵니다. 그래서 다섯 번째와 백 번째는 같은 자리입니다.</p>
     </div>
     <div class="slots">
       <div class="slot ours brk brk-g rv"><span class="rk">01</span><span class="badge">실행연구소</span><span class="thumb"></span><span class="tag">#팔당맛집 #남양주팔당맛집 맛있…</span><span class="meta">10시간 전</span></div>
@@ -826,7 +829,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
           </div>
           <div>
             <span class="snum"><b>/03</b> &nbsp;ON SCREEN</span>
-            <h2 class="h-sec" style="font-size:clamp(26px,3.6vw,46px)">화면으로<br />확인하세요.</h2>
+            <h2 class="h-sec" style="font-size:clamp(26px,3.6vw,46px)">화면으로<br />확인하기.</h2>
             <div class="kv">
               <div><span class="k">검색어</span><span class="v">팔당 맛집</span></div>
               <div><span class="k">노출 위치</span><span class="v">통합검색 클립 섹션</span></div>
@@ -877,8 +880,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
         <div class="pane-in" style="grid-template-columns:1fr;max-width:900px">
           <div>
             <span class="snum rv"><b>/04</b> &nbsp;PROCESS</span>
-            <h2 class="h-sec"><span class="wm"><span>다섯</span></span> <span class="wm"><span>단계로</span></span> <span class="wm"><span>끝납니다.</span></span></h2>
-            <p class="lead rv rv-d3" style="margin-top:22px;max-width:56ch">키워드 하나 보내주시는 것으로 시작합니다. 가능 여부를 먼저 알려드리고, 입금은 순위를 확인하신 다음입니다. 자리만 잡고 끝내지 않습니다 — 올라간 뒤에 무엇을 보여줄지가 남는 일이라, 콘텐츠도 같이 봅니다.</p>
+            <h2 class="h-sec"><span class="wm"><span>시작은</span></span> <span class="wm"><span>키워드.</span></span><br /><span class="wm"><span>끝은</span></span> <span class="wm"><span>입금.</span></span></h2>
+            <p class="lead rv rv-d3" style="margin-top:22px;max-width:56ch">키워드 하나 보내주시면 시작됩니다. 가능한지 먼저 답을 드리고, 입금은 순위를 확인하신 다음입니다.</p>
           </div>
         </div>
       </div>
@@ -888,11 +891,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     <section class="sec light" style="padding-top:0">
       <div class="wrap">
         <div class="steps">
-          <article class="step rv"><span class="sn">/01</span><div><h3>키워드 전달</h3><p>노출을 원하는 검색어를 알려주시면 됩니다. 지역·업종 조합이면 좋습니다.</p></div><span class="who">고객</span></article>
-          <article class="step rv"><span class="sn">/02</span><div><h3>가능 여부 확인 · 견적</h3><p>해당 키워드의 클립 섹션 유무와 경쟁 상황을 보고 가능한지 먼저 답을 드립니다. 가능하면 견적을 함께 보냅니다.</p></div><span class="who">실행연구소</span></article>
-          <article class="step rv"><span class="sn">/03</span><div><h3>콘텐츠 준비</h3><p>보유하신 영상을 쓰거나, 없으시면 제작해 드립니다. 60초 이내를 권합니다. 올라가도 보여줄 것이 약하면 고객은 그냥 넘깁니다. 무엇을 담을지부터 같이 정합니다.</p></div><span class="who">함께</span></article>
-          <article class="step rv"><span class="sn">/04</span><div><h3>업로드 · 노출</h3><p>실행연구소가 업로드합니다. 업로드한 클립은 플레이스 사진 탭에서도 확인하실 수 있습니다.</p></div><span class="who">실행연구소</span></article>
-          <article class="step rv"><span class="sn">/05</span><div><h3>순위 확인 후 입금</h3><p>순위권 노출을 확인하신 다음에 입금하시면 됩니다. 미노출 시에는 기존 영상을 삭제하고 동일 영상으로 재업로드해 다시 작업합니다.</p></div><span class="who">고객</span></article>
+          <article class="step rv"><span class="sn">/01</span><div><h3>키워드 전달.</h3><p>노출을 원하는 검색어를 알려주시면 됩니다. 지역·업종 조합이면 좋습니다.</p></div><span class="who">고객</span></article>
+          <article class="step rv"><span class="sn">/02</span><div><h3>가능 여부 확인.</h3><p>해당 키워드의 클립 섹션 유무와 경쟁 상황을 보고 가능한지 먼저 답을 드립니다. 가능하면 견적을 함께 보냅니다.</p></div><span class="who">실행연구소</span></article>
+          <article class="step rv"><span class="sn">/03</span><div><h3>콘텐츠 준비.</h3><p>보유하신 영상을 쓰거나, 없으시면 제작해 드립니다. 60초 이내를 권합니다. 올라가도 보여줄 것이 약하면 고객은 그냥 넘깁니다. 무엇을 담을지부터 같이 정합니다.</p></div><span class="who">함께</span></article>
+          <article class="step rv"><span class="sn">/04</span><div><h3>업로드.</h3><p>실행연구소가 업로드합니다. 업로드한 클립은 플레이스 사진 탭에서도 확인하실 수 있습니다.</p></div><span class="who">실행연구소</span></article>
+          <article class="step rv"><span class="sn">/05</span><div><h3>확인 후 입금.</h3><p>순위권 노출을 확인하신 다음에 입금하시면 됩니다. 미노출 시에는 기존 영상을 삭제하고 동일 영상으로 재업로드해 다시 작업합니다.</p></div><span class="who">고객</span></article>
         </div>
       </div>
     </section>
@@ -907,21 +910,21 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <div class="hz-stick">
     <div class="hz-head">
       <span class="snum"><b>/05</b> &nbsp;SPEC</span>
-      <h2 class="h-sec" style="margin-top:10px;font-size:clamp(24px,3.6vw,44px)">조건은 이게 전부입니다.</h2>
+      <h2 class="h-sec" style="margin-top:10px;font-size:clamp(24px,3.6vw,44px)">조건은 이게 전부.</h2>
     </div>
     <div class="hz-track" id="hzTrack">
-      <article class="hzc brk"><span class="cn">/01</span><h3>영상 길이</h3>
+      <article class="hzc brk"><span class="cn">/01</span><h3>영상 길이.</h3>
         <p><b>60초 이내를 권장</b>합니다. 최대 90초까지 작업할 수 있지만, 길어질수록 노출 가능성이 낮아집니다.</p>
-        <div class="tagline"><span>권장 ~60s</span><span>최대 90s</span></div></article>
-      <article class="hzc brk"><span class="cn">/02</span><h3>플레이스 연동</h3>
+        <div class="tagline"><span>60초 이내 권장</span><span>최대 90초</span></div></article>
+      <article class="hzc brk"><span class="cn">/02</span><h3>플레이스 연동.</h3>
         <p>업로드한 클립은 <b>플레이스 사진 탭에서도 확인</b>할 수 있습니다. 검색에서 한 번, 플레이스에서 한 번 더 보입니다.</p>
         <div class="tagline"><span>플레이스 사진 탭</span></div></article>
-      <article class="hzc brk"><span class="cn">/03</span><h3>재작업</h3>
+      <article class="hzc brk"><span class="cn">/03</span><h3>재작업.</h3>
         <p>미노출 시 <b>기존 영상을 삭제한 뒤 동일 영상으로 재업로드</b>해 다시 작업합니다. 별도 비용은 없습니다.</p>
         <div class="tagline"><span>추가 비용 없음</span></div></article>
-      <article class="hzc brk"><span class="cn">/04</span><h3>영상 제작</h3>
+      <article class="hzc brk"><span class="cn">/04</span><h3>영상 제작.</h3>
         <p>영상이 없으시면 제작해 드립니다. 1분 이내 기준 <b>10만원부터</b>입니다.</p>
-        <div class="tagline"><span>1분 이내 10만원~</span></div></article>
+        <div class="tagline"><span>1분 이내 10만원부터</span></div></article>
     </div>
     <div class="hz-bar"><span class="trk"><i id="hzI"></i></span><span><span id="hzN">01</span> / 04</span></div>
   </div>
@@ -934,7 +937,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     <div class="sec-head">
       <span class="snum"><b>/06</b> &nbsp;REFERENCE</span>
       <h2 class="h-sec"><span class="wm"><span>올려둔</span></span> <span class="wm"><span>자리들.</span></span></h2>
-      <p class="lead rv rv-d2">업종과 지역을 가리지 않습니다. 아래는 실제 노출 화면입니다.</p>
+      <p class="lead rv rv-d2">업종도 지역도 가리지 않습니다. 아래는 모두 실제 화면입니다.</p>
     </div>
     <div class="refs" id="refs">
       <article class="ref rv" data-full="assets/refs/clip_top.webp" data-tip="View">
@@ -961,8 +964,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
         <div class="pane-in" style="grid-template-columns:1fr;max-width:900px">
           <div>
             <span class="snum rv"><b>/07</b> &nbsp;FAQ</span>
-            <h2 class="h-sec"><span class="wm"><span>문의</span></span> <span class="wm"><span>전에</span></span><br /><span class="wm"><span>많이</span></span> <span class="wm"><span>묻는</span></span> <span class="wm"><span>것.</span></span></h2>
-            <p class="lead rv rv-d3" style="margin-top:22px;max-width:52ch">여기서 답이 안 나오면 바로 물어보셔도 됩니다. 키워드 확인은 비용이 들지 않습니다.</p>
+            <h2 class="h-sec"><span class="wm"><span>많이</span></span> <span class="wm"><span>묻는</span></span> <span class="wm"><span>것.</span></span></h2>
+            <p class="lead rv rv-d3" style="margin-top:22px;max-width:52ch">여기 없는 건 물어보셔도 됩니다. 키워드 확인은 무료입니다.</p>
           </div>
         </div>
       </div>
@@ -999,12 +1002,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <div class="wrap cta-in">
     <div>
       <span class="snum"><b>/08</b> &nbsp;START</span>
-      <h2 class="h-sec"><span class="wm"><span>키워드</span></span> <span class="wm"><span>하나만</span></span><br /><span class="wm"><span>보내주세요.</span></span></h2>
-      <p class="lead rv rv-d2" style="margin-top:20px">가능한 키워드인지 먼저 확인해 드립니다. 가능하면 견적을 같이 보내고, 어려우면 어려운 이유를 말씀드립니다.</p>
+      <h2 class="h-sec"><span class="wm"><span>보내주실</span></span> <span class="wm"><span>건</span></span><br /><span class="wm"><span>키워드</span></span> <span class="wm"><span>하나.</span></span></h2>
+      <p class="lead rv rv-d2" style="margin-top:20px">가능한 키워드인지 먼저 확인해 드립니다. 되면 견적을, 안 되면 이유를 보내드립니다.</p>
       <div class="cta-pts rv rv-d3">
-        <div>키워드 확인은 무료입니다</div>
-        <div>순위를 확인하신 뒤에 입금하시면 됩니다</div>
-        <div>영상이 없어도 제작부터 진행할 수 있습니다</div>
+        <div>키워드 확인은 무료.</div>
+        <div>입금은 순위 확인 뒤.</div>
+        <div>영상 없어도 제작부터.</div>
       </div>
     </div>
 
@@ -1069,8 +1072,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
   /* ── 마퀴 ──────────────────────────────────────────────────── */
   feat(function(){
-    var A = ['통합검색','클립 탭','클립 추천','네이버 홈','플레이스','클립 인기'];
-    var B = ['60초 이내 권장','월보장 · 주말 포함','플레이스 사진 탭 연동','미노출 시 재작업','영상 제작 10만원~'];
+    var A = ['통합검색','클립 탭','플레이스','네이버 홈','클립 추천','클립 인기'];
+    var B = ['60초 이내 권장','25일 · 주말 포함','플레이스 사진 탭','미노출 시 재작업','영상 제작 10만원부터','노출 확인 후 입금'];
     function fill(id, arr){
       var el = document.getElementById(id); if(!el) return;
       var one = arr.map(function(w){ return '<span>'+w+'</span>'; }).join('');
