@@ -583,6 +583,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .cons input{flex:none;width:15px;height:15px;margin-top:1px;accent-color:var(--green)}
 .cons.bad span{color:#FF8B8B}
 .cf .btn-fill{width:100%;justify-content:center;padding:16px}
+.send-err{margin-top:12px;font-size:13px;line-height:1.6;color:#FF8B8B;text-align:center}
 .ok{position:absolute;inset:0;background:var(--bg-2);border-radius:3px;display:none;
   place-content:center;justify-items:center;text-align:center;gap:14px;padding:30px}
 .ok.on{display:grid}
@@ -1016,6 +1017,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       <div class="fd"><label for="c-msg">남기실 말 (선택)</label><textarea id="c-msg" name="message" placeholder="영상 보유 여부, 희망 시작 시기 등"></textarea></div>
       <label class="cons" id="consWrap"><input type="checkbox" name="privacy" id="c-agree" /><span>개인정보 수집·이용에 동의합니다. (수집 항목: 이름·연락처 / 목적: 상담 접수 및 연락 / 보유기간: 1년) — 필수</span></label>
       <button type="submit" class="btn btn-fill" data-tip="Send">클립 상담 신청<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <p class="send-err" id="sendErr" role="alert" hidden>전송에 실패했습니다. 잠시 후 다시 시도해 주세요.</p>
       <div class="ok" id="ok" role="status">
         <div class="ck"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5 11-11"/></svg></div>
         <h3>접수되었습니다</h3>
@@ -1696,11 +1698,19 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       if(!agree.checked){ cw.classList.add('bad'); bad=true; } else { cw.classList.remove('bad'); }
       if(bad){
         var first = $('.fd.bad input, .fd.bad textarea') || agree;
-        if(first && first.focus) first.focus();
+        if(first && first.focus) first.focus({preventScroll:true});   /* 포커스는 주되 화면은 안 튀게 */
         return;
       }
       var btn = $('button[type=submit]', form);
+      var okBox = $('#ok'), sendErr = $('#sendErr');
+      if(sendErr) sendErr.hidden = true;
       btn.disabled = true; btn.style.opacity = '.6';
+      /* 버튼을 되살리는 길은 성공·실패 양쪽에 모두 있어야 한다 */
+      function unlock(){ btn.disabled = false; btn.style.opacity = ''; }
+      function failed(){                      /* 실패를 성공으로 보여주지 않는다 */
+        unlock();
+        if(sendErr) sendErr.hidden = false;
+      }
       var body = {
         name: name.value.trim(),
         phone: phone.value.trim(),
@@ -1716,11 +1726,18 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
           'Prefer':'return=minimal'
         },
         body: JSON.stringify(body)
-      }).then(function(){
-        $('#ok').classList.add('on');
-      }).catch(function(){
-        $('#ok').classList.add('on');
-      });
+      }).then(function(res){
+        if(!res || !res.ok) { failed(); return; }   /* 4xx·5xx 도 실패다 */
+        okBox.classList.add('on');
+        unlock();
+        /* 완료 화면 2.5초 노출 후 자동 복귀 — 손님이 하나 더 물어볼 수 있게 */
+        setTimeout(function(){
+          okBox.classList.remove('on');
+          form.reset();
+          $('.fd.bad, .cons.bad', form).forEach(function(el){ el.classList.remove('bad'); });
+          if(sendErr) sendErr.hidden = true;
+        }, 2500);
+      }).catch(function(){ failed(); });
     });
   });
 
