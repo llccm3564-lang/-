@@ -1769,22 +1769,17 @@ var SAVE_LABEL = { team:'담당자', copy:'멘트', refs:'레퍼런스', svc:'�
 // 1) 저장 버튼 → 현재 입력 수집 → 변경 내역 팝업(한 번 더 확인)
 function doSave(tab){
   if (_saving) return;
-  if (tab==='team') collectTeam();
-  else if (tab==='copy') collectCopy();
-  else if (tab==='refs') collectRefs();
-  else if (tab==='svc') collectSvc();
-  else return;
-  var last = savedBaseline ? { data: savedBaseline } : null;   // 로드/직전 저장 상태 기준(오래된 히스토리 아님)
+  ehCollectAll();   // 모든 탭 입력값을 state로 — 현재 탭만이 아니라 전체 변경을 감지(다른 탭 변경도 팝업에 뜨게)
+  var last = savedBaseline ? { data: savedBaseline } : null;   // 로드/직전 저장 상태 기준
   var curr = { data: { team:state.team, copy:state.copy, refs:state.refs, svc:state.svc } };
-  var label = SAVE_LABEL[tab] || tab;
-  var diffs = diffSnapshots(last, curr).filter(function(d){ return d.t === label; });
-  _pendingSaveTab = tab;
-  var head = '<h3>변경사항 저장</h3><div class="card-note" style="margin-bottom:0">' + esc(label) + ' — 아래 내용을 저장할까요?</div>';
+  var diffs = diffSnapshots(last, curr);   // 전체 탭 변경(탭 필터 제거)
+  _pendingSaveTab = 'all';
+  var head = '<h3>변경사항 저장</h3><div class="card-note" style="margin-bottom:0">아래 변경사항을 저장할까요?</div>';
   var body;
-  if (!last){ body = '<div class="rp-empty">최초 저장입니다. 현재 ' + esc(label) + ' 내용을 저장합니다.</div>'; }
-  else if (!diffs.length){ body = '<div class="rp-empty">마지막 저장 이후 바뀐 내용이 없습니다.<br>그래도 저장하시겠습니까?</div>'; }
+  if (!last){ body = '<div class="rp-empty">최초 저장입니다. 현재 내용을 저장합니다.</div>'; }
+  else if (!diffs.length){ body = '<div class="rp-empty">마지막 저장 이후 바뀐 내용이 없습니다.</div>'; }
   else {
-    body = diffRowsHtml(diffs);   // 같은 요소의 여러 변경점은 한 줄로 합침
+    body = diffRowsHtml(diffs);   // 같은 요소의 여러 변경점은 한 줄로 합침(모든 탭)
   }
   $('#saveConfirmBody').innerHTML = head + body;
   $('#saveConfirm').classList.add('open');
@@ -1793,28 +1788,37 @@ function closeSaveConfirm(){ $('#saveConfirm').classList.remove('open'); _pendin
 
 // 2) 팝업에서 '저장하기' → 실제 저장(DB 기준 성패 + 저장중 잠금)
 function commitSave(){
-  var tab = _pendingSaveTab; if (!tab || _saving) return;
+  if (!_pendingSaveTab || _saving) return;
   $('#saveConfirm').classList.remove('open'); _pendingSaveTab = null;
-  var p = null;
-  if (tab==='team') p = saveData(LS_KEYS.team, state.team);
-  else if (tab==='copy') p = saveData(LS_KEYS.copy, state.copy);
-  else if (tab==='refs') p = saveData(LS_KEYS.refs, state.refs);
-  else if (tab==='svc') p = saveData(LS_KEYS.svc, state.svc);
-  else return;
+  ehCollectAll();
+  // 변경된 탭을 모두 저장(현재 탭만이 아니라 diff·dirty 있는 전 탭). 다른 탭에서 저장해도 다 반영.
+  var last = savedBaseline ? { data: savedBaseline } : null;
+  var curr = { data: { team:state.team, copy:state.copy, refs:state.refs, svc:state.svc } };
+  var LABEL2TAB = { '멘트':'copy', '담당자':'team', '레퍼런스':'refs', '서비스':'svc' };
+  var chg = {};
+  diffSnapshots(last, curr).forEach(function(d){ var t = LABEL2TAB[d.t]; if (t) chg[t] = 1; });
+  ['team','copy','refs','svc'].forEach(function(t){ if (state.dirty[t]) chg[t] = 1; });
+  var tabs = Object.keys(chg);
+  if (!tabs.length){ toast('저장할 변경사항이 없습니다.'); return; }
+  var keyOf = { team:LS_KEYS.team, copy:LS_KEYS.copy, refs:LS_KEYS.refs, svc:LS_KEYS.svc };
   _saving = true;
   var btns = $all('[data-save]'); btns.forEach(function(b){ b.disabled = true; });
   toast('저장 중...');
-  Promise.resolve(p).then(function(dbOk){
-    if (dbOk){
-      setDirty(tab, false); pushSnapshot(tab);
-      if (savedBaseline) savedBaseline[tab] = JSON.parse(JSON.stringify(state[tab]));   // 저장된 섹션 기준선 갱신
-      toast('저장되었습니다.');
-    }
-    else { toast('저장 실패 — DB 저장에 실패했습니다. 잠시 후 다시 시도하세요.', true); }
+  Promise.all(tabs.map(function(t){
+    return Promise.resolve(saveData(keyOf[t], state[t]))
+      .then(function(ok){ return { t:t, ok:!!ok }; })
+      .catch(function(){ return { t:t, ok:false }; });
+  })).then(function(res){
+    var okTabs = [], failTabs = [];
+    res.forEach(function(r){ (r.ok ? okTabs : failTabs).push(r.t); });
+    okTabs.forEach(function(t){ setDirty(t, false); if (savedBaseline) savedBaseline[t] = JSON.parse(JSON.stringify(state[t])); });
+    if (okTabs.length) pushSnapshot(okTabs[0]);   // 히스토리 스냅샷 1개
+    if (!failTabs.length) toast('저장되었습니다.');
+    else toast('일부 저장 실패: ' + failTabs.map(function(t){ return SAVE_LABEL[t] || t; }).join(', ') + ' — 다시 시도하세요.', true);
   }).catch(function(e){
     console.error('저장 오류', e); toast('저장 실패 — 오류가 발생했습니다.', true);
   }).then(function(){
-    _saving = false; btns.forEach(function(b){ b.disabled = false; });
+    _saving = false; var bb = $all('[data-save]'); bb.forEach(function(b){ b.disabled = false; });
   });
 }
 
