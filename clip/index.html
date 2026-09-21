@@ -14,7 +14,12 @@
 <meta property="og:description" content="통합검색 클립 섹션은 4자리뿐입니다. 4위 이내 25일 보장, 순위 확인 후 입금." />
 <meta property="og:url" content="https://xn--5y2bj92b.xn--2e0br59ap3af3foy0a.com/" />
 <meta property="og:image" content="https://xn--5y2bj92b.xn--2e0br59ap3af3foy0a.com/assets/og-cover.png" />
-<link rel="icon" href="/assets/로고.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="네이버 클립 상위노출 — 실행연구소" />
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32" />
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+<meta name="theme-color" content="#0A0B0A" />
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -581,7 +586,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .fd.bad .err{display:block}
 .cons{display:flex;gap:10px;align-items:flex-start;margin:6px 0 20px;font-size:12.5px;line-height:1.6;
   color:var(--faint);cursor:pointer}
-.cons input{flex:none;width:15px;height:15px;margin-top:1px;accent-color:var(--green)}
+.cons input{flex:none;width:20px;height:20px;margin-top:0;accent-color:var(--green)}
+/* 라벨 전체가 탭 영역이 되도록 — 체크박스만 노리면 모바일에서 놓친다 */
+.cons{min-height:40px;padding-block:6px}
 .cons.bad span{color:#FF8B8B}
 .cf .btn-fill{width:100%;justify-content:center;padding:16px}
 .send-err{margin-top:12px;font-size:13px;line-height:1.6;color:#FF8B8B;text-align:center}
@@ -791,7 +798,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
         <div class="jn"><b>03</b><span>콘텐츠 발견</span></div>
         <div class="jn"><b>04</b><span>업체 인지</span></div>
         <div class="jn"><b>05</b><span>관심 · 탐색</span></div>
-        <div class="jn"><b>06</b><span>플레이스 · 문의 · 방문</span></div>
+        <div class="jn"><b>06</b><span>플레이스 · 문의 · 구매</span></div>
       </div>
     </div>
   </div>
@@ -941,7 +948,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       <h2 class="h-sec"><span class="wm"><span>올려둔</span></span> <span class="wm"><span>작업들.</span></span></h2>
       <p class="lead rv rv-d2">아래는 전부 실제 검색 화면입니다. 위치와 계정만 가렸고, 키워드와 순위는 손대지 않았습니다.</p>
     </div>
-    <div class="refs" id="refs">
+    <div class="refs">
       <article class="ref rv" data-full="assets/refs/clip_top.webp" data-tip="View">
         <div class="fr"><img data-src="assets/refs/clip_top.webp" alt="팔당 맛집 통합검색 클립 섹션 1위 노출 캡처" /></div>
         <div class="rmeta"><em>요식업</em>팔당 맛집 · 1위</div>
@@ -1017,10 +1024,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
     <form class="cf brk rv rv-d2" id="clipForm" novalidate>
       <div class="f2">
-        <div class="fd"><label for="c-name">이름 / 업체명</label><input id="c-name" name="name" type="text" placeholder="실행연구소" required /><span class="err">이름 또는 업체명을 적어주세요.</span></div>
-        <div class="fd"><label for="c-phone">연락처</label><input id="c-phone" name="phone" type="tel" inputmode="numeric" maxlength="13" placeholder="010-1234-5678" required /><span class="err">연락 가능한 번호를 적어주세요.</span></div>
+        <div class="fd"><label for="c-name">이름 / 업체명</label><input id="c-name" name="name" type="text" autocomplete="name" placeholder="실행연구소" required /><span class="err">이름 또는 업체명을 적어주세요.</span></div>
+        <div class="fd"><label for="c-phone">연락처</label><input id="c-phone" name="phone" type="tel" autocomplete="tel" inputmode="numeric" maxlength="13" placeholder="010-1234-5678" required /><span class="err">연락 가능한 번호를 적어주세요.</span></div>
       </div>
-      <div class="fd"><label for="c-kw">원하는 키워드</label><input id="c-kw" name="keyword" type="text" placeholder="예: 팔당 맛집 / 청라 미용실" required /><span class="err">확인할 키워드를 적어주세요.</span></div>
+      <div class="fd"><label for="c-kw">원하는 키워드</label><input id="c-kw" name="keyword" type="text" autocomplete="off" placeholder="예: 팔당 맛집 / 청라 미용실" required /><span class="err">확인할 키워드를 적어주세요.</span></div>
       <div class="fd"><label for="c-msg">남기실 말 (선택)</label><textarea id="c-msg" name="message" placeholder="영상 보유 여부, 희망 시작 시기 등"></textarea></div>
       <label class="cons" id="consWrap"><input type="checkbox" name="privacy" id="c-agree" /><span>개인정보 수집·이용에 동의합니다. (수집 항목: 이름·연락처 / 목적: 상담 접수 및 연락 / 보유기간: 1년) — 필수</span></label>
       <button type="submit" class="btn btn-fill" data-tip="Send">문의하기<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
@@ -1250,7 +1257,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
             + ' data-deep="'+(p>0.34?1:0)+'"'
             + ' style="--w:'+w+'px;--blur:'+blur+'px;--bright:'+brt+'"'
             + (src ? ' class="has-vid"' : '') + '>'
-            + (src ? '<video src="'+src+'" muted loop playsinline preload="'+(reduce?'none':'auto')+'"></video>' : '')
+            + (src ? '<video src="'+src+'" muted loop playsinline preload="'+(reduce?'none':'metadata')+'"></video>' : '')
             + '</b>';
     }
     wrap.innerHTML = html;
