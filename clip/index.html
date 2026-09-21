@@ -243,15 +243,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
    배경에 글로우·궤도카드가 깔려 있어 "배경색 칸으로 덮는" 방식은 검은 네모가 보인다.
    원본 방식대로 같은 글자를 칸마다 깔고 칸 단위로 노출/은폐한다. */
 .roll{position:relative;display:inline-block;vertical-align:bottom;color:var(--green);line-height:1.02}
-/* 진짜 글자는 이 하나뿐 — 검색엔진·스크린리더가 읽는 것.
-   칸 48개에 글자를 그대로 넣으면 h1 안에 같은 단어가 49번 들어가 키워드 도배로 보인다.
-   그래서 칸은 CSS content 로 그려 DOM 텍스트로 남기지 않는다. */
-.roll .rw{display:block;white-space:pre;color:transparent}
-.roll .px{position:absolute;inset:0;display:block;pointer-events:none}
-.roll .px .c{position:absolute;overflow:hidden;opacity:0}
-.roll .px .c.on{opacity:1}
-.roll .px .c span{position:absolute;white-space:pre;line-height:1.02}
-.roll .px .c span::before{content:var(--w,"")}
+/* 글자는 이 하나뿐이고 '한 번만' 그려진다.
+   칸 조각을 여러 개 그려 붙이면 조각 경계마다 글자 가장자리가 잘리거나 겹쳐
+   격자 줄이 보인다(윈도우 배율 125%처럼 CSS 픽셀이 장치 픽셀과 안 맞을 때 특히).
+   그래서 디졸브는 clip-path 경로 하나로 '켜진 칸만' 남기는 방식으로 한다. */
+.roll .rw{display:block;white-space:pre}
 
 .hero-sub{margin:28px auto 0;max-width:620px;font-size:clamp(14px,1.4vw,17px);line-height:1.82;
   color:var(--muted);letter-spacing:-.012em}
@@ -1097,17 +1093,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     var host = $('#roll'); if(!host) return;
     var WORDS = ['보입니다','닿습니다','남습니다'];
     var COLS = 24, ROWS = 8, N = COLS*ROWS;
+    var PAD = 30;                       // 글자가 상자 밖으로 삐져나와도 안 잘리게 가장자리 칸을 넓힌다
 
-    host.innerHTML = '<span class="rw"></span><span class="px" aria-hidden="true"></span>';
-    var rw = $('.rw', host), px = $('.px', host);
-
-    var html = '';
-    for(var i=0;i<N;i++) html += '<span class="c"><span></span></span>';
-    px.innerHTML = html;
-    var cells = $$('.c', px), inner = $$('.c span', px);
-
-    // CSS content:var() 를 못 쓰는 브라우저에서는 어쩔 수 없이 DOM 텍스트로 채운다
-    var CSSVAR = !!(window.CSS && CSS.supports && CSS.supports('content','var(--x)'));
+    host.innerHTML = '<span class="rw"></span>';
+    var rw = $('.rw', host);
 
     // 가장 넓은 단어로 최소폭을 잡아야 단어가 바뀔 때 줄이 흔들리지 않는다
     function lockWidth(){
@@ -1119,57 +1108,66 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       rw.style.minWidth = max.toFixed(2)+'px';
     }
 
+    var rects = [], on = new Uint8Array(N), dirty = false;
     function place(){
       lockWidth();
-      var W = rw.getBoundingClientRect().width, H = rw.getBoundingClientRect().height;
+      var b = rw.getBoundingClientRect(), W = b.width, H = b.height;
       var cw = W/COLS, ch = H/ROWS;
-      // 칸은 정수 픽셀로 딱 맞물려야 한다. 소수 위치 + ceil 폭이면 이웃 칸이
-      // 0.x px 겹치고, 겹친 줄에서 글자 가장자리가 두 번 그려져 선으로 보인다.
+      rects = [];
       for(var i=0;i<N;i++){
         var c = i % COLS, r = (i - c)/COLS;
-        var x0 = Math.round(c*cw), x1 = Math.round((c+1)*cw);
-        var y0 = Math.round(r*ch), y1 = Math.round((r+1)*ch);
-        var s = cells[i].style;
-        s.left = x0+'px';        s.top = y0+'px';
-        s.width = (x1-x0)+'px';  s.height = (y1-y0)+'px';
-        var t = inner[i].style;
-        t.left = (-x0)+'px';     t.top = (-y0)+'px';
+        var x0 = c ? Math.round(c*cw) : -PAD;
+        var x1 = (c === COLS-1) ? Math.round(W)+PAD : Math.round((c+1)*cw);
+        var y0 = r ? Math.round(r*ch) : -PAD;
+        var y1 = (r === ROWS-1) ? Math.round(H)+PAD : Math.round((r+1)*ch);
+        rects.push([x0, y0, x1-x0, y1-y0]);
       }
+      draw();
     }
-    function say(w){
-      rw.textContent = w;                                  // 진짜 글자 — 이것만 DOM에 남는다
-      if(CSSVAR) px.style.setProperty('--w', JSON.stringify(w));
-      else inner.forEach(function(e){ e.textContent = w; });
+    function draw(){
+      dirty = false;
+      var all = true, any = false, d = '';
+      for(var i=0;i<N;i++){
+        if(on[i]){ any = true; var q = rects[i];
+          d += 'M'+q[0]+' '+q[1]+'h'+q[2]+'v'+q[3]+'h'+(-q[2])+'Z';
+        } else all = false;
+      }
+      // 전부 켜졌으면 클립을 아예 없앤다 — 가장자리 한 줄도 깎이지 않게
+      rw.style.clipPath = all ? 'none' : (any ? 'path("'+d+'")' : 'path("M0 0Z")');
     }
+    function mark(){ if(!dirty){ dirty = true; requestAnimationFrame(draw); } }
+    function say(w){ rw.textContent = w; }
 
+    for(var k0=0;k0<N;k0++) on[k0] = 1;
     say(WORDS[0]); place();
     var rt=null; addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(place,150); });
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(place);
 
-    if(reduce){ cells.forEach(function(c){ c.classList.add('on'); }); return; }
+    // path() 를 못 쓰는 브라우저면 글자만 그대로 둔다(깨진 화면보다 낫다)
+    var OK = !!(window.CSS && CSS.supports && CSS.supports('clip-path','path("M0 0Z")'));
+    if(reduce || !OK) return;
 
     // 칸 순서를 고정 난수로 섞는다(매번 같은 패턴이라 검증 가능)
     var order = []; for(var k=0;k<N;k++) order.push(k);
     for(var s2=order.length-1;s2>0;s2--){ var j=(s2*7+13)%(s2+1); var tmp=order[s2]; order[s2]=order[j]; order[j]=tmp; }
 
     var idx = 0, busy = false, timers = [];
-    function sweep(on, done){
+    function sweep(v, done){
       order.forEach(function(o,k){
         timers.push(setTimeout(function(){
-          cells[o].classList.toggle('on', on);
+          on[o] = v; mark();
           if(k === N-1 && done) done();
         }, k*2));
       });
     }
     function clearT(){ timers.forEach(clearTimeout); timers = []; }
-    sweep(true);
 
     var tick = setInterval(function(){
       if(busy || sy() > innerHeight*1.15) return;     // 히어로 밖이면 돌리지 않는다
       busy = true;
-      sweep(false, function(){
+      sweep(0, function(){
         idx = (idx+1) % WORDS.length; say(WORDS[idx]);
-        setTimeout(function(){ sweep(true, function(){ busy = false; }); }, 70);
+        setTimeout(function(){ sweep(1, function(){ busy = false; }); }, 70);
       });
     }, 3000);
     addEventListener('pagehide', function(){ clearInterval(tick); clearT(); });
