@@ -1123,13 +1123,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       lockWidth();
       var W = rw.getBoundingClientRect().width, H = rw.getBoundingClientRect().height;
       var cw = W/COLS, ch = H/ROWS;
+      // 칸은 정수 픽셀로 딱 맞물려야 한다. 소수 위치 + ceil 폭이면 이웃 칸이
+      // 0.x px 겹치고, 겹친 줄에서 글자 가장자리가 두 번 그려져 선으로 보인다.
       for(var i=0;i<N;i++){
         var c = i % COLS, r = (i - c)/COLS;
+        var x0 = Math.round(c*cw), x1 = Math.round((c+1)*cw);
+        var y0 = Math.round(r*ch), y1 = Math.round((r+1)*ch);
         var s = cells[i].style;
-        s.left = (c*cw).toFixed(2)+'px'; s.top = (r*ch).toFixed(2)+'px';
-        s.width = Math.ceil(cw)+'px';    s.height = Math.ceil(ch)+'px';
+        s.left = x0+'px';        s.top = y0+'px';
+        s.width = (x1-x0)+'px';  s.height = (y1-y0)+'px';
         var t = inner[i].style;
-        t.left = (-c*cw).toFixed(2)+'px'; t.top = (-r*ch).toFixed(2)+'px';
+        t.left = (-x0)+'px';     t.top = (-y0)+'px';
       }
     }
     function say(w){
