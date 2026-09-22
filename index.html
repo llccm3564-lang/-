@@ -3144,6 +3144,11 @@
     var bars=[].slice.call(document.querySelectorAll('.hbar'));
     if(!vids.length){return;}
     var cur=0;
+    /* 방문마다 재생 순서를 섞는다 — 늘 같은 영상이 첫 화면에 나오던 문제(2026-09-22 요청).
+       order 는 DOM 인덱스의 순열. 진행바 클릭(activate(i))은 그대로 DOM 인덱스로 받는다. */
+    var order=vids.map(function(_,i){return i;});
+    for(var s=order.length-1;s>0;s--){var r=Math.floor(Math.random()*(s+1)),t=order[s];order[s]=order[r];order[r]=t;}
+    var pos=0;                                   // order 상의 현재 위치
     function fill(i){return bars[i]?bars[i].querySelector('i'):null;}
     function setFill(i,r){var f=fill(i); if(f){f.style.transform='scaleX('+Math.max(0,Math.min(r,1))+')';}}
     function activate(i){
@@ -3153,12 +3158,15 @@
         if(k!==i){try{v.pause();}catch(e){}}
       });
       bars.forEach(function(b,k){ if(k!==i) setFill(k,0); });
+      var at=order.indexOf(i); if(at>=0){pos=at;}   // 바를 눌러 건너뛰어도 이후 순서가 order 를 따라간다
       var v=vids[i];
       try{v.currentTime=0;}catch(e){}
       var p=v.play(); if(p&&p.catch){p.catch(function(){});}
+      var nx=vids[order[(pos+1)%order.length]];     // 다음 순서 영상을 미리 받아둔다
+      if(nx&&nx!==v&&nx.preload!=='auto'){nx.preload='auto';}
     }
     vids.forEach(function(v,i){
-      v.addEventListener('ended',function(){ if(i===cur){activate((cur+1)%vids.length);} });
+      v.addEventListener('ended',function(){ if(i===cur){activate(order[(pos+1)%order.length]);} });
     });
     bars.forEach(function(b,i){ b.addEventListener('click',function(){ activate(i); }); });
     function tick(){                       // 매 프레임 갱신 → 부드러운 진행바
@@ -3166,7 +3174,8 @@
       if(d){ setFill(cur, v.currentTime/d); }
       requestAnimationFrame(tick);
     }
-    activate(0);
+    vids[order[0]].preload='auto';               // 첫 영상이 매번 달라지므로 preload 를 그쪽으로 옮긴다
+    activate(order[0]);
     requestAnimationFrame(tick);
   })();
 })();
