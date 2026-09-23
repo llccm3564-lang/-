@@ -204,42 +204,30 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   transform:translate(-50%,-50%);pointer-events:none;
   background:radial-gradient(closest-side,rgba(85,232,92,.17),transparent 72%);filter:blur(48px)}
 /* [bleibtgleich] 궤도 타일 — 클립 카드 4장이 깊이별 blur/brightness로 떠 있다 */
-/* ── [melius] 원근 클립 복도 ─────────────────────────────────────────────
-   세로 클립 6장이 좌우로 뻗으며 화면을 가로지른다. 이 페이지의 '화면을 지배하는 것'.
-   바깥일수록 가깝고(크고 선명), 안쪽일수록 멀다(작고 흐리다).
-   가운데를 멀리·어둡게 두는 덕에 헤드라인이 그 위에서 읽힌다.
-   자리·각도·깊이는 JS 의 RING 표가 순번으로 꽂는다 → 카드 수가 늘어도 그대로. */
-.orbit{position:absolute;inset:0;pointer-events:none;
-  perspective:1150px;perspective-origin:50% 48%;transform-style:preserve-3d}
-/* 복도 바닥 그림자 — 벽이 떠 있지 않고 '놓여' 보이게 + 헤드라인 뒤를 눌러준다 */
-.orbit::after{content:'';position:absolute;left:50%;top:50%;width:min(128vw,1520px);height:300px;
-  transform:translate(-50%,-46%);pointer-events:none;
-  background:radial-gradient(closest-side,rgba(0,0,0,.86),transparent 72%)}
-.orbit b{position:absolute;left:50%;top:50%;display:block;width:var(--w);
-  aspect-ratio:9/16;overflow:hidden;border:1px solid rgba(247,248,246,.16);border-radius:6px;
-  transform-style:preserve-3d;will-change:transform;
-  transform:translate(-50%,-50%)
-            translate3d(var(--tx,0px),var(--ty,0px),calc(var(--z,0px) + var(--zadd,0px)))
-            rotateY(calc(var(--a,0) * 1deg))
-            translate3d(var(--px,0px),var(--py,0px),0);
+.orbit{position:absolute;inset:0;pointer-events:none;perspective:1200px}
+.orbit b{position:absolute;display:block;border:1px solid rgba(247,248,246,.14);border-radius:4px;
+  aspect-ratio:9/16;overflow:hidden;will-change:transform;
   background:linear-gradient(158deg,rgba(247,248,246,.11) 0%,rgba(247,248,246,.02) 58%,rgba(85,232,92,.07) 100%);
-  box-shadow:0 26px 66px rgba(0,0,0,.62);
-  filter:blur(var(--blur,0px)) brightness(var(--bright,1))}
+  box-shadow:0 18px 46px rgba(0,0,0,.5)}
 /* 재생 삼각형 */
 .orbit b::before{content:'';position:absolute;left:50%;top:50%;width:0;height:0;
   transform:translate(-50%,-50%);
   border-left:13px solid rgba(247,248,246,.34);border-block:9px solid transparent}
 /* 순위 칩 */
-.orbit b::after{content:attr(data-r);position:absolute;top:9px;left:10px;font-family:var(--disp);
+.orbit b::after{content:attr(data-r);position:absolute;top:8px;left:9px;font-family:var(--disp);
   font-size:10px;font-weight:600;letter-spacing:.06em;color:rgba(247,248,246,.5)}
+/* 위치·크기·깊이는 JS가 순번으로 계산해 변수로 꽂는다 → 카드 개수가 늘어도 그대로 */
+.orbit b{width:var(--w);top:var(--t);filter:blur(var(--blur)) brightness(var(--bright))}
+.orbit b{left:var(--x);top:var(--t);transform:translate3d(var(--px,0px),var(--py,0px),0) rotateY(var(--ry,0deg))}  /* 히어로 전체에 흩는다 */
 .orbit b video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   border-radius:inherit;background:#0A0B0A}
-.orbit b.has-vid::before{display:none}
-@media(max-width:1100px){.orbit{perspective:900px}}
-@media(max-width:760px){
-  .orbit{display:block;perspective:620px}
-  .orbit::after{width:168vw;height:420px;
-    background:radial-gradient(closest-side,rgba(10,11,10,.93),rgba(10,11,10,.55) 58%,transparent 78%)}
+.orbit b.has-vid::before{display:none}          /* 영상이 들어가면 재생 삼각형은 숨긴다 */
+@media(max-width:1100px){.orbit b{opacity:.45}
+  .orbit b[data-deep="1"]{display:none}}        /* 좁아지면 뒤쪽(흐린) 카드부터 뺀다 */
+@media(max-width:760px){                          /* 모바일: 웹처럼 블러+깊이 카드를 화면 전체에 골고루 (JS가 배치·클램프) */
+  .orbit{display:block}
+  .orbit b{opacity:.8;box-shadow:0 8px 22px rgba(0,0,0,.5)}   /* filter는 빌드/JS의 blur·brightness(깊이감) 유지 */
+  .orbit b[data-deep="1"]{display:block}
 }
 
 .hero-in{position:relative;z-index:2;text-align:center;padding:0 20px;max-width:1000px}
@@ -1245,6 +1233,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     'assets/clips/직화장인 의정부점.mp4',
   ];
   var ORBIT_MAX = 8;          // 이보다 많으면 히어로가 복잡해진다
+  /* 히어로 주인공 카드 — 0: 전부 흩뿌림(전) · 1: 가까운 두 장을 양 끝에서 크게(중간안).
+     오찬이 복도안(좌우 3쌍)을 "전이 더 예쁘다"고 해서 되돌렸고, 중간 단계를 스위치로 남긴다. */
+  var HERO_DUO = 0;
 
   feat(function(){
     var wrap = $('#orbit'); if(!wrap) return;
@@ -1284,37 +1275,93 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
        — 이미 놓인 카드와도 안 겹치는 자리를 고른다
        — 황금각 수열이라 새로고침해도 배치가 같다(랜덤 아님) */
     var tiles = $$('b', wrap);
-    /* [melius] 원근 복도 배치표 — 안쪽(j=0)이 멀고 바깥(j=2)이 가깝다.
-       [x오프셋, z, 회전도, 기본폭, 블러, 밝기, 시차배속, y오프셋] */
-    var RING = [
-      [ 330, -480,  8, 170, 14.0, 0.20, 0.18, -20 ],   /* 가장 멀다 — 헤드라인 뒤 '공기'. 물체로 읽히면 안 된다 */
-      [ 420,   95, 19, 170,  2.2, 0.72, 0.48,  28 ],
-      [ 522,  255, 27, 170,  0.0, 1.00, 0.82, -12 ]    /* 가장 가깝다 — 화면 밖으로 흘러나간다 */
-    ];
-    /* 모바일은 복도를 다시 짠다 — 데스크톱 값을 비율로 줄이면 카드가 전부 화면 밖으로 나간다(390px 실측).
-       가까운 한 쌍만 양 끝에서 선명하게 들이밀고, 먼 한 쌍은 헤드라인 뒤 어둠으로 남긴다. 나머지는 숨긴다. */
-    var RING_M = [
-      [ 115, -280,  8, 150, 10.0, 0.28, 0.18, -14 ],
-      [ 165,  170, 22, 150,  0.6, 0.55, 0.80,  16 ]   /* 글자가 위에 얹히므로 데스크톱보다 어둡게 */
-    ];
     function layout(){
-      var W = innerWidth, mob = W <= 760;
-      var tbl = mob ? RING_M : RING;
-      var sc  = mob ? 1 : (W <= 1100 ? 0.74 : 1);         /* 좁을수록 복도를 좁힌다 */
-      tiles.forEach(function(el, i){
-        if (mob && i >= tbl.length * 2){ el.style.display = 'none'; return; }
-        var j = Math.min(tbl.length - 1, i >> 1);         /* 0,0,1,1,2,2 — 안쪽부터 좌우 한 장씩 */
-        var sgn = (i % 2) ? 1 : -1;                       /* 짝=왼쪽 · 홀=오른쪽 */
-        var r = tbl[j];
+      var W = innerWidth, H = innerHeight;
+      var keep = null;
+      $$('.hero-in .hero-eb, .hero-in h1, .hero-in .hero-sub, .hero-in .hero-cta, .hero-in .hero-trust')
+        .forEach(function(e){
+          var r = e.getBoundingClientRect(); if(!r.width || !r.height) return;
+          keep = keep ? { l:Math.min(keep.l,r.left), t:Math.min(keep.t,r.top),
+                          r:Math.max(keep.r,r.right), b:Math.max(keep.b,r.bottom) }
+                      : { l:r.left, t:r.top, r:r.right, b:r.bottom };
+        });
+      var M = 30;                                  // 글자와 띄울 여백
+      if(keep) keep = { l:keep.l-M, t:keep.t-M, r:keep.r+M, b:keep.b+M };
+      var padT = 76, padB = 60, padX = 24;         // 내비·하단 메타 줄 피하기
+
+      if (W <= 760) {                              // ── 모바일: 웹처럼 블러+깊이 카드를 화면 전체에 골고루 · 가로는 화면 안에 완전히(튐 0) ──
+        var mSlots = [   // [중심 xFrac, 중심 yFrac, w(px)] — 작을수록 멀리(블러↑). 정중앙(헤드라인)은 비움
+          [0.15, 0.13, 66], [0.85, 0.11, 50], [0.93, 0.41, 44],
+          [0.07, 0.47, 58], [0.24, 0.82, 70], [0.82, 0.84, 52]
+        ];
+        tiles.forEach(function(el,i){
+          if (i >= mSlots.length){ el.style.display='none'; return; }
+          el.style.display='';
+          var s = mSlots[i], w = s[2], h = w*16/9;
+          var x = s[0]*W - w/2, y = s[1]*H - h/2;
+          x = Math.max(6, Math.min(W - w - 6, x));            // 가로 완전 인바운드 → 가로 overflow 원천 차단
+          y = Math.max(padT - 26, Math.min(H - h - 28, y));
+          var depth = Math.max(0, Math.min(1, (72 - w) / (72 - 44)));   // 작을수록 멀리
+          el.style.setProperty('--w', w + 'px');
+          el.style.setProperty('--x', x.toFixed(1) + 'px');
+          el.style.setProperty('--t', y.toFixed(1) + 'px');
+          el.style.setProperty('--blur',  (1.5 + depth*4.5).toFixed(1) + 'px');   // 1.5~6px 깊이 블러
+          el.style.setProperty('--bright', (0.92 - depth*0.35).toFixed(2));       // 멀수록 어둡게
+        });
+        return;
+      }
+
+      var GAP = 14, placed = [];
+      var GA = 0.61803398875, GB = 0.38196601125;
+
+      function overlap(x,y,w,h,a){                 // 겹친 넓이
+        var ox = Math.min(x+w, a.r) - Math.max(x, a.l);
+        var oy = Math.min(y+h, a.b) - Math.max(y, a.t);
+        return (ox>0 && oy>0) ? ox*oy : 0;
+      }
+      /* ── 주인공 카드 2장을 먼저 놓는다 ─────────────────────────────
+         흩뿌리기만 하면 카드가 배경 벽지로만 남고, 좌우에 벽을 다 세우면 화면이 꽉 차 과하다.
+         가까운 두 장만 양 끝에서 크게·선명하게 들이밀고 나머지 넷은 흩뿌린다.
+         먼저 놓고 자리를 placed 에 등록해야 흩뿌리기가 이 자리를 피한다(안 그러면 겹친다). */
+      var HW = Math.round(Math.min(230, W * 0.158)), HH = Math.round(HW * 16 / 9);
+      var hy = Math.round(H * 0.5 - HH * 0.5 + 24);
+      var HERO = HERO_DUO ? [[0, -Math.round(HW * 0.32), 8], [1, W - Math.round(HW * 0.68), -8]] : [];
+      HERO.forEach(function(s2){
+        var el = tiles[s2[0]]; if(!el) return;
         el.style.display = '';
-        el.style.setProperty('--w',  Math.round(r[3] * sc) + 'px');
-        el.style.setProperty('--tx', (r[0] * sgn * sc).toFixed(1) + 'px');
-        el.style.setProperty('--ty', (r[7] * sc).toFixed(1) + 'px');
-        el.style.setProperty('--z',  (r[1] * sc).toFixed(1) + 'px');
-        el.style.setProperty('--a',  (-r[2] * sgn).toFixed(1));
-        el.style.setProperty('--blur',   r[4].toFixed(1) + 'px');
-        el.style.setProperty('--bright', r[5].toFixed(2));
-        el.setAttribute('data-k', r[6]);
+        el.style.setProperty('--w', HW + 'px');
+        el.style.setProperty('--x', s2[1] + 'px');
+        el.style.setProperty('--t', hy + 'px');
+        el.style.setProperty('--blur', '0px');
+        el.style.setProperty('--bright', '1');
+        el.style.setProperty('--ry', s2[2] + 'deg');
+        placed.push({ x: s2[1], y: hy, w: HW, h: HH });
+      });
+
+      tiles.forEach(function(el,i){
+        if(i < HERO.length) return;               // 주인공은 위에서 이미 놓았다
+        el.style.display='';                       // 모바일→데스크톱 리사이즈 시 숨김 해제
+        el.style.removeProperty('--ry');            // 흩뿌림 카드는 회전 없음
+        var p = n>1 ? i/(n-1) : 0;
+        var w = lerp(148,68,p), h = w*16/9;
+        el.style.setProperty('--w', Math.round(w)+'px');
+        var maxX = Math.max(padX, W - w - padX), maxY = Math.max(padT, H - h - padB);
+        var best = {x:padX, y:padT}, bestPen = Infinity;
+        for(var k=0;k<240;k++){
+          var u = ((i*7  + k) * GA + 0.07) % 1;
+          var v = ((i*11 + k) * GB + 0.29) % 1;
+          var x = padX + u*(maxX-padX), y = padT + v*(maxY-padT);
+          var pen = keep ? overlap(x,y,w,h,keep) : 0;
+          for(var j=0;j<placed.length;j++){
+            var q = placed[j];
+            pen += overlap(x,y,w,h,{l:q.x-GAP, t:q.y-GAP, r:q.x+q.w+GAP, b:q.y+q.h+GAP});
+          }
+          if(pen === 0){ best = {x:x,y:y}; bestPen = 0; break; }
+          if(pen < bestPen){ bestPen = pen; best = {x:x,y:y}; }
+        }
+        placed.push({x:best.x, y:best.y, w:w, h:h});
+        el.style.setProperty('--x', best.x.toFixed(1)+'px');
+        el.style.setProperty('--t', best.y.toFixed(1)+'px');
       });
     }
     layout();
@@ -1356,26 +1403,20 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     if(reduce || COARSE) return;
     var tiles = $$('#orbit b'); if(!tiles.length) return;
     var n = tiles.length;
-    var mx=0, my=0, sxv=0, sp=0, t=false;   // sp = 히어로 진행률 0~1
+    var mx=0, my=0, sxv=0, t=false;
     function up(){
       t=false;
       for(var i=0;i<n;i++){
-        var k = +(tiles[i].getAttribute('data-k') || 0.4);   // 복도 깊이별 배속(가까운 카드가 더 크게 움직인다)
-        tiles[i].style.setProperty('--px', (mx*k*30).toFixed(2) + 'px');
-        tiles[i].style.setProperty('--py', (my*k*24 - sxv*k*0.55).toFixed(2) + 'px');
-        /* 스크롤하면 복도가 시청자 쪽으로 밀려온다 — 지나쳐 가는 느낌 */
-        tiles[i].style.setProperty('--zadd', (sp * (240 + k*430)).toFixed(1) + 'px');
+        var k = 0.20 + (n>1 ? i/(n-1) : 0) * 0.58;   // 깊이별 배속 0.20 → 0.78
+        tiles[i].style.setProperty('--px', (mx*k*26).toFixed(2) + 'px');
+        tiles[i].style.setProperty('--py', (my*k*22 - sxv*k).toFixed(2) + 'px');
       }
     }
     function req(){ if(!t){ t=true; requestAnimationFrame(up); } }
     addEventListener('mousemove', function(e){
       mx = (e.clientX/innerWidth - 0.5)*2; my = (e.clientY/innerHeight - 0.5)*2; req();
     }, {passive:true});
-    addEventListener('scroll', function(){
-      var y = sy(); sxv = Math.min(y, innerHeight);
-      sp = Math.max(0, Math.min(1, y / innerHeight));
-      req();
-    }, {passive:true});
+    addEventListener('scroll', function(){ sxv = Math.min(sy(), innerHeight); req(); }, {passive:true});
     up();
   });
 
