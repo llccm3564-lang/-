@@ -1235,7 +1235,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   var ORBIT_MAX = 8;          // 이보다 많으면 히어로가 복잡해진다
   /* 히어로 주인공 카드 — 0: 전부 흩뿌림(전) · 1: 가까운 두 장을 양 끝에서 크게(중간안).
      오찬이 복도안(좌우 3쌍)을 "전이 더 예쁘다"고 해서 되돌렸고, 중간 단계를 스위치로 남긴다. */
-  var HERO_DUO = 0;
+  var HERO_DUO = /[?&]duo=1/.test(location.search) ? 1 : 0;   // 주소에 ?duo=1 붙이면 중간안
 
   feat(function(){
     var wrap = $('#orbit'); if(!wrap) return;
@@ -1297,6 +1297,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
         tiles.forEach(function(el,i){
           if (i >= mSlots.length){ el.style.display='none'; return; }
           el.style.display='';
+          el.style.removeProperty('--ry');
           var s = mSlots[i], w = s[2], h = w*16/9;
           var x = s[0]*W - w/2, y = s[1]*H - h/2;
           x = Math.max(6, Math.min(W - w - 6, x));            // 가로 완전 인바운드 → 가로 overflow 원천 차단
@@ -1308,6 +1309,20 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
           el.style.setProperty('--blur',  (1.5 + depth*4.5).toFixed(1) + 'px');   // 1.5~6px 깊이 블러
           el.style.setProperty('--bright', (0.92 - depth*0.35).toFixed(2));       // 멀수록 어둡게
         });
+        if (HERO_DUO){
+          var mw = Math.round(W * 0.30), mh = Math.round(mw * 16 / 9);
+          var myy = Math.round(H * 0.5 - mh * 0.5 + 10);
+          [[0, -Math.round(mw * 0.34), 7], [1, W - Math.round(mw * 0.66), -7]].forEach(function(s2){
+            var el = tiles[s2[0]]; if(!el) return;
+            el.style.display = '';
+            el.style.setProperty('--w', mw + 'px');
+            el.style.setProperty('--x', s2[1] + 'px');
+            el.style.setProperty('--t', myy + 'px');
+            el.style.setProperty('--blur', '0px');
+            el.style.setProperty('--bright', '.82');
+            el.style.setProperty('--ry', s2[2] + 'deg');
+          });
+        }
         return;
       }
 
