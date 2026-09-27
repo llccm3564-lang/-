@@ -168,7 +168,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .nav.tuck{transform:translateY(-104%)}
 .nav-b{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:-.01em;
   padding-block:13px;margin-block:-13px}   /* 18px → 44px 터치 영역 */
-.nav-b i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(85,232,92,.16)}
+.nav-b img{display:block;height:22px;width:auto}
+@media(max-width:600px){.nav-b img{height:19px}}
 .nav-r{display:flex;align-items:center;gap:clamp(10px,2vw,22px)}
 .back{font-size:12.5px;color:inherit;opacity:.66;transition:opacity .25s;
   display:inline-block;padding-block:15px;margin-block:-15px}   /* 15px → 45px 터치 영역 */
@@ -739,7 +740,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 </nav>
 
 <header class="nav" id="nav">
-  <a class="nav-b" href="/"><i></i>실행연구소</a>
+  <a class="nav-b" href="/" aria-label="실행연구소"><img src="assets/logo-nav.png" alt="실행연구소" width="285" height="72" /></a>
   <div class="nav-r">
     <a class="back" href="/">← 전체 서비스</a>
     <a class="btn btn-fill" href="#contact" data-tip="Contact">문의하기</a>
