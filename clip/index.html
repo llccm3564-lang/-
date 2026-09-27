@@ -17,8 +17,8 @@
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content="네이버 클립 상위노출 — 실행연구소" />
-<link rel="icon" href="/assets/favicon-32.png" sizes="32x32" />
-<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
 <meta name="theme-color" content="#0A0B0A" />
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
@@ -123,11 +123,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .reg{position:fixed;z-index:46;width:15px;height:15px;pointer-events:none;opacity:.5;
   transition:opacity .4s ease}
 .reg::before,.reg::after{content:'';position:absolute;background:var(--rgc)}
-.reg.tl,.reg.tr{--rgc:var(--regc)}
+.reg.tr{--rgc:var(--regc)}
 .reg.bl,.reg.br{--rgc:var(--regc-b,var(--regc))}
 .reg::before{left:0;right:0;top:7px;height:1px}
 .reg::after{top:0;bottom:0;left:7px;width:1px}
-.reg.tl{top:22px;left:22px}.reg.tr{top:22px;right:22px}
+.reg.tr{top:22px;right:22px}
 .reg.bl{bottom:22px;left:22px}.reg.br{bottom:22px;right:22px}
 @media(max-width:860px){.reg{display:none}}
 
@@ -160,7 +160,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 /* ── 내비 ─────────────────────────────────────────────────────────── */
 .nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
-  padding:18px clamp(18px,3.6vw,46px);transition:transform .5s var(--expo),background .4s,border-color .4s;
+  padding:18px clamp(18px,3.6vw,46px);transition:transform .5s var(--expo),background .55s,border-color .55s,color .55s;
   border-bottom:1px solid transparent}
 .nav.solid{background:rgba(10,11,10,.74);backdrop-filter:blur(16px);border-bottom-color:var(--line)}
 .nav.on-light.solid{background:rgba(239,241,237,.78);border-bottom-color:var(--line-d)}
@@ -168,8 +168,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .nav.tuck{transform:translateY(-104%)}
 .nav-b{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:-.01em;
   padding-block:13px;margin-block:-13px}   /* 18px → 44px 터치 영역 */
-.nav-b img{display:block;height:22px;width:auto}
-@media(max-width:600px){.nav-b img{height:19px}}
+/* 로고 = 글자색으로 칠한 실루엣. 밝은 섹션에서 내비 색이 뒤집히면 로고도 같이 뒤집힌다. */
+.nav-b .lg{display:block;height:29px;aspect-ratio:285/72;margin-top:-3px;background-color:var(--white);
+  -webkit-mask:url(assets/logo-nav.png) no-repeat center/contain;
+          mask:url(assets/logo-nav.png) no-repeat center/contain;
+  transition:background-color .55s ease}
+.nav.on-light .nav-b .lg{background-color:var(--ink)}
+@media(max-width:600px){.nav-b .lg{height:25px;margin-top:-2px}}
 .nav-r{display:flex;align-items:center;gap:clamp(10px,2vw,22px)}
 .back{font-size:12.5px;color:inherit;opacity:.66;transition:opacity .25s;
   display:inline-block;padding-block:15px;margin-block:-15px}   /* 15px → 45px 터치 영역 */
@@ -242,9 +247,18 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 .h-hero .l{display:block;overflow:hidden}
 .h-hero .l>span{display:inline-block;transform:translateY(102%);
-  animation:rise 1.15s var(--expo) forwards}
-.h-hero .l:nth-child(2)>span{animation-delay:.11s}
+  animation:rise 1.15s var(--expo) .86s forwards}          /* 카드 진입(1.35s)과 겹치며 뒤따라온다 */
+.h-hero .l:nth-child(2)>span{animation-delay:.97s}
 @keyframes rise{to{transform:translateY(0)}}
+/* ── 첫 진입: 영상 카드가 뒤에서 앞으로 ─────────────────────────
+   카드마다 따로 움직이면 JS가 매 프레임 덮어쓰는 transform 과 충돌한다.
+   그래서 카드를 담은 상자(.orbit) 하나만 키워서 '다가오는' 느낌을 만든다. */
+@keyframes orbIn{from{transform:scale(.84);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.orbit{animation:orbIn 1.35s var(--expo) both}
+.hero-eb{animation:fadeIn .8s var(--expo) .72s both}
+.hero-sub{animation:fadeIn .9s var(--expo) 1.12s both}
+.hero-cta{animation:fadeIn .9s var(--expo) 1.24s both}
 /* [runrobrun] 픽셀 디졸브 회전 단어 — 이 페이지 계단 커튼과 같은 언어.
    배경에 글로우·궤도카드가 깔려 있어 "배경색 칸으로 덮는" 방식은 검은 네모가 보인다.
    원본 방식대로 같은 글자를 칸마다 깔고 칸 단위로 노출/은폐한다. */
@@ -357,8 +371,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .why .n{font-family:var(--disp);font-size:clamp(12px,1.35vw,15px);font-weight:600;letter-spacing:.12em;
   color:var(--green);padding-top:7px}
 .why h3{margin-top:0;font-size:clamp(19px,2.4vw,30px);font-weight:700;letter-spacing:-.03em;line-height:1.3}
-.why-b p{margin-top:0;font-size:14.2px;line-height:1.82;color:var(--faint)}
-.why-b p+p{margin-top:13px}
+.why-b p{margin-top:0;font-size:clamp(17px,15.4px + 0.41vw,21.3px);line-height:1.82;color:var(--faint)}
+.why-b p+p{margin-top:20px}
+@media(min-width:901px){.why h3,.why .n{align-self:center}.why .n{padding-top:0}}
 @media(max-width:900px){
   .why{grid-template-columns:clamp(52px,12vw,74px) minmax(0,1fr);gap:12px 16px}
   .why-b{grid-column:2}}
@@ -381,34 +396,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .jrn-f .jn:nth-child(2n)::after{display:none}}   /* 2열일 때 우측열 화살표(허공 가리킴) 숨김 */
 
 /* ══ /02 네 자리 ═════════════════════════════════════════════════ */
-#seats{padding-top:clamp(64px,9vw,110px)}
-.slots{display:grid;grid-template-columns:repeat(4,1fr) 46px;gap:12px;margin-top:12px}
-.slot{position:relative;border:1px solid var(--line);border-radius:3px;background:var(--bg-2);
-  padding:14px;display:flex;flex-direction:column;gap:8px;aspect-ratio:9/14;
-  transition:border-color .45s,background .45s,transform .6s var(--expo)}
-.slot:hover{border-color:var(--line-2);transform:translateY(-5px)}
-.slot .rk{font-family:var(--disp);font-size:12px;font-weight:600;color:var(--faint)}
-.slot .thumb{flex:1;border-radius:2px;background:
-  linear-gradient(150deg,rgba(247,248,246,.07),rgba(247,248,246,.015));position:relative;overflow:hidden}
-.slot .thumb::after{content:'';position:absolute;left:50%;top:50%;width:0;height:0;
-  transform:translate(-50%,-50%);border-left:11px solid rgba(247,248,246,.3);
-  border-block:7px solid transparent}
-.slot .tag{font-size:11.5px;line-height:1.45;color:var(--muted);
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.slot .meta{font-family:var(--disp);font-size:10px;letter-spacing:.08em;color:var(--faint)}
-.slot.ours{border-color:var(--green);background:linear-gradient(165deg,rgba(85,232,92,.15),rgba(85,232,92,.03))}
-.slot.ours .rk{color:var(--green)}
-.slot.ours .thumb{background:linear-gradient(150deg,rgba(85,232,92,.3),rgba(85,232,92,.05))}
-.slot.ours .thumb::after{border-left-color:rgba(255,255,255,.85)}
-.slot.ours .badge{position:absolute;top:11px;right:11px;background:var(--green);color:#07270B;
-  font-size:9.5px;font-weight:700;letter-spacing:-.01em;padding:3px 7px;border-radius:2px}
-.slot-cut{border:1px dashed var(--line-2);border-radius:3px;display:grid;place-items:center;
-  writing-mode:vertical-rl;font-size:10.5px;letter-spacing:.24em;color:var(--faint);
-  background:repeating-linear-gradient(-45deg,transparent 0 6px,rgba(247,248,246,.03) 6px 12px)}
-.slots-note{margin-top:22px;font-size:12.5px;line-height:1.7;color:var(--faint)}
-.slots-note b{color:var(--white);font-weight:600}
-@media(max-width:860px){.slots{grid-template-columns:repeat(2,1fr);gap:10px}
-  .slot{aspect-ratio:9/12}.slot-cut{grid-column:1/-1;writing-mode:horizontal-tb;padding:11px;letter-spacing:.16em}}
 
 /* ══ /02 실제 화면 (핀 패널) ═════════════════════════════════════ */
 /* 핀 패널은 뷰포트를 꽉 채운다 — 안 그러면 커튼 아래로 빈칸이 보인다 */
@@ -417,9 +404,30 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pane-in{width:min(100% - 40px,var(--max));margin-inline:auto;
   display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(26px,4.4vw,64px);align-items:center}
 @media(max-width:900px){.pane-in{grid-template-columns:1fr;gap:22px}}
-.shot{position:relative;border:1px solid var(--line-d);border-radius:3px;overflow:hidden;background:#fff}
-.shot img{width:100%;height:auto;display:block}
-.shot .cap{display:flex;justify-content:space-between;gap:10px;padding:10px 13px;
+/* ── /02 ON SCREEN : 스크롤로 캡처+표가 같이 넘어가는 장면들 ──
+   DOM 순서는 [헤딩, 캡처1, 표1, 캡처2, 표2, …] 한 벌뿐이다.
+   데스크톱은 grid-area 로 캡처를 전부 왼쪽 칸에, 표를 전부 오른쪽 칸에 겹쳐 쌓고
+   모바일(커튼 flatten)은 display:block 으로 되돌려 그 DOM 순서 그대로 세로로 흐르게 한다.
+   → 카피가 한 군데에만 있다. */
+.cur--scenes .cur__pinbox{height:calc(200svh + var(--ov,0svh) + var(--dwell,0svh))}
+.sc-wrap{grid-template-columns:1.05fr .95fr;grid-template-rows:auto auto auto}
+.sc-head{grid-area:1/2}
+.sc-shot{grid-area:1/1/4/2;margin:0}
+.sc-kv{grid-area:2/2}
+.sc-bar{grid-area:3/2}
+.sc-shot,.sc-kv{transition:opacity .5s var(--expo);opacity:0;pointer-events:none}
+.sc-shot.is-on,.sc-kv.is-on{opacity:1;pointer-events:auto}
+/* 캡처 4장의 비율이 1.03~1.47 로 제각각이다. 틀을 하나로 고정하고 contain 으로 앉혀
+   장면이 바뀔 때 높이가 흔들리지 않게 한다(바탕이 흰색이라 여백이 캡처와 이어진다). */
+.sc-shot img{width:100%;aspect-ratio:1.05;object-fit:contain;object-position:center;
+  display:block;background:#fff}
+.sc-bar{display:flex;align-items:center;gap:14px;margin-top:22px;
+  font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--faint-d)}
+.sc-bar .trk{flex:1;height:1px;background:var(--line-d);position:relative;overflow:hidden}
+.sc-bar .trk i{position:absolute;inset:0;background:var(--green-ink);
+  transform-origin:0 50%;transform:scaleX(.25);transition:transform .5s var(--expo)}
+.sc-shot{position:relative;border:1px solid var(--line-d);border-radius:3px;overflow:hidden;background:#fff}
+.sc-shot .cap{display:flex;justify-content:space-between;gap:10px;padding:10px 13px;
   border-top:1px solid var(--line-d);font-family:var(--disp);font-size:10px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--faint-d);background:var(--paper)}
 .kv{margin-top:24px;border-top:1px solid var(--line-d)}
@@ -428,7 +436,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .kv .k{color:var(--faint-d);letter-spacing:-.01em}
 .kv .v{font-weight:600;letter-spacing:-.015em}
 .kv .v.hi{color:var(--green-ink)}
-@media(max-width:900px){.shot img{max-height:38svh;object-fit:contain;object-position:top}
+@media(max-width:900px){.sc-shot img{max-height:38svh}
   .kv>div{padding:9px 2px;font-size:12.5px}.kv{margin-top:16px}}
 
 /* ══ /03 보장 (핀 패널) ══ clip.html 첫 판본 값 그대로 이식 ═════ */
@@ -484,16 +492,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .hz-track{display:flex;gap:clamp(14px,2vw,24px);padding-left:max(20px,calc((100vw - var(--max))/2));
   will-change:transform}
 .hzc{flex:0 0 clamp(268px,30vw,398px);border:1px solid var(--line);border-radius:3px;
-  padding:clamp(22px,2.6vw,32px);background:var(--bg-2);min-height:clamp(276px,36svh,346px);
+  padding:clamp(22px,2.6vw,32px);background:var(--bg-2);min-height:clamp(186px,23svh,224px);
   display:flex;flex-direction:column;transition:border-color .45s,background .45s}
 .hzc:hover{border-color:var(--line-2);background:var(--bg-3)}
 .hzc .cn{font-family:var(--disp);font-size:11.5px;font-weight:600;letter-spacing:.14em;color:var(--green)}
 .hzc h3{margin-top:16px;font-size:clamp(18px,2vw,25px);font-weight:700;letter-spacing:-.025em}
 .hzc p{margin-top:12px;font-size:13.4px;line-height:1.78;color:var(--faint)}
 .hzc p b{color:var(--white);font-weight:600}
-.hzc .tagline{margin-top:auto;padding-top:18px;display:flex;gap:7px;flex-wrap:wrap}
-.hzc .tagline span{font-family:var(--disp);font-size:10px;font-weight:600;letter-spacing:.1em;
-  border:1px solid var(--line);border-radius:2px;padding:5px 9px;color:var(--muted)}
 .hz-bar{width:min(100% - 40px,var(--max));margin:clamp(20px,3vw,34px) auto 0;
   display:flex;align-items:center;gap:14px;font-family:var(--disp);font-size:11px;font-weight:600;
   letter-spacing:.1em;color:var(--faint)}
@@ -641,8 +646,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .wm{overflow:visible}
   .wm>span{transform:none!important;transition:none!important}
   .cur{margin-top:0;clip-path:none!important}
-  .cur__pinbox{height:auto}
+  .cur__pinbox,.cur--scenes .cur__pinbox{height:auto}
   .cur__pin{position:static;height:auto;overflow:visible;padding:clamp(46px,10vw,80px) 0}
+  /* 핀이 풀리면 장면을 넘길 스크롤이 없다 → 네 장면을 DOM 순서(캡처·표 짝) 그대로 세로로 */
+  .sc-wrap{display:block}
+  .sc-shot,.sc-kv{opacity:1;pointer-events:auto;transition:none}
+  .sc-shot{margin-top:26px}
+  .sc-shot img{aspect-ratio:auto}
+  .sc-kv{margin-top:14px}
+  .sc-bar{display:none}
   .hz-wrap{height:auto!important}
   .hz-stick{position:static;height:auto;overflow:visible;padding:clamp(46px,10vw,80px) 0}
   .hz-track{flex-wrap:wrap;transform:none!important;width:auto;padding:0 20px;gap:12px}
@@ -654,8 +666,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ── 모션 최소화 ─────────────────────────────────────────────── */
 @media(prefers-reduced-motion:reduce){
   .cur{margin-top:0;clip-path:none!important}
-  .cur__pinbox{height:auto}
+  .cur__pinbox,.cur--scenes .cur__pinbox{height:auto}
   .cur__pin{position:static;height:auto;padding:clamp(64px,9vw,120px) 0}
+  .sc-wrap{display:block}
+  .sc-shot,.sc-kv{opacity:1;pointer-events:auto;transition:none}
+  .sc-shot{margin-top:26px}.sc-shot img{aspect-ratio:auto}
+  .sc-kv{margin-top:14px}.sc-bar{display:none}
   .hero{position:relative;inset:auto;min-height:100svh}
   #body{margin-top:0}
   .ft{position:static}
@@ -663,6 +679,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .hz-track{flex-wrap:wrap;transform:none!important;padding-inline:20px}
   .hzc{flex-basis:100%}
   .h-hero .l>span{transform:none;animation:none}
+  .orbit,.hero-eb,.hero-sub,.hero-cta{animation:none;opacity:1;transform:none}
   .roll-in{animation:none}
   .wm>span{transform:none}
   .rv{opacity:1;transform:none}
@@ -729,18 +746,18 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 </svg>
 
 <div class="grain" aria-hidden="true"></div>
-<span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span>
+<span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span>
 <div class="prog" aria-hidden="true"><i id="prog"></i></div>
 <div class="orb" id="orb" aria-hidden="true"></div>
 <div class="tip" id="tip" aria-hidden="true"></div>
 
 <!-- 챕터 -->
 <nav class="chap" id="chap" aria-hidden="true">
-  <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+  <b></b><b></b><b></b><b></b><b></b><b></b><b></b>
 </nav>
 
 <header class="nav" id="nav">
-  <a class="nav-b" href="/" aria-label="실행연구소"><img src="assets/logo-nav.png" alt="실행연구소" width="285" height="72" /></a>
+  <a class="nav-b" href="/" aria-label="실행연구소"><i class="lg" aria-hidden="true"></i></a>
   <div class="nav-r">
     <a class="back" href="/">← 전체 서비스</a>
     <a class="btn btn-fill" href="#contact" data-tip="Contact">문의하기</a>
@@ -779,83 +796,93 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <div class="wrap">
     <div class="sec-head" style="max-width:820px">
       <span class="snum"><b>/01</b> &nbsp;WHY CLIP</span>
-      <h2 class="h-sec"><span class="wm"><span>올리는</span></span> <span class="wm"><span>건</span></span> <span class="wm"><span>클립</span></span> <span class="wm"><span>하나.</span></span><br /><span class="wm"><span>고객과</span></span> <span class="wm"><span>마주치는</span></span> <span class="wm"><span>곳은</span></span> <span class="wm"><span>여섯.</span></span></h2>
-      <p class="lead rv rv-d2">통합검색. 클립 탭. 네이버 홈. 클립 추천. 클립 인기. 플레이스 사진 탭.<br />클립 하나가 걸리는 곳이 여섯입니다. 고객이 무엇을 찾고 있든, 마주칠 화면이 늘어납니다.</p>
+      <h2 class="h-sec"><span class="wm"><span>올리는</span></span> <span class="wm"><span>건</span></span> <span class="wm"><span>클립</span></span> <span class="wm"><span>하나.</span></span><br /><span class="wm"><span>고객과</span></span> <span class="wm"><span>마주하는</span></span> <span class="wm"><span>곳은</span></span> <span class="wm"><span>여섯.</span></span></h2>
+      <p class="lead rv rv-d2">통합검색 · 클립 탭 · 네이버 홈 · 클립 추천 · 클립 인기 · 플레이스 사진 탭</p>
     </div>
 
     <div class="whys">
       <article class="why rv"><span class="n">/01</span>
-        <h3>검색하는 순간,<br />클립으로 먼저 보이게.</h3>
-        <div class="why-b"><p>통합검색에 클립 영역이 노출되는 키워드라면 검색 결과에서, 클립 검색에서는 관련 콘텐츠를 찾는 사람에게 노출됩니다.</p>
-        <p>블로그와 플레이스만으로는 닿지 않던 또 하나의 검색 접점을 클립으로 만듭니다.</p></div></article>
+        <h3>검색하는 키워드에.</h3>
+        <div class="why-b"><p>고객이 실제로 검색하는 키워드에서<br />클립을 상단에 노출합니다.<br />검색 결과의 앞자리에서 만나도록.</p></div></article>
       <article class="why rv rv-d1"><span class="n">/02</span>
-        <h3>설명보다 빠르게,<br />영상 하나로.</h3>
-        <div class="why-b"><p>매장 분위기도, 제품도, 시술 결과도 긴 글로 설명하지 않아도 됩니다.</p>
-        <p>몇 초의 영상만으로 무엇을 하는 곳인지, 무엇을 파는지, 어떤 모습인지 보여줄 수 있습니다.</p></div></article>
+        <h3>설명보다 먼저,<br />보여주세요.</h3>
+        <div class="why-b"><p>매장의 분위기.&nbsp; 제품의 모습.&nbsp; 시술의 결과.</p>
+        <p>말보다 빠르게 보여주는 방법,<br />클립입니다.</p></div></article>
       <article class="why rv rv-d2"><span class="n">/03</span>
-        <h3>이미 찾고 있는<br />사람 앞에.</h3>
-        <div class="why-b"><p>무작정 노출하는 광고가 아닙니다.</p>
-        <p>고객이 특정 키워드를 검색하고, 관련 정보를 찾는 순간 클립이 그 과정에 들어갑니다.</p>
-        <p>관심이 생긴 뒤가 아니라, 찾기 시작한 순간부터 만나는 겁니다.</p></div></article>
+        <h3>같은 검색, 다른 위치.</h3>
+        <div class="why-b"><p>고객이 같은 키워드를 검색해도<br />모든 콘텐츠가 같은 위치에 노출되지는 않습니다.</p>
+        <p>먼저 보이는 것과<br />넘겨야 보이는 것의 차이.</p></div></article>
       <article class="why rv rv-d3"><span class="n">/04</span>
-        <h3>플레이스와 블로그,<br />그다음은 클립.</h3>
-        <div class="why-b"><p>이미 플레이스도, 블로그도 운영하고 있다면 클립은 새로운 노출 접점을 더하는 방법입니다.</p>
-        <p>고객이 어디에서 정보를 찾을지 모르니까, 만날 수 있는 곳을 하나 더 준비합니다.</p></div></article>
+        <h3>플레이스와 블로그,<br />그리고 클립.</h3>
+        <div class="why-b"><p>이미 플레이스와 블로그를 운영하고 있다면<br />클립이라는 새로운 검색 접점을 더하세요.</p>
+        <p>클립에는 장소·쇼핑 등의 정보 태그와<br />블로그 등 네이버 콘텐츠 링크도 연결할 수 있습니다.</p></div></article>
     </div>
 
     <div class="jrn rv rv-d2">
       <div class="jrn-t">Customer Journey</div>
       <div class="jrn-f">
-        <div class="jn"><b>01</b><span>고객이 검색</span></div>
-        <div class="jn hi"><b>02</b><span>클립 상위노출</span></div>
+        <div class="jn"><b>01</b><span>검색</span></div>
+        <div class="jn hi"><b>02</b><span>클립 노출</span></div>
         <div class="jn"><b>03</b><span>콘텐츠 발견</span></div>
-        <div class="jn"><b>04</b><span>업체 인지</span></div>
-        <div class="jn"><b>05</b><span>관심 · 탐색</span></div>
-        <div class="jn"><b>06</b><span>플레이스 · 문의 · 구매</span></div>
+        <div class="jn"><b>04</b><span>매장 인지</span></div>
+        <div class="jn"><b>05</b><span>탐색</span></div>
+        <div class="jn"><b>06</b><span>방문 · 문의 · 구매</span></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════ /02 네 자리 ═══════════ -->
-<section class="sec" id="seats" data-chap="1" data-rc="네 자리 안">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="snum"><b>/02</b> &nbsp;THE FOUR SEATS</span>
-      <h2 class="h-sec"><span class="wm"><span>검색하면</span></span><br /><span class="wm"><span>네</span></span> <span class="wm"><span>개까지</span></span> <span class="wm"><span>보입니다.</span></span></h2>
-      <p class="lead rv rv-d2">그 다음부터는 옆으로 넘겨야 나오는데, 그렇게까지 보는 사람은 많지 않습니다. 그래서 다섯 번째나 백 번째나 사실상 같습니다.</p>
-    </div>
-    <div class="slots">
-      <div class="slot ours brk brk-g rv"><span class="rk">01</span><span class="badge">실행연구소</span><span class="thumb"></span><span class="tag">#팔당맛집 #남양주팔당맛집 맛있…</span><span class="meta">10시간 전</span></div>
-      <div class="slot brk rv rv-d1"><span class="rk">02</span><span class="thumb"></span><span class="tag">#한상담다 #한정식맛집 #팔당맛…</span><span class="meta">1일 전</span></div>
-      <div class="slot brk rv rv-d2"><span class="rk">03</span><span class="thumb"></span><span class="tag">웨이팅했었음 #여름드라이브 #여…</span><span class="meta">12시간 전</span></div>
-      <div class="slot brk rv rv-d3"><span class="rk">04</span><span class="thumb"></span><span class="tag">#건강식단 #전통한식맛집 #한상…</span><span class="meta">2일 전</span></div>
-      <div class="slot-cut rv rv-d4">여기부터 안 보임</div>
-    </div>
-    <p class="slots-note rv rv-d4">2026년 9월 <b>‘팔당 맛집’</b> 을 검색해 실측한 클립 섹션입니다. 왼쪽 첫 번째가 저희가 올린 클립입니다.</p>
-  </div>
-</section>
-
 <!-- ═══════════ /02 실제 화면 — 커튼 flat [sobha] ═══════════ -->
-<div class="cur cur--flat" data-chap="2" data-rc="실제 화면">
+<div class="cur cur--flat cur--scenes" data-chap="1" data-rc="실제 화면" style="--dwell:240svh">
   <div class="cur__pinbox">
     <div class="cur__pin">
       <div class="pane light">
-        <div class="pane-in">
-          <div class="shot brk">
-            <img src="assets/refs/clip_top.webp" alt="네이버 통합검색 '팔당 맛집' 클립 섹션 1위 노출 실제 캡처" loading="lazy" />
-            <div class="cap"><span>실제 캡처 · 위치·계정 정보 가림</span><span>2026.09</span></div>
-          </div>
-          <div>
-            <span class="snum"><b>/03</b> &nbsp;ON SCREEN</span>
+        <div class="pane-in sc-wrap">
+          <div class="sc-head">
+            <span class="snum"><b>/02</b> &nbsp;ON SCREEN</span>
             <h2 class="h-sec" style="font-size:clamp(26px,3.6vw,46px)">화면으로<br />확인하기.</h2>
-            <div class="kv">
-              <div><span class="k">검색어</span><span class="v">팔당 맛집</span></div>
-              <div><span class="k">노출 위치</span><span class="v">통합검색 클립 섹션</span></div>
-              <div><span class="k">순위</span><span class="v hi">1위 / 4자리</span></div>
-              <div><span class="k">노출 보장</span><span class="v">25일 (주말 포함)</span></div>
-            </div>
           </div>
+          <figure class="sc-shot brk is-on" data-sc="0">
+            <img src="assets/refs/namyangju.webp" alt="네이버 통합검색 ‘남양주맛집’ 클립 섹션 1위 노출 실제 캡처" />
+            <figcaption class="cap"><span>실제 캡처 · 위치·계정 정보 가림</span><span>2026.09</span></figcaption>
+          </figure>
+          <div class="kv sc-kv is-on" data-sc="0">
+            <div><span class="k">검색어</span><span class="v">남양주맛집</span></div>
+            <div><span class="k">노출 위치</span><span class="v">통합검색 클립 섹션</span></div>
+            <div><span class="k">순위</span><span class="v hi">1위 / 4자리</span></div>
+            <div><span class="k">노출 보장</span><span class="v">25일 (주말 포함)</span></div>
+          </div>
+          <figure class="sc-shot brk" data-sc="1">
+            <img src="assets/refs/hongdae.webp" alt="네이버 클립 탭 ‘홍대피부과’ 1위 노출 실제 캡처" loading="lazy" />
+            <figcaption class="cap"><span>실제 캡처 · 위치·계정 정보 가림</span><span>2026.09</span></figcaption>
+          </figure>
+          <div class="kv sc-kv" data-sc="1">
+            <div><span class="k">검색어</span><span class="v">홍대피부과</span></div>
+            <div><span class="k">노출 위치</span><span class="v">클립 탭</span></div>
+            <div><span class="k">순위</span><span class="v hi">1위</span></div>
+            <div><span class="k">노출 보장</span><span class="v">25일 (주말 포함)</span></div>
+          </div>
+          <figure class="sc-shot brk" data-sc="2">
+            <img src="assets/refs/gundae.webp" alt="네이버 통합검색 ‘건대피부과’ 클립 섹션 4위 노출 실제 캡처" loading="lazy" />
+            <figcaption class="cap"><span>실제 캡처 · 위치·계정 정보 가림</span><span>2026.09</span></figcaption>
+          </figure>
+          <div class="kv sc-kv" data-sc="2">
+            <div><span class="k">검색어</span><span class="v">건대피부과</span></div>
+            <div><span class="k">노출 위치</span><span class="v">통합검색 클립 섹션</span></div>
+            <div><span class="k">순위</span><span class="v hi">4위 / 4자리</span></div>
+            <div><span class="k">노출 보장</span><span class="v">25일 (주말 포함)</span></div>
+          </div>
+          <figure class="sc-shot brk" data-sc="3">
+            <img src="assets/refs/namisum.webp" alt="네이버 클립 탭 ‘남이섬 맛집’ 2위 노출 실제 캡처" loading="lazy" />
+            <figcaption class="cap"><span>실제 캡처 · 위치·계정 정보 가림</span><span>2026.09</span></figcaption>
+          </figure>
+          <div class="kv sc-kv" data-sc="3">
+            <div><span class="k">검색어</span><span class="v">남이섬 맛집</span></div>
+            <div><span class="k">노출 위치</span><span class="v">클립 탭</span></div>
+            <div><span class="k">순위</span><span class="v hi">2위</span></div>
+            <div><span class="k">노출 보장</span><span class="v">25일 (주말 포함)</span></div>
+          </div>
+          <div class="sc-bar" aria-hidden="true"><span class="trk"><i id="scI"></i></span><span><span id="scN">01</span> / 04</span></div>
         </div>
       </div>
     </div>
@@ -863,7 +890,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 </div>
 
 <!-- ═══════════ /03 보장 — 커튼 diag [noomo] ═══════════ -->
-<div class="cur cur--diag" data-chap="3" data-rc="실행 조건">
+<div class="cur cur--diag" data-chap="2" data-rc="실행 조건">
   <div class="cur__pinbox">
     <div class="cur__pin">
       <div class="pane">
@@ -871,17 +898,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
           <div class="fig rv">
             <div class="n"><span data-count="4">4</span><small>위 이내</small></div>
             <div class="t">보장 순위</div>
-            <p class="d">통합검색에 클립 섹션이 있으면 그 안에서, 없는 키워드라면 클립 탭에서 4위 안에 넣어 드립니다.</p>
+            <p class="d">통합검색에 클립 섹션이 있는 키워드는 해당 섹션에서,<br />없는 키워드는 클립 탭에서 4위 이내 노출을 진행합니다.</p>
           </div>
           <div class="fig rv rv-d2">
             <div class="n"><span data-count="25">25</span><small>일</small></div>
             <div class="t">노출 기간</div>
-            <p class="d">주말까지 포함해서 25일이고, 월보장으로만 진행합니다.</p>
+            <p class="d">주말 포함, 25일 노출.<br />월보장으로만 진행합니다.</p>
           </div>
           <div class="fig rv rv-d4">
             <div class="n"><span data-count="0">0</span><small>원</small></div>
             <div class="t">선입금</div>
-            <p class="d">올라간 것을 직접 확인하신 다음에 입금하시면 됩니다.</p>
+            <p class="d">노출을 확인한 뒤 입금합니다.</p>
           </div>
         </div>
       </div>
@@ -892,15 +919,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 <div class="mq rev" aria-hidden="true"><div class="mq-t" id="mq2"></div></div>
 
 <!-- ═══════════ /04 프로세스 — 커튼 steps [runrobrun] ═══════════ -->
-<div class="cur cur--steps" data-chap="4" data-rc="다섯 단계">
+<div class="cur cur--steps" data-chap="3" data-rc="다섯 단계">
   <div class="cur__pinbox">
     <div class="cur__pin">
       <div class="pane light">
         <div class="pane-in" style="grid-template-columns:1fr;max-width:900px">
           <div>
-            <span class="snum rv"><b>/04</b> &nbsp;PROCESS</span>
-            <h2 class="h-sec"><span class="wm"><span>시작은</span></span> <span class="wm"><span>키워드.</span></span><br /><span class="wm"><span>끝은</span></span> <span class="wm"><span>입금.</span></span></h2>
-            <p class="lead rv rv-d3" style="margin-top:22px;max-width:56ch">키워드 하나만 보내주시면 됩니다. 가능한지부터 확인해서 알려드리고, 입금은 순위를 보신 다음에 하시면 됩니다.</p>
+            <span class="snum rv"><b>/03</b> &nbsp;PROCESS</span>
+            <h2 class="h-sec"><span class="wm"><span>키워드</span></span> <span class="wm"><span>하나만</span></span> <span class="wm"><span>보내주세요.</span></span></h2>
+            <p class="lead rv rv-d3" style="margin-top:22px;max-width:56ch">원하는 검색어를 보내주세요.<br />가능 여부를 확인하고 콘텐츠 준비부터 노출까지 진행합니다.</p>
           </div>
         </div>
       </div>
@@ -910,11 +937,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     <section class="sec light" style="padding-top:0">
       <div class="wrap">
         <div class="steps">
-          <article class="step rv"><span class="sn">/01</span><div><h3>키워드 전달.</h3><p>노출하고 싶은 검색어를 알려주시면 됩니다. ‘팔당 맛집’처럼 지역과 업종을 붙인 형태가 가장 좋고, 상품이면 ‘오메가3’처럼 제품 이름 그대로도 됩니다.</p></div><span class="who">고객</span></article>
-          <article class="step rv"><span class="sn">/02</span><div><h3>가능 여부 확인.</h3><p>그 키워드에 클립 섹션이 있는지, 경쟁이 어느 정도인지 보고 가능한지부터 답을 드립니다. 가능하면 견적도 같이 보내드립니다.</p></div><span class="who">실행연구소</span></article>
-          <article class="step rv"><span class="sn">/03</span><div><h3>콘텐츠 준비.</h3><p>가지고 계신 영상을 쓰셔도 되고, 없으시면 저희가 만들어 드립니다. 길이는 60초 안쪽을 권합니다. 올라가도 보여줄 게 약하면 고객은 그냥 넘기기 때문에, 무엇을 담을지부터 같이 정합니다.</p></div><span class="who">함께</span></article>
-          <article class="step rv"><span class="sn">/04</span><div><h3>업로드.</h3><p>업로드는 저희가 직접 합니다. 따로 하실 일은 없습니다.</p></div><span class="who">실행연구소</span></article>
-          <article class="step rv"><span class="sn">/05</span><div><h3>확인 후 입금.</h3><p>올라간 것을 확인하신 다음에 입금하시면 됩니다. 노출이 안 되면 입금도 없습니다.</p></div><span class="who">고객</span></article>
+          <article class="step rv"><span class="sn">/01</span><div><h3>키워드 전달.</h3><p>노출을 원하는 검색어를 보내주세요.<br />‘XX 맛집’, ‘XX 피부과’처럼.</p></div><span class="who">고객</span></article>
+          <article class="step rv"><span class="sn">/02</span><div><h3>가능 여부 확인.</h3><p>클립 섹션과 경쟁 상황을 확인합니다.<br />가능한 키워드와 견적을 안내합니다.</p></div><span class="who">실행연구소</span></article>
+          <article class="step rv"><span class="sn">/03</span><div><h3>콘텐츠 준비.</h3><p>기존 영상을 사용하거나<br />영상이 없다면 새로 제작합니다.</p></div><span class="who">함께</span></article>
+          <article class="step rv"><span class="sn">/04</span><div><h3>업로드.</h3><p>콘텐츠 업로드부터 노출 작업까지<br />실행연구소가 진행합니다.</p></div><span class="who">실행연구소</span></article>
+          <article class="step rv"><span class="sn">/05</span><div><h3>확인 후 진행합니다.</h3><p>직접 노출 여부를 확인하세요.<br />확인된 후 결제가 진행됩니다.</p></div><span class="who">고객</span></article>
         </div>
       </div>
     </section>
@@ -925,61 +952,39 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 <div class="seam-l" aria-hidden="true"><span>CLIP</span><em>Naver · Short-form</em></div>
 
 <!-- ═══════════ /05 조건 — 가로 스크롤 ═══════════ -->
-<section class="hz-wrap" id="spec" data-chap="5" data-rc="조건 다섯">
+<section class="hz-wrap" id="spec" data-chap="4" data-rc="조건 다섯">
   <div class="hz-stick">
     <div class="hz-head">
-      <span class="snum"><b>/05</b> &nbsp;SPEC</span>
+      <span class="snum"><b>/04</b> &nbsp;SPEC</span>
       <h2 class="h-sec" style="margin-top:10px;font-size:clamp(24px,3.6vw,44px)">조건은 이게 전부.</h2>
     </div>
     <div class="hz-track" id="hzTrack">
-      <article class="hzc brk"><span class="cn">/01</span><h3>영상 길이.</h3>
-        <p><b>60초 안쪽을 권장</b>합니다. 길어질수록 노출될 가능성이 떨어집니다.</p>
-        <div class="tagline"><span>60초 이내 권장</span><span>최대 90초</span></div></article>
+      <article class="hzc brk"><span class="cn">/01</span><h3>60초 이내.</h3>
+        <p>권장 길이 <b>60초</b>.<br />최대 90초.</p></article>
       <article class="hzc brk"><span class="cn">/02</span><h3>플레이스 연동.</h3>
-        <p>플레이스를 연결해 올리면 <b>사진 탭에도 함께</b> 보입니다. 검색에서 한 번 보고, 플레이스에서 또 한 번 보게 됩니다.</p>
-        <div class="tagline"><span>플레이스 사진 탭</span></div></article>
+        <p>플레이스 연결 시<br /><b>사진 탭에도 함께</b> 노출됩니다.</p></article>
       <article class="hzc brk"><span class="cn">/03</span><h3>재작업.</h3>
-        <p>노출이 안 되면 <b>같은 영상으로 다시 올려</b> 작업합니다. 추가로 받는 비용은 없습니다.</p>
-        <div class="tagline"><span>추가 비용 없음</span></div></article>
+        <p>매일 노출을 확인하고<br />미노출 시 <b>자동으로 재작업</b>을 진행합니다.</p></article>
       <article class="hzc brk"><span class="cn">/04</span><h3>영상 제작.</h3>
-        <p>영상이 없으셔도 괜찮습니다. 1분 이내 기준 <b>10만원부터</b> 만들어 드립니다.</p>
-        <div class="tagline"><span>1분 이내 10만원부터</span></div></article>
-      <article class="hzc brk"><span class="cn">/05</span><h3>눌렀을 때.</h3>
-        <p>클립을 누르면 영상이 재생됩니다. 영상에는 링크가 걸려서 <b>매장이면 플레이스로, 상품이면 구매 페이지로</b> 이어집니다.</p>
-        <div class="tagline"><span>플레이스 링크</span><span>구매 링크</span></div></article>
+        <p>영상이 없다면<br />1분 이내 영상 제작. <b>15만원부터</b>.</p></article>
+      <article class="hzc brk"><span class="cn">/05</span><h3>링크 연결.</h3>
+        <p>클립에서 <b>플레이스</b>로.<br />상품은 <b>구매 페이지</b>로.</p></article>
     </div>
     <div class="hz-bar"><span class="trk"><i id="hzI"></i></span><span><span id="hzN">01</span> / 05</span></div>
   </div>
 </section>
 
 <!-- ═══════════ /06 레퍼런스 — 점진 블러 이음매 [pryzm] ═══════════ -->
-<section class="sec light" id="refs" data-chap="6" data-rc="올려둔 작업들">
-  <div class="pblur" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="snum"><b>/06</b> &nbsp;REFERENCE</span>
-      <h2 class="h-sec"><span class="wm"><span>올려둔</span></span> <span class="wm"><span>작업들.</span></span></h2>
-      <p class="lead rv rv-d2">아래는 전부 실제 검색 화면입니다. 위치와 계정만 가렸고, 키워드와 순위는 손대지 않았습니다.</p>
-    </div>
-    <div class="refs">
-      <article class="ref rv" data-full="assets/refs/clip_top.webp" data-tip="View">
-        <div class="fr"><img data-src="assets/refs/clip_top.webp" alt="팔당 맛집 통합검색 클립 섹션 1위 노출 캡처" /></div>
-        <div class="rmeta"><em>요식업</em>팔당 맛집 · 1위</div>
-      </article>
-    </div>
-  </div>
-</section>
-
 <!-- ═══════════ FAQ — 커튼 chev + 명암 교차 [sobha] ═══════════ -->
-<div class="cur cur--chev" data-chap="7" data-rc="자주 묻는 것">
+<div class="cur cur--chev" data-chap="5" data-rc="자주 묻는 것">
   <div class="cur__pinbox">
     <div class="cur__pin">
       <div class="pane pane--n">
         <div class="pane-in" style="grid-template-columns:1fr;max-width:900px">
           <div>
-            <span class="snum rv"><b>/07</b> &nbsp;FAQ</span>
+            <span class="snum rv"><b>/05</b> &nbsp;FAQ</span>
             <h2 class="h-sec"><span class="wm"><span>많이</span></span> <span class="wm"><span>묻는</span></span> <span class="wm"><span>것.</span></span></h2>
-            <p class="lead rv rv-d3" style="margin-top:22px;max-width:52ch">여기 없는 건 물어보시면 됩니다. 키워드 확인은 따로 비용 받지 않습니다.</p>
+            <p class="lead rv rv-d3" style="margin-top:22px;max-width:52ch">궁금한 점은 편하게 물어보세요.<br />키워드 확인은 무료입니다.</p>
           </div>
         </div>
       </div>
@@ -994,17 +999,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
         </div>
         <div class="faq" id="faq">
           <div class="fitem"><button class="fq" type="button" aria-expanded="false"><span class="qn">01</span><span class="qt">순위는 어디를 기준으로 보나요?</span><span class="pm"></span></button>
-            <div class="fa"><div><div class="fa-in">4위 이내가 기준입니다. 통합검색에 클립 섹션이 있으면 그 안에서, 없는 키워드라면 클립 탭에서 4위 안에 잡습니다. 클립 섹션은 카드를 네 개까지만 보여주기 때문에, 두 경우 모두 옆으로 넘기지 않아도 보이는 자리를 뜻합니다.</div></div></div></div>
+            <div class="fa"><div><div class="fa-in">4위 이내가 기준입니다. 통합검색에 클립 섹션이 있으면 그 안에서, 없는 키워드라면 클립 탭에서 4위 안에 잡습니다. 클립 섹션은 카드를 네 개까지만 보여주기 때문에, 옆으로 넘기지 않아도 보이는 자리를 뜻합니다.</div></div></div></div>
           <div class="fitem"><button class="fq" type="button" aria-expanded="false"><span class="qn">02</span><span class="qt">영상은 몇 초까지 되나요?</span><span class="pm"></span></button>
             <div class="fa"><div><div class="fa-in">60초 안쪽을 권합니다. 최대 90초까지 작업할 수 있지만, 길어질수록 노출될 가능성이 떨어집니다.</div></div></div></div>
           <div class="fitem"><button class="fq" type="button" aria-expanded="false"><span class="qn">03</span><span class="qt">노출이 안 되면 어떻게 되나요?</span><span class="pm"></span></button>
-            <div class="fa"><div><div class="fa-in">같은 영상을 다시 올려 작업합니다. 추가 비용은 없습니다. 애초에 순위에 올라간 것을 확인하신 뒤에 입금하시는 구조입니다.</div></div></div></div>
+            <div class="fa"><div><div class="fa-in">재작업을 진행합니다. 추가 비용은 없습니다. 순위에 올라간 것을 확인하신 뒤에 입금하시는 구조입니다.</div></div></div></div>
           <div class="fitem"><button class="fq" type="button" aria-expanded="false"><span class="qn">04</span><span class="qt">영상이 없는데 진행할 수 있나요?</span><span class="pm"></span></button>
-            <div class="fa"><div><div class="fa-in">만들어 드립니다. 1분 이내 기준 10만원부터입니다.</div></div></div></div>
-          <div class="fitem"><button class="fq" type="button" aria-expanded="false"><span class="qn">05</span><span class="qt">비용은 얼마인가요?</span><span class="pm"></span></button>
+            <div class="fa"><div><div class="fa-in">제작도 가능합니다. 1분 이내 기준 15만원부터입니다.</div></div></div></div>
+          <div class="fitem"><button class="fq" type="button" aria-expanded="false"><span class="qn">05</span><span class="qt">영상 여러 개로도 되나요?</span><span class="pm"></span></button>
+            <div class="fa"><div><div class="fa-in">됩니다. 영상을 여러 개 주시면 돌아가며 올려 노출합니다.</div></div></div></div>
+          <div class="fitem"><button class="fq" type="button" aria-expanded="false"><span class="qn">06</span><span class="qt">비용은 얼마인가요?</span><span class="pm"></span></button>
             <div class="fa"><div><div class="fa-in">키워드마다 경쟁이 달라서 고정가로는 안내드리지 않습니다. 원하시는 키워드를 보내주시면 가능한지 먼저 확인하고 견적을 같이 보내드립니다.</div></div></div></div>
-          <div class="fitem"><button class="fq" type="button" aria-expanded="false"><span class="qn">06</span><span class="qt">상위에 올라가면 매출이 오르나요?</span><span class="pm"></span></button>
-            <div class="fa"><div><div class="fa-in">그렇게까지는 약속드리지 않습니다. 저희가 만드는 건 <b style="color:var(--green);font-weight:600">고객이 업체를 만나는 접점</b>입니다. 검색한 사람 눈에 먼저 닿게 하는 데까지가 저희 몫이고, 그 다음은 무엇을 보여주느냐에 달려 있습니다. 그래서 순위만 올리고 끝내지 않고 콘텐츠를 같이 봅니다.</div></div></div></div>
           <div class="fitem"><button class="fq" type="button" aria-expanded="false"><span class="qn">07</span><span class="qt">플레이스가 없는 상품도 되나요?</span><span class="pm"></span></button>
             <div class="fa"><div><div class="fa-in">됩니다. 비타민·오메가3처럼 지역이 붙지 않는 상품 키워드도 작업합니다. 클립을 누르면 영상이 재생되고, 상품이면 구매 페이지 링크가 함께 걸립니다.</div></div></div></div>
         </div>
@@ -1014,10 +1019,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 </div>
 
 <!-- ═══════════ 문의 폼 ═══════════ -->
-<section class="cta" id="contact" data-chap="8" data-rc="키워드 보내기">
+<section class="cta" id="contact" data-chap="6" data-rc="키워드 보내기">
   <div class="wrap cta-in">
     <div>
-      <span class="snum"><b>/08</b> &nbsp;START</span>
+      <span class="snum"><b>/06</b> &nbsp;START</span>
       <h2 class="h-sec"><span class="wm"><span>보내주실</span></span> <span class="wm"><span>건</span></span><br /><span class="wm"><span>키워드</span></span> <span class="wm"><span>하나.</span></span></h2>
       <p class="lead rv rv-d2" style="margin-top:20px">가능한 키워드인지부터 확인해 드립니다. 되면 견적을, 안 되면 왜 안 되는지를 보내드립니다.</p>
       <div class="cta-pts rv rv-d3">
@@ -1089,7 +1094,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   /* ── 마퀴 ──────────────────────────────────────────────────── */
   feat(function(){
     var A = ['통합검색','클립 탭','플레이스','네이버 홈','클립 추천','클립 인기'];
-    var B = ['60초 이내 권장','25일 · 주말 포함','플레이스 사진 탭','미노출 시 재작업','영상 제작 10만원부터','노출 확인 후 입금'];
+    var B = ['60초 이내 권장','25일 · 주말 포함','플레이스 사진 탭','미노출 시 재작업','영상 제작 15만원부터','노출 확인 후 입금'];
     function fill(id, arr){
       var el = document.getElementById(id); if(!el) return;
       var one = arr.map(function(w){ return '<span>'+w+'</span>'; }).join('');
@@ -1483,6 +1488,44 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     up();
   });
 
+  /* ── /02 ON SCREEN : 스크롤로 장면 넘기기 ──────────────────
+     리빌이 끝난 지점부터 data-dwell(svh) 만큼을 장면 수로 나눠 쓴다.
+     핀이 풀리는 모바일·모션최소화에서는 CSS 가 네 장면을 모두 펼치므로 손대지 않는다. */
+  feat(function(){
+    var cur = $('.cur--scenes'); if(!cur) return;
+    var box = $('.cur__pinbox', cur);
+    var shots = $$('.sc-shot', cur), kvs = $$('.sc-kv', cur);
+    var n = Math.min(shots.length, kvs.length); if(n < 2) return;
+    var barI = $('#scI'), barN = $('#scN');
+    var flat = function(){ return reduce || matchMedia('(max-width:760px)').matches; };
+    var at = -1;
+    function show(i){
+      if(i === at) return;
+      at = i;
+      for(var k=0;k<n;k++){
+        shots[k].classList.toggle('is-on', k===i);
+        kvs[k].classList.toggle('is-on', k===i);
+      }
+      if(barI) barI.style.transform = 'scaleX(' + ((i+1)/n) + ')';
+      if(barN) barN.textContent = '0' + (i+1);
+    }
+    function up(){
+      if(flat()) return;
+      var dw = (parseFloat(cur.style.getPropertyValue('--dwell')) || 0) * innerHeight / 100;
+      if(dw <= 0) return;
+      var top = cur.getBoundingClientRect().top;                 // 내려갈수록 음수
+      var revealEnd = -(box.offsetHeight - dw - innerHeight);    // 커튼이 다 열린 순간의 top
+      var p = (revealEnd - top) / dw;                            // 0 → 1
+      show(Math.max(0, Math.min(n-1, Math.floor(p * n))));
+    }
+    var t = false;
+    addEventListener('scroll', function(){
+      if(!t){ t = true; requestAnimationFrame(function(){ t = false; up(); }); }
+    }, {passive:true});
+    addEventListener('resize', up, {passive:true});
+    show(0); up();
+  });
+
   /* ── 커튼 완료 감지 ────────────────────────────────────────
      리빌이 끝나는 지점 = 컨테이너 top이 -(pinbox높이 - 뷰포트높이) 에 닿을 때.
      그때까지 핀 패널 내용을 숨겨두면 커튼은 빈 색면만 쓸고 지나간다. */
@@ -1495,7 +1538,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       t = false;
       for(var i=0;i<curs.length;i++){
         var c = curs[i], box = c.querySelector('.cur__pinbox'); if(!box) continue;
-        var done = c.getBoundingClientRect().top <= -(box.offsetHeight - innerHeight) + 4;
+        var dw = (parseFloat(c.style.getPropertyValue('--dwell')) || 0) * innerHeight / 100;   // 장면 넘기기용 추가 길이
+        var done = c.getBoundingClientRect().top <= -(box.offsetHeight - dw - innerHeight) + 4;
         if(done !== c.classList.contains('is-in')){
           c.classList.toggle('is-in', done);
           if(done) rollPlay(c);
@@ -1782,7 +1826,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   /* [2] 핵심어 하이라이트 스윕 */
   feat(function(){
     var els=[];
-    ['.hero-sub b','.slots-note b','.kv .v.hi'].forEach(function(s){ [].push.apply(els,$$(s)); });
+    ['.hero-sub b','.kv .v.hi'].forEach(function(s){ [].push.apply(els,$$(s)); });
     if(!els.length)return;
     els.forEach(function(el){ el.classList.add('fxhl'); });
     var io=new IntersectionObserver(function(es){
@@ -1858,7 +1902,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   /* [6] 여백 앰비언트 — 다크 콘텐츠 섹션에 은은한 드리프트 글로우 */
   feat(function(){
     if(RM)return;
-    [['#why','12%','-8%'],['#seats','8%','-6%']].forEach(function(cfg){
+    [['#why','12%','-8%']].forEach(function(cfg){
       var sec=$(cfg[0]); if(!sec)return;
       var amb=document.createElement('div'); amb.className='fx-amb';
       amb.style.width='min(58vw,720px)'; amb.style.aspectRatio='1';
