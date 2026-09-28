@@ -432,6 +432,12 @@
   .stat-card.done .kd{background:var(--green-3)}
   .dash-sec-title{font-size:13px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.02em;margin:26px 0 14px}
   .dash-sec-title:first-child{margin-top:0}
+  /* 클릭 가능한 카드(총 문의→사이트별 분해, 사이트 카드) */
+  .stat-card.as-btn{font:inherit;color:var(--ink);text-align:left;width:100%;cursor:pointer;-webkit-appearance:none;appearance:none}
+  .stat-card.as-btn .u{color:var(--green)}
+  .stat-card.as-btn:focus-visible{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-ring)}
+  .dash-sec-title .dash-back{font:inherit;font-size:12px;font-weight:700;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:100px;padding:4px 11px;margin-right:10px;cursor:pointer;text-transform:none;letter-spacing:0;vertical-align:middle}
+  .dash-sec-title .dash-back:hover{color:var(--ink);border-color:var(--line-2);background:var(--bg-3)}
 
   /* ---- 상담/문의 관리 ---- */
   .inq-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
@@ -1017,7 +1023,8 @@ var state = {
   inquiries: null,
   history: null,
   inqFilter: 'all',
-  siteFilter: '',   // '' = 실행연구소(전체) / 'place'|'godeok'|'clip' = 해당 사이트 문의만
+  siteFilter: '',   // '' = 전체 / 'silhaeng'|'place'|'godeok'|'clip' = 해당 사이트 문의만
+  dashDrill: false, // 전체 대시보드에서 '총 문의' → 사이트별 분해 보기
   dirty: { team:false, copy:false, refs:false, svc:false }
 };
 
@@ -1527,9 +1534,32 @@ function renderDash(){
       '<div class="v">' + val + '</div><div class="u">' + esc(unit) + '</div></div>';
   }
   var html = '';
+
+  // 전체 뷰에서 '총 문의' 드릴다운 → 사이트별 문의 수(같은 카드 디자인). 카드 클릭 시 그 사이트 뷰로.
+  if (state.siteFilter === '' && state.dashDrill) {
+    var order = ['silhaeng','place','godeok','clip'];
+    var all = state.inquiries || [];
+    html += '<div class="dash-sec-title"><button class="dash-back" type="button" data-dash-back>← 전체 현황</button>사이트별 문의</div><div class="stat-grid">';
+    order.forEach(function(src){
+      var n = all.filter(function(q){ return (q.source||'silhaeng')===src; }).length;
+      html += '<button class="stat-card as-btn" type="button" data-drill-site="' + src + '">' +
+        '<div class="k"><span class="kd"></span>' + esc(siteOf(src).label) + '</div>' +
+        '<div class="v">' + n + '</div><div class="u">건 · 열기 ›</div></button>';
+    });
+    html += '</div>';
+    $('#dashBody').innerHTML = html;
+    return;
+  }
+
   var secLabel = state.siteFilter ? ('상담 · 문의 · ' + siteOf(state.siteFilter).label) : '상담 · 문의 (전체 사이트)';
   html += '<div class="dash-sec-title">' + esc(secLabel) + '</div><div class="stat-grid">';
-  html += card('accent', '총 문의', inq.length, '건 누적');
+  if (state.siteFilter === '') {   // 전체: 총 문의 카드를 눌러 사이트별로 분해해 볼 수 있다
+    html += '<button class="stat-card accent as-btn" type="button" data-dash-total>' +
+      '<div class="k"><span class="kd"></span>총 문의</div><div class="v">' + inq.length + '</div>' +
+      '<div class="u">건 누적 · 사이트별 ›</div></button>';
+  } else {
+    html += card('accent', '총 문의', inq.length, '건 누적');
+  }
   html += card('', '오늘 문의', today, '건');
   html += card('warn', '대기중', pending, '건 처리 필요');
   html += card('done', '완료', done, '건');
@@ -2455,6 +2485,7 @@ var TAB_META = {
 function setSite(src){
   // src: 'all'(전체·통합) | 'silhaeng'(실행연구소·풀어드민) | 'place'|'godeok'|'clip'(개별 사이트 문의)
   state.siteFilter = (src === 'all') ? '' : src;
+  state.dashDrill = false;   // 사이트 전환 시 사이트별 분해 보기 해제
   var cur, sub;
   if (src === 'all'){ cur = '전체'; sub = '통합 대시보드'; }
   else if (src === 'silhaeng'){ cur = '실행연구소'; sub = '전체 어드민'; }
@@ -2484,6 +2515,14 @@ function setupSiteSwitch(){
     b.addEventListener('click', function(){ setSite(b.getAttribute('data-site')); close(); });
   });
   document.addEventListener('click', function(e){ if(!sw.contains(e.target)) close(); });
+  // 대시보드 상호작용: '총 문의' → 사이트별 분해 / 사이트 카드 → 그 사이트 뷰 / ← 전체 현황
+  var db = $('#dashBody');
+  if (db) db.addEventListener('click', function(e){
+    if (e.target.closest('[data-dash-total]')) { state.dashDrill = true; renderDash(); return; }
+    if (e.target.closest('[data-dash-back]'))  { state.dashDrill = false; renderDash(); return; }
+    var s = e.target.closest('[data-drill-site]');
+    if (s) { setSite(s.getAttribute('data-drill-site')); }
+  });
   setSite('all');   // 로그인 기본값: 전체(통합 대시보드)
 }
 
