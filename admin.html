@@ -567,10 +567,11 @@
     <div class="side-brand site-switch" id="siteSwitch">
       <span class="dot"></span>
       <button class="site-cur" id="siteCurBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
-        <span><span id="siteCurLabel">실행연구소</span><small id="siteCurSub">관리자 페이지</small></span>
+        <span><span id="siteCurLabel">전체</span><small id="siteCurSub">통합 대시보드</small></span>
         <svg class="caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div class="site-menu" id="siteMenu" role="listbox" hidden>
+        <button type="button" data-site="all" role="option">전체 <em>통합 대시보드</em></button>
         <button type="button" data-site="silhaeng" role="option">실행연구소 <em>전체 어드민</em></button>
         <button type="button" data-site="place" role="option">플레이스 <em>문의</em></button>
         <button type="button" data-site="godeok" role="option">고덕지도 <em>문의</em></button>
@@ -1533,7 +1534,7 @@ function renderDash(){
   html += card('warn', '대기중', pending, '건 처리 필요');
   html += card('done', '완료', done, '건');
   html += '</div>';
-  if (!state.siteFilter) {   // 사이트 콘텐츠는 실행연구소(전체) 컨텍스트에서만
+  if (state.siteFilter === 'silhaeng') {   // 사이트 콘텐츠 관리는 '실행연구소' 컨텍스트에서만
     html += '<div class="dash-sec-title">사이트 콘텐츠</div><div class="stat-grid">';
     html += card('', '팀원', state.team.length, '명');
     html += card('', '서비스', state.svc.length, '개 (노출 ' + svcLive + ' · 준비중 ' + (state.svc.length-svcLive) + ')');
@@ -2452,22 +2453,25 @@ var TAB_META = {
 };
 /* 사이트 전환(브랜드 드롭다운) — 실행연구소=전체 어드민, 사이트=그 출처 문의만 */
 function setSite(src){
-  if (src === 'silhaeng') src = '';
-  state.siteFilter = src;
-  var cur = src ? siteOf(src).label : '실행연구소';
-  var sub = src ? '문의 관리' : '관리자 페이지';
+  // src: 'all'(전체·통합) | 'silhaeng'(실행연구소·풀어드민) | 'place'|'godeok'|'clip'(개별 사이트 문의)
+  state.siteFilter = (src === 'all') ? '' : src;
+  var cur, sub;
+  if (src === 'all'){ cur = '전체'; sub = '통합 대시보드'; }
+  else if (src === 'silhaeng'){ cur = '실행연구소'; sub = '전체 어드민'; }
+  else { cur = siteOf(src).label; sub = '문의 관리'; }
   var lb = $('#siteCurLabel'), sb = $('#siteCurSub');
   if (lb) lb.textContent = cur;
   if (sb) sb.textContent = sub;
-  $all('#siteMenu button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-site')===(src||'silhaeng')); });
-  // 사이트 선택 시 실행연구소 전용 탭 숨김(대시보드·상담/문의만 노출)
-  var siteOnly = !!src;
+  $all('#siteMenu button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-site')===src); });
+  // 실행연구소 콘텐츠 관리 탭(담당자/멘트/레퍼런스/서비스/히스토리)은 '실행연구소'에서만.
+  // '전체'와 개별 사이트는 대시보드 + 상담/문의만 노출.
+  var showContent = (src === 'silhaeng');
   $all('[data-tab]').forEach(function(b){
     var t = b.getAttribute('data-tab');
-    var hide = siteOnly && (t==='team'||t==='copy'||t==='refs'||t==='svc'||t==='hist');
-    b.style.display = hide ? 'none' : '';
+    var isContent = (t==='team'||t==='copy'||t==='refs'||t==='svc'||t==='hist');
+    b.style.display = (isContent && !showContent) ? 'none' : '';
   });
-  switchTab(siteOnly ? 'inq' : 'dash');
+  switchTab('dash');   // 선택하면 항상 대시보드 먼저
   renderDash(); renderInq();
 }
 function setupSiteSwitch(){
@@ -2480,7 +2484,7 @@ function setupSiteSwitch(){
     b.addEventListener('click', function(){ setSite(b.getAttribute('data-site')); close(); });
   });
   document.addEventListener('click', function(e){ if(!sw.contains(e.target)) close(); });
-  setSite('silhaeng');
+  setSite('all');   // 로그인 기본값: 전체(통합 대시보드)
 }
 
 function switchTab(tab){
@@ -2518,11 +2522,7 @@ function bootRender(){
   setupSiteSwitch();
   $('#app').classList.add('show');
   $('#gate').classList.add('hide');
-  // 마지막 탭 복원(기본: 대시보드)
-  var last = 'dash';
-  try { last = sessionStorage.getItem('silhaeng_admin_tab') || 'dash'; } catch(e){}
-  if (!TAB_META[last]) last = 'dash';
-  switchTab(last);
+  // 로그인 기본값 = 전체(통합 대시보드). setupSiteSwitch()의 setSite('all')가 대시보드로 안착시킨다.
 }
 
 /* ---------------- 게이트(비밀번호) ---------------- */
