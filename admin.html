@@ -94,6 +94,20 @@
   .side-brand{display:flex;align-items:center;gap:9px;padding:6px 10px 22px;font-size:17px;font-weight:800;letter-spacing:-.02em}
   .side-brand .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
   .side-brand small{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+  /* 통합 문의 출처 뱃지 */
+  .src-chip{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;background:var(--green-dim);color:var(--green);vertical-align:middle;letter-spacing:0}
+  /* 사이트 전환 드롭다운(브랜드 위치) */
+  .site-switch{position:relative}
+  .site-cur{display:flex;align-items:center;gap:7px;width:100%;background:transparent;border:0;cursor:pointer;color:var(--ink);font:inherit;font-size:17px;font-weight:800;letter-spacing:-.02em;padding:0;text-align:left}
+  .site-cur small{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+  .site-cur .caret{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-left:auto;flex:0 0 auto;transition:transform .2s}
+  .site-switch.open .site-cur .caret{transform:rotate(180deg)}
+  .site-menu{position:absolute;left:0;top:calc(100% + 6px);z-index:40;min-width:210px;background:var(--bg-2,#12151b);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 18px 44px -20px rgba(0,0,0,.8)}
+  .site-menu[hidden]{display:none}
+  .site-menu button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:transparent;border:0;cursor:pointer;color:var(--ink);font:inherit;font-size:14px;font-weight:600;padding:9px 11px;border-radius:8px;text-align:left}
+  .site-menu button:hover{background:var(--bg-3)}
+  .site-menu button.on{background:var(--green-dim);color:var(--green)}
+  .site-menu button em{font-style:normal;font-size:11px;font-weight:600;color:var(--muted)}
   .nav-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;
     border:0;color:var(--muted);cursor:pointer;padding:12px 14px;border-radius:11px;font-size:14.5px;font-weight:600;
     transition:background-color .15s var(--ease),color .15s var(--ease),transform .15s var(--ease)}
@@ -550,9 +564,18 @@
 <div id="app">
   <!-- 사이드바 -->
   <aside class="side">
-    <div class="side-brand">
+    <div class="side-brand site-switch" id="siteSwitch">
       <span class="dot"></span>
-      <span>실행연구소<small>관리자 페이지</small></span>
+      <button class="site-cur" id="siteCurBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+        <span><span id="siteCurLabel">실행연구소</span><small id="siteCurSub">관리자 페이지</small></span>
+        <svg class="caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="site-menu" id="siteMenu" role="listbox" hidden>
+        <button type="button" data-site="silhaeng" role="option">실행연구소 <em>전체 어드민</em></button>
+        <button type="button" data-site="place" role="option">플레이스 <em>문의</em></button>
+        <button type="button" data-site="godeok" role="option">고덕지도 <em>문의</em></button>
+        <button type="button" data-site="clip" role="option">클립 <em>문의</em></button>
+      </div>
     </div>
     <button class="nav-item on" data-tab="dash">
       <span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>
@@ -993,8 +1016,18 @@ var state = {
   inquiries: null,
   history: null,
   inqFilter: 'all',
+  siteFilter: '',   // '' = 실행연구소(전체) / 'place'|'godeok'|'clip' = 해당 사이트 문의만
   dirty: { team:false, copy:false, refs:false, svc:false }
 };
+
+/* 통합 문의: 출처 사이트 정의(뱃지 라벨 + 해당 문의 폼 페이지 링크) */
+var SITES = {
+  silhaeng: { label: '실행연구소', url: 'https://실행연구소.com/#contact' },
+  place:    { label: '플레이스',   url: 'https://플레이스.실행연구소.com/#consult' },
+  godeok:   { label: '고덕지도',   url: 'https://고덕지도.실행연구소.com/#apply' },
+  clip:     { label: '클립',       url: 'https://클립.실행연구소.com/#apply' }
+};
+function siteOf(src){ return SITES[src] || SITES.silhaeng; }
 
 /* ---------------- 유틸 ---------------- */
 function $(sel, root){ return (root||document).querySelector(sel); }
@@ -1149,8 +1182,8 @@ function sbBootstrap(){
       var c={}; copy.forEach(function(r){ c[r.key]=r.value; }); SB_CACHE.copy = c;
     }
     if (inq) SB_CACHE.inq = inq.map(function(q){
-      return { id:q.id, name:q.name, phone:q.phone, email:q.email, message:q.message,
-               status:q.status, memo:q.memo, created:q.created_at };
+      return { id:q.id, source:q.source||'silhaeng', name:q.name, phone:q.phone, email:q.email, message:q.message,
+               status:q.status, memo:q.memo, created:q.created_at, created_at:q.created_at };
     });
     // 2) localStorage 사본은 '가능하면' 저장(레퍼는 용량초과로 스킵될 수 있음 — 캐시가 원본이라 무해)
     if (SB_CACHE.team) trySet(LS_KEYS.team, SB_CACHE.team);
@@ -1184,6 +1217,23 @@ function sbPush(key, value){
   return sbReplaceAll(t, rows).then(function(){ return true; }).catch(function(e){
     sbOnline=false; console.error('Supabase 저장 실패', e); return false;
   });
+}
+
+/* 문의 상태/메모를 DB에 즉시 반영(공유 어드민이라 로컬만으론 부족).
+   id가 uuid(DB 행)일 때만 의미 있고, 데모/로컬 시드 행은 매칭 없이 조용히 지나간다. */
+function sbPatchInquiry(id, fields){
+  if (!id) return Promise.resolve(false);
+  return fetch(SB_URL + '/rest/v1/inquiries?id=eq.' + encodeURIComponent(id), {
+    method:'PATCH', headers: sbHeaders({ 'Prefer':'return=minimal' }), body: JSON.stringify(fields)
+  }).then(function(r){ if(!r.ok) throw new Error('inq patch ' + r.status); sbOnline=true; return true; })
+    .catch(function(e){ sbOnline=false; console.warn('문의 상태 DB 반영 실패', e); return false; });
+}
+function sbDeleteInquiry(id){
+  if (!id) return Promise.resolve(false);
+  return fetch(SB_URL + '/rest/v1/inquiries?id=eq.' + encodeURIComponent(id), {
+    method:'DELETE', headers: sbHeaders()
+  }).then(function(r){ if(!r.ok) throw new Error('inq del ' + r.status); sbOnline=true; return true; })
+    .catch(function(e){ sbOnline=false; console.warn('문의 삭제 DB 반영 실패', e); return false; });
 }
 
 /* ---------------- 초기 데이터 로드 ---------------- */
@@ -1465,6 +1515,7 @@ function isToday(iso){
 }
 function renderDash(){
   var inq = state.inquiries || [];
+  if (state.siteFilter) inq = inq.filter(function(q){ return (q.source||'silhaeng')===state.siteFilter; });
   var pending = inq.filter(function(q){ return q.status==='pending'; }).length;
   var done    = inq.filter(function(q){ return q.status==='done'; }).length;
   var today   = inq.filter(function(q){ return isToday(q.created_at); }).length;
@@ -1475,18 +1526,21 @@ function renderDash(){
       '<div class="v">' + val + '</div><div class="u">' + esc(unit) + '</div></div>';
   }
   var html = '';
-  html += '<div class="dash-sec-title">상담 · 문의</div><div class="stat-grid">';
+  var secLabel = state.siteFilter ? ('상담 · 문의 · ' + siteOf(state.siteFilter).label) : '상담 · 문의 (전체 사이트)';
+  html += '<div class="dash-sec-title">' + esc(secLabel) + '</div><div class="stat-grid">';
   html += card('accent', '총 문의', inq.length, '건 누적');
   html += card('', '오늘 문의', today, '건');
   html += card('warn', '대기중', pending, '건 처리 필요');
   html += card('done', '완료', done, '건');
   html += '</div>';
-  html += '<div class="dash-sec-title">사이트 콘텐츠</div><div class="stat-grid">';
-  html += card('', '팀원', state.team.length, '명');
-  html += card('', '서비스', state.svc.length, '개 (노출 ' + svcLive + ' · 준비중 ' + (state.svc.length-svcLive) + ')');
-  html += card('', '레퍼런스', state.refs.length, '개 이미지');
-  html += card('', '변경 기록', (state.history||[]).length, '개 스냅샷');
-  html += '</div>';
+  if (!state.siteFilter) {   // 사이트 콘텐츠는 실행연구소(전체) 컨텍스트에서만
+    html += '<div class="dash-sec-title">사이트 콘텐츠</div><div class="stat-grid">';
+    html += card('', '팀원', state.team.length, '명');
+    html += card('', '서비스', state.svc.length, '개 (노출 ' + svcLive + ' · 준비중 ' + (state.svc.length-svcLive) + ')');
+    html += card('', '레퍼런스', state.refs.length, '개 이미지');
+    html += card('', '변경 기록', (state.history||[]).length, '개 스냅샷');
+    html += '</div>';
+  }
   $('#dashBody').innerHTML = html;
 }
 
@@ -1500,10 +1554,13 @@ function fmtDate(iso){
 }
 function renderInq(){
   var body = $('#inqBody');
-  var list = (state.inquiries||[]).slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
+  var base = (state.inquiries||[]).slice();
+  if (state.siteFilter) base = base.filter(function(q){ return (q.source||'silhaeng')===state.siteFilter; });
+  var list = base.slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
   var f = state.inqFilter;
   if (f !== 'all') list = list.filter(function(q){ return q.status===f; });
-  $('#inqCount').textContent = '표시 ' + list.length + '건 / 전체 ' + (state.inquiries||[]).length + '건';
+  $('#inqCount').textContent = '표시 ' + list.length + '건 / 전체 ' + base.length + '건' +
+    (state.siteFilter ? ' · ' + siteOf(state.siteFilter).label : '');
 
   if (!list.length){
     body.innerHTML = '<div class="empty"><span class="em-ic">📭</span>' +
@@ -1516,13 +1573,16 @@ function renderInq(){
     var badge = q.status==='done'
       ? '<span class="badge done"><span class="bd"></span>완료</span>'
       : '<span class="badge pending"><span class="bd"></span>대기중</span>';
+    var site = siteOf(q.source);
+    var chip = '<span class="src-chip">' + esc(site.label) + '</span>';
     html += '<div class="inq-row" data-id="' + esc(q.id) + '">' +
-      '<div class="nm">' + esc(q.name) + '<div class="date" style="font-weight:400;margin-top:2px">' + fmtDate(q.created_at) + '</div></div>' +
+      '<div class="nm">' + esc(q.name) + chip + '<div class="date" style="font-weight:400;margin-top:2px">' + fmtDate(q.created_at) + '</div></div>' +
       '<div class="sub" data-l="연락처">' + esc(q.phone||'-') + '</div>' +
       '<div class="sub" data-l="이메일">' + esc(q.email||'-') + '</div>' +
       '<div class="msg" data-l="내용">' + esc(q.message||'-') + '</div>' +
       '<div>' + badge + '</div>' +
       '<div class="inq-actions">' +
+        '<a class="icon-btn" href="' + esc(site.url) + '" target="_blank" rel="noopener" title="' + esc(site.label) + ' 문의 폼 열기"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg></a>' +
         '<button class="icon-btn" data-inq-view="' + esc(q.id) + '" title="상세 보기"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>' +
         '<button class="icon-btn" data-inq-toggle="' + esc(q.id) + '" title="상태 변경"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></button>' +
         '<button class="icon-btn danger" data-inq-del="' + esc(q.id) + '" title="삭제"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></button>' +
@@ -1538,9 +1598,11 @@ function openInqModal(id){
   var badge = q.status==='done'
     ? '<span class="badge done"><span class="bd"></span>완료</span>'
     : '<span class="badge pending"><span class="bd"></span>대기중</span>';
+  var site = siteOf(q.source);
   $('#inqModalBody').innerHTML =
-    '<h3>' + esc(q.name) + ' 님의 문의</h3><div style="margin-top:6px">' + badge + '</div>' +
+    '<h3>' + esc(q.name) + ' 님의 문의</h3><div style="margin-top:6px">' + badge + ' <span class="src-chip">' + esc(site.label) + '</span></div>' +
     '<dl class="kv">' +
+      '<dt>출처</dt><dd>' + esc(site.label) + ' · <a href="' + esc(site.url) + '" target="_blank" rel="noopener">문의 폼 열기 ↗</a></dd>' +
       '<dt>연락처</dt><dd>' + esc(q.phone||'-') + '</dd>' +
       '<dt>이메일</dt><dd>' + esc(q.email||'-') + '</dd>' +
       '<dt>관심상품</dt><dd>' + esc(q.interest||'-') + '</dd>' +
@@ -1561,14 +1623,14 @@ function toggleInquiry(id){
   var q = (state.inquiries||[]).filter(function(x){ return x.id===id; })[0];
   if (!q) return;
   q.status = (q.status==='done') ? 'pending' : 'done';
-  saveInquiries(); renderInq(); renderDash();
+  saveInquiries(); sbPatchInquiry(q.id, { status: q.status }); renderInq(); renderDash();
   toast(q.status==='done' ? '완료 처리했습니다.' : '대기중으로 변경했습니다.');
 }
 function deleteInquiry(id){
   var q = (state.inquiries||[]).filter(function(x){ return x.id===id; })[0];
   if (q && !confirm('‘' + (q.name||'이 문의') + '’ 문의를 삭제할까요?')) return;
   state.inquiries = (state.inquiries||[]).filter(function(x){ return x.id !== id; });
-  saveInquiries(); renderInq(); renderDash();
+  saveInquiries(); sbDeleteInquiry(id); renderInq(); renderDash();
   toast('문의를 삭제했습니다.');
 }
 
@@ -2388,6 +2450,39 @@ var TAB_META = {
   inq:  { title:'상담/문의 관리', desc:'접수된 상담 신청을 확인·처리합니다' },
   hist: { title:'변경 히스토리', desc:'저장 스냅샷 확인 및 되돌리기' }
 };
+/* 사이트 전환(브랜드 드롭다운) — 실행연구소=전체 어드민, 사이트=그 출처 문의만 */
+function setSite(src){
+  if (src === 'silhaeng') src = '';
+  state.siteFilter = src;
+  var cur = src ? siteOf(src).label : '실행연구소';
+  var sub = src ? '문의 관리' : '관리자 페이지';
+  var lb = $('#siteCurLabel'), sb = $('#siteCurSub');
+  if (lb) lb.textContent = cur;
+  if (sb) sb.textContent = sub;
+  $all('#siteMenu button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-site')===(src||'silhaeng')); });
+  // 사이트 선택 시 실행연구소 전용 탭 숨김(대시보드·상담/문의만 노출)
+  var siteOnly = !!src;
+  $all('[data-tab]').forEach(function(b){
+    var t = b.getAttribute('data-tab');
+    var hide = siteOnly && (t==='team'||t==='copy'||t==='refs'||t==='svc'||t==='hist');
+    b.style.display = hide ? 'none' : '';
+  });
+  switchTab(siteOnly ? 'inq' : 'dash');
+  renderDash(); renderInq();
+}
+function setupSiteSwitch(){
+  var sw = $('#siteSwitch'), btn = $('#siteCurBtn'), menu = $('#siteMenu');
+  if (!sw || !btn || !menu) return;
+  function close(){ sw.classList.remove('open'); menu.hidden = true; btn.setAttribute('aria-expanded','false'); }
+  function open(){ sw.classList.add('open'); menu.hidden = false; btn.setAttribute('aria-expanded','true'); }
+  btn.addEventListener('click', function(e){ e.stopPropagation(); if(menu.hidden) open(); else close(); });
+  $all('#siteMenu button').forEach(function(b){
+    b.addEventListener('click', function(){ setSite(b.getAttribute('data-site')); close(); });
+  });
+  document.addEventListener('click', function(e){ if(!sw.contains(e.target)) close(); });
+  setSite('silhaeng');
+}
+
 function switchTab(tab){
   if (!TAB_META[tab]) tab = 'dash';
   $all('[data-tab]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-tab')===tab); });
@@ -2420,6 +2515,7 @@ function bootRender(){
   renderDash();
   bindEvents();
   setupDnD();
+  setupSiteSwitch();
   $('#app').classList.add('show');
   $('#gate').classList.add('hide');
   // 마지막 탭 복원(기본: 대시보드)

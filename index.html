@@ -2652,7 +2652,7 @@
        (실패 시 재시도가 필요하면 나중에 로컬 큐를 붙이면 된다.) */
     (function(){
       var get=function(n){ var el=f.querySelector('[name="'+n+'"]'); return el?el.value.trim():''; };
-      var body={ name:get('name'), phone:get('phone'), email:get('email'), message:get('message') };
+      var body={ source:'silhaeng', name:get('name'), phone:get('phone'), email:get('email'), message:get('message') };
       try{
         fetch('https://mvrvmucsppinavwdstqe.supabase.co/rest/v1/inquiries',{
           method:'POST',
