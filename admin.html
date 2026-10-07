@@ -581,6 +581,7 @@
         <button type="button" data-site="place" role="option">플레이스 <em>문의</em></button>
         <button type="button" data-site="godeok" role="option">고덕지도 <em>문의</em></button>
         <button type="button" data-site="clip" role="option">클립 <em>문의</em></button>
+        <button type="button" data-site="studio" role="option">스튜디오 <em>문의</em></button>
       </div>
     </div>
     <button class="nav-item on" data-tab="dash">
@@ -1026,7 +1027,7 @@ var state = {
   inquiries: null,
   history: null,
   inqFilter: 'all',
-  siteFilter: '',   // '' = 전체 / 'silhaeng'|'place'|'godeok'|'clip' = 해당 사이트 문의만
+  siteFilter: '',   // '' = 전체 / 'silhaeng'|'place'|'godeok'|'clip'|'studio' = 해당 사이트 문의만
   dashDrill: false, // 전체 대시보드에서 '총 문의' → 사이트별 분해 보기
   dirty: { team:false, copy:false, refs:false, svc:false }
 };
@@ -1036,7 +1037,8 @@ var SITES = {
   silhaeng: { label: '실행연구소', url: 'https://실행연구소.com/#contact' },
   place:    { label: '플레이스',   url: 'https://플레이스.실행연구소.com/#consult' },
   godeok:   { label: '고덕지도',   url: 'https://고덕지도.실행연구소.com/#apply' },
-  clip:     { label: '클립',       url: 'https://클립.실행연구소.com/#apply' }
+  clip:     { label: '클립',       url: 'https://클립.실행연구소.com/#apply' },
+  studio:   { label: '스튜디오',   url: 'https://스튜디오.실행연구소.com/pricing.html#consult' }
 };
 function siteOf(src){ return SITES[src] || SITES.silhaeng; }
 
@@ -1567,7 +1569,7 @@ function renderDash(){
 
   // 전체 뷰에서 '총 문의' 드릴다운 → 사이트별 문의 수(같은 카드 디자인). 카드 클릭 시 그 사이트 뷰로.
   if (state.siteFilter === '' && state.dashDrill) {
-    var order = ['silhaeng','place','godeok','clip'];
+    var order = ['silhaeng','place','godeok','clip','studio'];
     var all = state.inquiries || [];
     html += '<div class="dash-sec-title"><button class="dash-back" type="button" data-dash-back>← 전체 현황</button>사이트별 문의</div><div class="stat-grid">';
     order.forEach(function(src){
