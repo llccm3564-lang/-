@@ -550,8 +550,7 @@
 
 <!-- ============================================================
      비밀번호 게이트
-     ⚠️ 클라이언트측 임시 인증. 실제 보안 아님.
-     TODO: Supabase Auth (supabase.auth.signInWithPassword)로 교체 예정.
+     Supabase Auth 로그인(관리자 이메일 고정, 비밀번호만 입력).
      ============================================================ -->
 <div id="gate">
   <div class="gate-card">
@@ -560,7 +559,7 @@
     <input id="gatePw" type="password" placeholder="비밀번호" autocomplete="current-password" />
     <button class="btn btn-primary" id="gateBtn">입장하기</button>
     <div class="gate-err" id="gateErr">비밀번호가 올바르지 않습니다.</div>
-    <div class="gate-hint">※ 현재는 데모용 클라이언트 인증입니다.<br>추후 Supabase Auth로 교체됩니다.</div>
+    <div class="gate-hint">8시간이 지나거나 탭을 닫으면 다시 로그인합니다.</div>
   </div>
 </div>
 
@@ -832,8 +831,12 @@
    ================================================================ */
 
 /* ---------------- 설정 ---------------- */
-var ADMIN_PW = 'silhaeng2026';           // TODO: Supabase Auth로 교체 (하드코딩 제거)
-var SS_AUTH  = 'silhaeng_admin_auth';    // 세션 인증 플래그 (sessionStorage)
+/* 로그인 = Supabase Auth(이메일+비밀번호). 비밀번호는 코드에 없다 — Supabase 에만 있다.
+   이 이메일 계정은 Supabase 대시보드 → Authentication → Users 에서 만든다.
+   DB 쓰기는 RLS 가 「이 이메일로 로그인한 토큰」만 허용한다(SQL: 클로드 코드/_보고/실행연구소_보안/rls.sql). */
+var ADMIN_EMAIL = 'admin@xn--2e0br59ap3af3foy0a.com';
+var SS_AUTH  = 'silhaeng_admin_auth';    // 세션(토큰) 보관 (sessionStorage — 탭 닫으면 사라짐)
+var SESSION_MAX_MS = 8 * 60 * 60 * 1000; // 로그인 후 8시간 지나면 다시 로그인
 var LS_KEYS  = {
   team: 'silhaeng_admin_team',
   copy: 'silhaeng_admin_copy',
@@ -1113,8 +1116,35 @@ var SB_KEY = 'sb_publishable_rF-qRS4oFo7i-n4d9dAkbg_0BXOaos0';
 var SB_TABLE = { team:'team_members', svc:'services', refs:'refs', copy:'copy', inq:'inquiries', hist:'history' };
 var sbOnline = false;   // 마지막 통신 성공 여부(대시보드 표시용)
 
+/* ---- 로그인 세션 ---- */
+function authGet(){ try { return JSON.parse(sessionStorage.getItem(SS_AUTH) || 'null'); } catch(e){ return null; } }
+function authSet(j){
+  var prev = authGet();
+  var a = { at: j.access_token, rt: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000,
+            since: (prev && prev.since) || Date.now() };
+  try { sessionStorage.setItem(SS_AUTH, JSON.stringify(a)); } catch(e){}
+  return a;
+}
+function authClear(){ try { sessionStorage.removeItem(SS_AUTH); } catch(e){} }
+function authToken(grant, body){
+  return fetch(SB_URL + '/auth/v1/token?grant_type=' + grant, {
+    method:'POST', headers:{ 'apikey': SB_KEY, 'Content-Type':'application/json' }, body: JSON.stringify(body)
+  }).then(function(r){ return r.json().then(function(j){ if(!r.ok || !j.access_token) throw new Error(j.error_description || j.msg || ('로그인 실패 ' + r.status)); return j; }); });
+}
+function authLogin(pw){ authClear(); return authToken('password', { email: ADMIN_EMAIL, password: pw }).then(authSet); }
+/* 토큰이 1분 안에 끝나면 미리 갱신. 세션 최대 시간이 지났으면 실패 처리 */
+function authEnsure(){
+  var a = authGet();
+  if (!a || !a.rt) return Promise.reject(new Error('no session'));
+  if (Date.now() - a.since > SESSION_MAX_MS){ authClear(); return Promise.reject(new Error('expired')); }
+  if (a.exp - Date.now() > 60000) return Promise.resolve(a);
+  return authToken('refresh_token', { refresh_token: a.rt }).then(authSet, function(e){ authClear(); throw e; });
+}
+setInterval(function(){ if (authGet()) authEnsure().catch(function(){ location.reload(); }); }, 5 * 60 * 1000);
+
 function sbHeaders(extra){
   var h = { 'apikey': SB_KEY, 'Content-Type': 'application/json' };
+  var a = authGet(); if (a && a.at) h['Authorization'] = 'Bearer ' + a.at;
   if (extra) for (var k in extra) h[k] = extra[k];
   return h;
 }
@@ -2565,26 +2595,37 @@ function bootRender(){
 }
 
 /* ---------------- 게이트(비밀번호) ---------------- */
+var _logging = false;
 function tryLogin(){
-  var pw = $('#gatePw').value;
-  if (pw === ADMIN_PW){
-    try { sessionStorage.setItem(SS_AUTH, '1'); } catch(e){}
+  if (_logging) return;
+  var pw = $('#gatePw').value, btn = $('#gateBtn'), label = btn.textContent;
+  if (!pw){ $('#gatePw').focus(); return; }
+  _logging = true; btn.disabled = true; btn.textContent = '확인 중…';
+  authLogin(pw).then(function(){
+    _logging = false; btn.disabled = false; btn.textContent = label;
+    $('#gatePw').value = '';
     boot();
-  } else {
+  }, function(){
+    _logging = false; btn.disabled = false; btn.textContent = label;
     $('#gateErr').classList.add('show');
     $('#gatePw').value = '';
     $('#gatePw').focus();
-  }
+  });
 }
 (function initGate(){
-  var authed = false;
-  try { authed = sessionStorage.getItem(SS_AUTH) === '1'; } catch(e){}
-  if (authed){ boot(); return; }
+  var a = authGet();
+  if (a && a.rt){
+    authEnsure().then(function(){ boot(); }, function(){ initGateUI(); });
+    return;
+  }
+  initGateUI();
+})();
+function initGateUI(){
   $('#gateBtn').addEventListener('click', tryLogin);
   $('#gatePw').addEventListener('keydown', function(e){ if (e.key==='Enter') tryLogin(); });
   $('#gatePw').addEventListener('input', function(){ $('#gateErr').classList.remove('show'); });
   $('#gatePw').focus();
-})();
+}
 </script>
 </body>
 </html>
